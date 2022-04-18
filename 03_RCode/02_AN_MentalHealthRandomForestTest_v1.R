@@ -11,6 +11,8 @@ library(doParallel)
 library(randomForest)
 library(tidyverse)
 library(DALEX)
+library(doSNOW)
+library(tcltk)
 
 load("01_PrivateData\\01_Dataset.RData")
 
@@ -127,6 +129,27 @@ data_48 <- left_join(data_48, GHQ12_count)
 data.rf.48.weighted <- randomForest(GHQ12 ~ ., data = data_48 %>% dplyr::select(-weights), 
                                     na.action = na.omit, weights = data_48$weights,
                                     ntree = 1000, importance = T, mtry = 16)
+
+# do SNOW
+cl <- makeSOCKcluster(4)
+registerDoSNOW(cl)
+
+ntasks <- 100
+pb <- tkProgressBar(max=ntasks)
+progress <- function(n) setTkProgressBar(pb, n)
+opts <- list(progress=progress)
+
+data_48_no_weights <- data_48 %>% dplyr::select(-weights)
+
+data.rf.48.weighted <- 
+  foreach(ntree = rep(10, ntasks), .combine = combine,
+          .multicombine=TRUE, .packages='randomForest',
+          .options.snow=opts) %dopar% {
+            randomForest(GHQ12 ~ .,  data_48_no_weights,
+                         na.action = na.omit, weights = data_48$weights,
+                         ntree = ntree, importance = T, mtry = 16)
+            }
+# do SNOW
 
 lm(GHQ12 ~ ., data = data_48) %>% summary()
 
