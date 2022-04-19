@@ -131,8 +131,9 @@ data.rf.48.weighted <- randomForest(GHQ12 ~ ., data = data_48 %>% dplyr::select(
                                     ntree = 1000, importance = T, mtry = 16)
 
 # do SNOW
-cl <- makeSOCKcluster(4)
+cl <- makeSOCKcluster(8)
 registerDoSNOW(cl)
+getDoParWorkers()
 
 ntasks <- 100
 pb <- tkProgressBar(max=ntasks)
