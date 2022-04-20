@@ -14,7 +14,7 @@ library(DALEX)
 library(doSNOW)
 library(tcltk)
 
-load("01_PrivateData\\01_Dataset.RData")
+load("01_PrivateData/01_Dataset.RData")
 
 data_t <- data %>%
   dplyr::select(over_LS, country, ind_income_usd, di_inc_gdp, weather, trust, trusted, social_class, income_group,
@@ -126,9 +126,9 @@ GHQ12_count$weights <- 1/(GHQ12_count$n/max(GHQ12_count$n))
 GHQ12_count <- GHQ12_count %>% dplyr::select(GHQ12, weights)
 data_48 <- left_join(data_48, GHQ12_count)
 
-data.rf.48.weighted <- randomForest(GHQ12 ~ ., data = data_48 %>% dplyr::select(-weights), 
-                                    na.action = na.omit, weights = data_48$weights,
-                                    ntree = 1000, importance = T, mtry = 16)
+#data.rf.48.weighted <- randomForest(GHQ12 ~ ., data = data_48 %>% dplyr::select(-weights), 
+#                                    na.action = na.omit, weights = data_48$weights,
+#                                    ntree = 1000, importance = T, mtry = 16)
 
 # do SNOW
 cl <- makeSOCKcluster(8)
@@ -149,7 +149,9 @@ data.rf.48.weighted <-
             randomForest(GHQ12 ~ .,  data_48_no_weights,
                          na.action = na.omit, weights = data_48$weights,
                          ntree = ntree, importance = T, mtry = 16)
-            }
+          }
+
+stopCluster(cl)
 # do SNOW
 
 lm(GHQ12 ~ ., data = data_48) %>% summary()
