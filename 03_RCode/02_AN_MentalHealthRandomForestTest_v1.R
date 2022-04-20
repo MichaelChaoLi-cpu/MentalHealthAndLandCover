@@ -7,7 +7,7 @@
 library(ggplot2)
 library(cowplot)
 library(foreach)
-library(doParallel)
+#library(doParallel)
 library(randomForest)
 library(tidyverse)
 library(DALEX)
@@ -143,7 +143,7 @@ opts <- list(progress=progress)
 data_48_no_weights <- data_48 %>% dplyr::select(-weights)
 
 data.rf.48.weighted <- 
-  foreach(ntree = rep(10, ntasks), .combine = combine,
+  foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
           .multicombine=TRUE, .packages='randomForest',
           .options.snow=opts) %dopar% {
             randomForest(GHQ12 ~ .,  data_48_no_weights,
