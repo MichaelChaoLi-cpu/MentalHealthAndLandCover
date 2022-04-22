@@ -79,7 +79,7 @@ data_48 <- data_48 %>%
 #here, we think the indiviudal income = 400% gdp per capita is very high
 
 # do SNOW
-cl <- makeSOCKcluster(14)
+cl <- makeSOCKcluster(12)
 registerDoSNOW(cl)
 getDoParWorkers()
 
@@ -92,7 +92,7 @@ data.rf.48.weighted <-
   foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
           .multicombine=TRUE, .packages='randomForest',
           .options.snow=opts) %dopar% {
-            randomForest(GHQ12 ~ .,  data_48_no_weights,
+            randomForest(GHQ12 ~ .,  data_48,
                          na.action = na.omit,
                          ntree = ntree, importance = T, mtry = 16)
           }
