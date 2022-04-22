@@ -73,8 +73,38 @@ data_48 <- data_t %>% dplyr::select(GHQ12, di_inc_gdp, social_class,student:unem
                                    income_group, female_dummy, age, sr_health, bachelor:phd,
                                    com_livable:com_satety, child_num, crop2015:bare2015) %>%
   na.omit()
-data.rf.48 <- randomForest(GHQ12 ~ ., data = data_48, na.action = na.omit, ntree = 1000, 
-                          importance = T, mtry = 16)
+### data correction
+data_48 <- data_48 %>%
+  mutate(di_inc_gdp = ifelse(di_inc_gdp > 3, 3, di_inc_gdp))
+#here, we think the indiviudal income = 400% gdp per capita is very high
+
+# do SNOW
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+ntasks <- 100
+pb <- tkProgressBar(max=ntasks)
+progress <- function(n) setTkProgressBar(pb, n)
+opts <- list(progress=progress)
+
+data.rf.48.weighted <- 
+  foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
+          .multicombine=TRUE, .packages='randomForest',
+          .options.snow=opts) %dopar% {
+            randomForest(GHQ12 ~ .,  data_48_no_weights,
+                         na.action = na.omit,
+                         ntree = ntree, importance = T, mtry = 16)
+          }
+
+stopCluster(cl)
+# do SNOW
+
+#data.rf.48 <- randomForest(GHQ12 ~ ., data = data_48, na.action = na.omit, ntree = 1000, 
+#                          importance = T, mtry = 16)
+
+save(data.rf.48, file = "04_Results/01_RFresult_48var.RData", version = 2)
+
 ### since the there is 48 predictors, we select 48/3 ~ 16
 plot(data.rf.48)
 importance(data.rf.48)
@@ -126,6 +156,12 @@ GHQ12_count <- data_48 %>% count(GHQ12)
 GHQ12_count$weights <- 1/(GHQ12_count$n/max(GHQ12_count$n))
 GHQ12_count <- GHQ12_count %>% dplyr::select(GHQ12, weights)
 data_48 <- left_join(data_48, GHQ12_count)
+
+### data correction
+data_48 <- data_48 %>%
+  mutate(di_inc_gdp = ifelse(di_inc_gdp > 3, 3, di_inc_gdp))
+#here, we think the indiviudal income = 400% gdp per capita is very high
+save(data_48, file = "02_Data/SP_Data_48Variable_Weights.RData", version = 2) 
 
 #data.rf.48.weighted <- randomForest(GHQ12 ~ ., data = data_48 %>% dplyr::select(-weights), 
 #                                    na.action = na.omit, weights = data_48$weights,
@@ -190,7 +226,7 @@ plot(model_profile_data.rf.48.weighted,
 plot(model_profile_data.rf.48.weighted, 
      variables = c("gras2015", "shru2015", "wetl2015","wate2015"))
 
-save(data.rf.48.weighted, file = "04_Results/01_RFresult_48var_weighted.RData")
+save(data.rf.48.weighted, file = "04_Results/01_RFresult_48var_weighted.RData", version = 2)
 
 #### pdp
 cl <- makeSOCKcluster(8)
