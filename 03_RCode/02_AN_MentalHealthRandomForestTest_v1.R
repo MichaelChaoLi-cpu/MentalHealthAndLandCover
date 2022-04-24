@@ -15,6 +15,8 @@ library(doSNOW)
 library(tcltk)
 library(pdp)
 
+set.seed(123)
+
 load("01_PrivateData/01_Dataset.RData")
 
 data_t <- data %>%
@@ -88,7 +90,7 @@ pb <- tkProgressBar(max=ntasks)
 progress <- function(n) setTkProgressBar(pb, n)
 opts <- list(progress=progress)
 
-data.rf.48.weighted <- 
+data.rf.48 <- 
   foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
           .multicombine=TRUE, .packages='randomForest',
           .options.snow=opts) %dopar% {
@@ -168,7 +170,7 @@ save(data_48, file = "02_Data/SP_Data_48Variable_Weights.RData", version = 2)
 #                                    ntree = 1000, importance = T, mtry = 16)
 
 # do SNOW
-cl <- makeSOCKcluster(8)
+cl <- makeSOCKcluster(14)
 registerDoSNOW(cl)
 getDoParWorkers()
 
@@ -199,8 +201,8 @@ print(data.rf.48.weighted)
 loss_root_mean_square(data_48$GHQ12, yhat(data.rf.48.weighted, data_48_no_weights))
 
 ### unified the model
-explainer_data.rf.48.weighted = explain(data.rf.48.weighted, 
-                                        data = data_48_no_weights, y = data_48_no_weights$GHQ12)
+explainer_data.rf.48.weighted = explain(data.rf.48.weighted, data = data_48_no_weights, 
+                                        y = data_48_no_weights$GHQ12)
 diag_data.rf.48.weighted <- model_diagnostics(explainer_data.rf.48.weighted)
 plot(diag_data.rf.48.weighted)
 plot(diag_data.rf.48.weighted, variable = "y", yvariable = "residuals")
@@ -225,18 +227,26 @@ plot(model_profile_data.rf.48.weighted,
      variables = c("crop2015", "fore2015", "bare2015","impe2015"))
 plot(model_profile_data.rf.48.weighted, 
      variables = c("gras2015", "shru2015", "wetl2015","wate2015"))
+plot(model_profile_data.rf.48.weighted, variables = "di_inc_gdp")
 
 save(data.rf.48.weighted, file = "04_Results/01_RFresult_48var_weighted.RData", version = 2)
 
 #### pdp
-cl <- makeSOCKcluster(8)
+cl <- makeSOCKcluster(14)
 registerDoSNOW(cl)
 getDoParWorkers()
 
 pdp.result.impe2015 <- partial(data.rf.48.weighted, pred.var = "impe2015",
-                               grid.resolution = nrow(data_48_no_weights),
+                               grid.resolution = 10000,
                                plot = F, rug = T, parallel = T,
                                paropts = list(.packages = "randomForest"))
+
+
+pdp.result.gras2015 <- partial(data.rf.48.weighted, pred.var = "gras2015",
+                               grid.resolution = 10000,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
 stopCluster(cl)
 
 
