@@ -237,18 +237,67 @@ registerDoSNOW(cl)
 getDoParWorkers()
 
 pdp.result.impe2015 <- partial(data.rf.48.weighted, pred.var = "impe2015",
-                               grid.resolution = 10000,
-                               plot = F, rug = T, parallel = T,
-                               paropts = list(.packages = "randomForest"))
-
-
-pdp.result.gras2015 <- partial(data.rf.48.weighted, pred.var = "gras2015",
-                               grid.resolution = 10000,
+                               grid.resolution = 5000,
                                plot = F, rug = T, parallel = T,
                                paropts = list(.packages = "randomForest"))
 
 stopCluster(cl)
+registerDoSNOW()
 
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.gras2015 <- partial(data.rf.48.weighted, pred.var = "gras2015",
+                               grid.resolution = 5000,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.di_inc <- partial(data.rf.48.weighted, pred.var = "di_inc_gdp",
+                               grid.resolution = 5000,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+
+### plot and validation
+plot(pdp.result.gras2015$gras2015, pdp.result.gras2015$yhat)
+
+pdp.result.gras2015$gras2015_2 <- pdp.result.gras2015$gras2015^2
+lm(yhat ~ gras2015 + gras2015_2, data = pdp.result.gras2015) %>% summary()
+lm.gras2015 <- lm(yhat ~ gras2015 + gras2015_2, data = pdp.result.gras2015)
+pdp.result.gras2015$yhat_pred <- predict(lm.gras2015, pdp.result.gras2015)
+ggplot(pdp.result.gras2015, aes(x = gras2015)) +
+  geom_point(aes(y = yhat, color = "yhat")) +
+  geom_point(aes(y = yhat_pred, color = "yhat_pred"))
+
+plot(pdp.result.di_inc$di_inc_gdp,pdp.result.di_inc$yhat)
+pdp.result.di_inc$di_inc_gdp_2 <- pdp.result.di_inc$di_inc_gdp^2
+pdp.result.di_inc$di_inc_gdp_3 <- pdp.result.di_inc$di_inc_gdp^3
+pdp.result.di_inc$di_inc_gdp_4 <- pdp.result.di_inc$di_inc_gdp^4
+pdp.result.di_inc$di_inc_gdp_5 <- pdp.result.di_inc$di_inc_gdp^5
+pdp.result.di_inc$di_inc_gdp_6 <- pdp.result.di_inc$di_inc_gdp^6
+
+lm(yhat ~ di_inc_gdp + di_inc_gdp_2 + di_inc_gdp_3 + di_inc_gdp_4 + di_inc_gdp_5,
+   data = pdp.result.di_inc) %>% summary()
+lm.di_inc <- lm(yhat ~ di_inc_gdp + di_inc_gdp_2 + di_inc_gdp_3 + di_inc_gdp_4 + di_inc_gdp_5,
+                data = pdp.result.di_inc)
+pdp.result.di_inc$yhat_pred <- predict(lm.di_inc, pdp.result.di_inc)
+ggplot(pdp.result.di_inc, aes(x = di_inc_gdp)) +
+  geom_point(aes(y = yhat, color = "yhat")) +
+  geom_point(aes(y = yhat_pred, color = "yhat_pred"))
+
+save(pdp.result.gras2015, pdp.result.di_inc, file = "04_Results/02_pdp_48weighted_5000.RData",
+     version = 2)
 
 lm(GHQ12 ~ ., data = data_48) %>% summary()
 
