@@ -248,6 +248,30 @@ cl <- makeSOCKcluster(14)
 registerDoSNOW(cl)
 getDoParWorkers()
 
+pdp.result.fore2015 <- partial(data.rf.48.weighted, pred.var = "fore2015",
+                               grid.resolution = 5000,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.crop2015 <- partial(data.rf.48.weighted, pred.var = "crop2015",
+                               grid.resolution = 5000,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
 pdp.result.gras2015 <- partial(data.rf.48.weighted, pred.var = "gras2015",
                                grid.resolution = 5000,
                                plot = F, rug = T, parallel = T,
@@ -280,6 +304,24 @@ ggplot(pdp.result.gras2015, aes(x = gras2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
   geom_point(aes(y = yhat_pred, color = "yhat_pred"))
 
+plot(pdp.result.impe2015$impe2015, pdp.result.impe2015$yhat)
+pdp.result.impe2015$impe2015_2 <- pdp.result.impe2015$impe2015^2
+pdp.result.impe2015$impe2015_3 <- pdp.result.impe2015$impe2015^3
+lm(yhat ~ ., data = pdp.result.impe2015) %>% summary()
+lm.impe2015 <- lm(yhat ~ ., data = pdp.result.impe2015)
+pdp.result.impe2015$yhat_pred <- predict(lm.impe2015, pdp.result.impe2015)
+ggplot(pdp.result.impe2015, aes(x = impe2015)) +
+  geom_point(aes(y = yhat, color = "yhat")) +
+  geom_point(aes(y = yhat_pred, color = "yhat_pred"))
+
+plot(pdp.result.fore2015$fore2015, pdp.result.fore2015$yhat)
+lm(yhat ~ fore2015, data = pdp.result.fore2015) %>% summary()
+lm.fore2015 <- lm(yhat ~ fore2015, data = pdp.result.fore2015)
+pdp.result.fore2015$yhat_pred <- predict(lm.fore2015, pdp.result.fore2015)
+ggplot(pdp.result.fore2015, aes(x = fore2015)) +
+  geom_point(aes(y = yhat, color = "yhat")) +
+  geom_point(aes(y = yhat_pred, color = "yhat_pred"))
+
 plot(pdp.result.di_inc$di_inc_gdp,pdp.result.di_inc$yhat)
 pdp.result.di_inc$di_inc_gdp_2 <- pdp.result.di_inc$di_inc_gdp^2
 pdp.result.di_inc$di_inc_gdp_3 <- pdp.result.di_inc$di_inc_gdp^3
@@ -296,7 +338,11 @@ ggplot(pdp.result.di_inc, aes(x = di_inc_gdp)) +
   geom_point(aes(y = yhat, color = "yhat")) +
   geom_point(aes(y = yhat_pred, color = "yhat_pred"))
 
-save(pdp.result.gras2015, pdp.result.di_inc, file = "04_Results/02_pdp_48weighted_5000.RData",
+
+
+save(pdp.result.gras2015, pdp.result.fore2015, pdp.result.impe2015,
+     pdp.result.di_inc, 
+     file = "04_Results/02_pdp_48weighted_5000.RData",
      version = 2)
 
 lm(GHQ12 ~ ., data = data_48) %>% summary()
