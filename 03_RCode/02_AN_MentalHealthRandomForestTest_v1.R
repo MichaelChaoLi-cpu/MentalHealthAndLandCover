@@ -320,6 +320,18 @@ cl <- makeSOCKcluster(14)
 registerDoSNOW(cl)
 getDoParWorkers()
 
+pdp.result.wate2015 <- partial(data.rf.48.weighted, pred.var = "wate2015",
+                               grid.resolution = 5000,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
 pdp.result.di_inc <- partial(data.rf.48.weighted, pred.var = "di_inc_gdp",
                                grid.resolution = 5000,
                                plot = F, rug = T, parallel = T,
@@ -341,6 +353,8 @@ plot(pdp.result.crop2015$crop2015, pdp.result.crop2015$yhat)
 plot(pdp.result.shru2015$shru2015, pdp.result.shru2015$yhat)
 
 plot(pdp.result.wetl2015$wetl2015, pdp.result.wetl2015$yhat)
+
+plot(pdp.result.bare2015$bare2015, pdp.result.bare2015$yhat)
 
 plot(pdp.result.di_inc$di_inc_gdp,pdp.result.di_inc$yhat)
 
