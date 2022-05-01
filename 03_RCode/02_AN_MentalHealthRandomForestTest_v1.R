@@ -356,14 +356,25 @@ plot(pdp.result.wetl2015$wetl2015, pdp.result.wetl2015$yhat)
 
 plot(pdp.result.bare2015$bare2015, pdp.result.bare2015$yhat)
 
+plot(pdp.result.wate2015$wate2015, pdp.result.wate2015$yhat)
+
 plot(pdp.result.di_inc$di_inc_gdp,pdp.result.di_inc$yhat)
 
 
 save(pdp.result.gras2015, pdp.result.fore2015, pdp.result.impe2015, pdp.result.crop2015,
-     pdp.result.shru2015, pdp.result.wetl2015,
+     pdp.result.shru2015, pdp.result.wetl2015, pdp.result.bare2015, pdp.result.wate2015,
      pdp.result.di_inc, 
      file = "04_Results/02_pdp_48weighted_5000.RData",
      version = 2)
+
+hist(data_48_no_weights$crop2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 20))
+hist(data_48_no_weights$fore2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 20))
+hist(data_48_no_weights$gras2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 20))
+hist(data_48_no_weights$shru2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 20)) # 0 - 40
+hist(data_48_no_weights$wetl2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 10), xlim = c(0, 5)) # 0 - 5 
+hist(data_48_no_weights$wate2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 20)) #0 - 60
+hist(data_48_no_weights$impe2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 20))
+hist(data_48_no_weights$bare2015, breaks = seq(0, 100, by = 0.05), ylim = c(0, 20)) #0 - 50
 
 lm(GHQ12 ~ ., data = data_48) %>% summary()
 
