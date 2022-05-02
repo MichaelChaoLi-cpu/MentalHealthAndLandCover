@@ -90,3 +90,62 @@ data.rf.47.weighted <-
 
 stopCluster(cl)
 # do SNOW
+plot(data.rf.47.weighted)
+importance(data.rf.47.weighted)
+varImpPlot(data.rf.47.weighted)
+print(data.rf.47.weighted)
+
+### calculate loss function
+loss_root_mean_square(data_47$GHQ12, yhat(data.rf.47.weighted, data_47_no_weights))
+
+### unified the model
+explainer_data.rf.47.weighted = explain(data.rf.47.weighted, data = data_47_no_weights, 
+                                        y = data_47_no_weights$GHQ12)
+diag_data.rf.47.weighted <- model_diagnostics(explainer_data.rf.47.weighted)
+plot(diag_data.rf.47.weighted)
+plot(diag_data.rf.47.weighted, variable = "y", yvariable = "residuals")
+hist(data_47$GHQ12, breaks = rep(0:36, 1))
+
+### model information
+model_info(data.rf.47.weighted)
+
+### Dataset Level Variable Importance as Change in Loss Function after Variable Permutations
+data.rf.47.weightedr_aps <- model_parts(explainer_data.rf.47.weighted, type = "raw")
+head(data.rf.47.weightedr_aps, 10)
+plot(data.rf.47.weightedr_aps)
+
+### model performance
+model_performance_data.rf.47.weighted <- model_performance(explainer_data.rf.47.weighted)
+model_performance_data.rf.47.weighted
+plot(model_performance_data.rf.47.weighted)
+
+### Dataset Level Variable Profile as Partial Dependence or Accumulated Local Dependence Explanations
+model_profile_data.rf.47.weighted <- model_profile(explainer_data.rf.47.weighted)
+plot(model_profile_data.rf.47.weighted, 
+     variables = c("crop2015", "fore2015", "bare2015","impe2015"))
+plot(model_profile_data.rf.47.weighted, 
+     variables = c("gras2015", "shru2015", "wetl2015","wate2015"))
+plot(model_profile_data.rf.47.weighted, variables = "di_inc_gdp")
+
+save(data.rf.47.weighted, file = "04_Results/01_RFresult_47var_weighted.RData", version = 2)
+
+#### pdp
+summary(data_47$impe2015)
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.impe2015 <- pdp::partial(data.rf.47.weighted, pred.var = "impe2015",
+                               grid.resolution = 5001,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+### plot and validation
+plot(pdp.result.impe2015$impe2015, pdp.result.impe2015$yhat)
+
+save(pdp.result.impe2015, 
+     file = "04_Results/04_pdp_47weighted_resolution002.RData",
+     version = 2)
