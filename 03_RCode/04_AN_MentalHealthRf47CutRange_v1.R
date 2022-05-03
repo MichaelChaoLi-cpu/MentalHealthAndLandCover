@@ -143,6 +143,20 @@ pdp.result.impe2015 <- pdp::partial(data.rf.47.weighted, pred.var = "impe2015",
 stopCluster(cl)
 registerDoSNOW()
 
+summary(data_47$fore2015)
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.fore2015 <- pdp::partial(data.rf.48.weighted, pred.var = "fore2015",
+                               grid.resolution = 5001,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+### pdp
+
 ### plot and validation
 plot(pdp.result.impe2015$impe2015, pdp.result.impe2015$yhat)
 
