@@ -148,8 +148,21 @@ cl <- makeSOCKcluster(14)
 registerDoSNOW(cl)
 getDoParWorkers()
 
-pdp.result.fore2015 <- pdp::partial(data.rf.48.weighted, pred.var = "fore2015",
+pdp.result.fore2015 <- pdp::partial(data.rf.47.weighted, pred.var = "fore2015",
                                grid.resolution = 5001,
+                               plot = F, rug = T, parallel = T,
+                               paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+summary(data_47$crop2015)
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.crop2015 <- pdp::partial(data.rf.47.weighted, pred.var = "crop2015",
+                               grid.resolution = 5000,
                                plot = F, rug = T, parallel = T,
                                paropts = list(.packages = "randomForest"))
 
@@ -160,6 +173,8 @@ registerDoSNOW()
 ### plot and validation
 plot(pdp.result.impe2015$impe2015, pdp.result.impe2015$yhat)
 
-save(pdp.result.impe2015, 
+plot(pdp.result.fore2015$fore2015, pdp.result.fore2015$yhat)
+
+save(pdp.result.impe2015, pdp.result.fore2015, 
      file = "04_Results/04_pdp_47weighted_resolution002.RData",
      version = 2)
