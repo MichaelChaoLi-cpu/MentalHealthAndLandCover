@@ -207,6 +207,32 @@ pdp.result.gras2015 <- pdp::partial(data.rf.47.weighted, pred.var = "gras2015",
 
 stopCluster(cl)
 registerDoSNOW()
+
+summary(data_47$shru2015)
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.shru2015 <- pdp::partial(data.rf.47.weighted, pred.var = "shru2015",
+                                    grid.resolution = 4001,
+                                    plot = F, rug = T, parallel = T,
+                                    paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
+
+summary(data_47$wate2015)
+cl <- makeSOCKcluster(14)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+pdp.result.wate2015 <- pdp::partial(data.rf.47.weighted, pred.var = "wate2015",
+                                    grid.resolution = 5001,
+                                    plot = F, rug = T, parallel = T,
+                                    paropts = list(.packages = "randomForest"))
+
+stopCluster(cl)
+registerDoSNOW()
 ### pdp
 
 ### plot and validation
@@ -220,7 +246,12 @@ plot(pdp.result.wetl2015$wetl2015, pdp.result.wetl2015$yhat)
 
 plot(pdp.result.bare2015$bare2015, pdp.result.bare2015$yhat)
 
+plot(pdp.result.gras2015$gras2015, pdp.result.gras2015$yhat)
+
+plot(pdp.result.shru2015$shru2015, pdp.result.shru2015$yhat)
+
 save(pdp.result.impe2015, pdp.result.fore2015, pdp.result.crop2015,
-     pdp.result.wetl2015, pdp.result.bare2015,
+     pdp.result.wetl2015, pdp.result.bare2015, pdp.result.gras2015,
+     pdp.result.shru2015,
      file = "04_Results/04_pdp_47weighted_resolution002.RData",
      version = 2)
