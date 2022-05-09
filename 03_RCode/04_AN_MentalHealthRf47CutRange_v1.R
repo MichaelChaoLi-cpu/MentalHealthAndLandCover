@@ -269,6 +269,6 @@ plot(pdp.result.di_inc$di_inc_gdp,pdp.result.di_inc$yhat)
 
 save(pdp.result.impe2015, pdp.result.fore2015, pdp.result.crop2015,
      pdp.result.wetl2015, pdp.result.bare2015, pdp.result.gras2015,
-     pdp.result.shru2015, pdp.result.wate2015,
+     pdp.result.shru2015, pdp.result.wate2015, pdp.result.di_inc,
      file = "04_Results/04_pdp_47weighted_resolution002.RData",
      version = 2)
