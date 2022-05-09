@@ -2,6 +2,8 @@
 
 # end
 
+library(dplyr)
+library(tidyverse)
 library(randomForest)
 library(plotrix)
 
@@ -286,26 +288,3 @@ save(pred.line.impe2015, pred.line.fore2015, pred.line.crop2015,
      file = "04_Results/04_pdp_refit_weights_rf47weighted.RData",
      version = 2)
 ##### check the prediction and best order with the weights
-
-#### Marginal Substitute Rate functions:
-land.MSR.estimation <- function(land_value, inc_value, input_land_model, 
-                                input_inc_model){
-  coeff_land <- input_land_model$coefficients
-  deriv_land <- coeff_land[2] %>% as.numeric()
-  loop_time <- 3
-  while(loop_time < (length(coeff_land) + 1) ){
-    if(!is.na(coeff_land[loop_time])) {
-      deriv_land <- deriv_land + (loop_time-1)*coeff_land[loop_time]*land_value^(loop_time-2)
-    }
-    loop_time <- loop_time + 1
-  }
-  coeff_inc <- input_inc_model$coefficients
-  deriv_inc <- coeff_inc[2] %>% as.numeric()
-  loop_time <- 3
-  while(loop_time < (length(coeff_inc) + 1) ){
-    if(!is.na(coeff_inc[loop_time])) {
-      deriv_inc <- deriv_inc + (loop_time-1)*coeff_inc[loop_time]*inc_value^(loop_time-2)
-    }
-    loop_time <- loop_time + 1
-  }
-}
