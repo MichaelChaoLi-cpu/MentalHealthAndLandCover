@@ -6,7 +6,7 @@ library(dplyr)
 library(tidyverse)
 library(ggplot2)
 
-load("04_Results/04_pdp_refit_weights_rf47weighted.RData")
+load("04_Results/03_pdp_refit_weights_rf47weighted.RData")
 load("04_Results/01_RFresult_47var_weighted.RData")
 
 #### Marginal Substitute Rate functions:
@@ -112,12 +112,6 @@ data_47_MSR$MSR_shru <- land.MSR.estimation(data_47_MSR$shru2015, data_47_MSR$di
 summary(data_47_MSR$MSR_shru)
 ggplot(data = data_47_MSR) + 
   geom_histogram(aes(x = MSR_shru), bins = 100) 
-
-data_47_MSR$MSR_wetl <- land.MSR.estimation(data_47_MSR$wetl2015, data_47_MSR$di_inc_gdp,
-                                            pred.line.wetl2015[[2]], pred.line.di_inc[[2]])
-summary(data_47_MSR$MSR_wetl)
-ggplot(data = data_47_MSR) + 
-  geom_histogram(aes(x = MSR_wetl), bins = 100) 
 
 data_47_MSR$MSR_wetl <- land.MSR.estimation(data_47_MSR$wetl2015, data_47_MSR$di_inc_gdp,
                                             pred.line.wetl2015[[2]], pred.line.di_inc[[2]])

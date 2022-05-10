@@ -212,7 +212,7 @@ result.di_inc <- findBestFitFunction(pdp.result.di_inc, 20, 0.99,
 #note: the linear should be similar to real line
 result.bare2015[[1]] 
 result.bare2015[[2]] 
-pred.line.bare2015 <- predictPDP(input_pdp = pdp.result.bare2015, decided_order = result.bare2015[[1]],
+pred.line.bare2015 <- predictPDP(input_pdp = pdp.result.bare2015, decided_order = 20, #result.bare2015[[1]] 
                                  weights_vector = log(getWeights(data_47, "bare2015", nrow(pdp.result.bare2015)) + exp(1)))
 ggplot(pred.line.bare2015[[1]], aes(x = bare2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -220,7 +220,7 @@ ggplot(pred.line.bare2015[[1]], aes(x = bare2015)) +
 
 result.crop2015[[1]] 
 result.crop2015[[2]] 
-pred.line.crop2015 <- predictPDP(pdp.result.crop2015, result.crop2015[[1]],
+pred.line.crop2015 <- predictPDP(pdp.result.crop2015, 20,
                                  log(getWeights(data_47, "crop2015", nrow(pdp.result.crop2015)) + exp(1)) )
 ggplot(pred.line.crop2015[[1]], aes(x = crop2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -228,7 +228,7 @@ ggplot(pred.line.crop2015[[1]], aes(x = crop2015)) +
 
 result.fore2015[[1]] 
 result.fore2015[[2]] 
-pred.line.fore2015 <- predictPDP(pdp.result.fore2015, result.fore2015[[1]] ,
+pred.line.fore2015 <- predictPDP(pdp.result.fore2015, 20 ,
                                  log(getWeights(data_47, "fore2015", nrow(pdp.result.fore2015)) + exp(1)) )
 ggplot(pred.line.fore2015[[1]], aes(x = fore2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -236,7 +236,7 @@ ggplot(pred.line.fore2015[[1]], aes(x = fore2015)) +
 
 result.gras2015[[1]] 
 result.gras2015[[2]] 
-pred.line.gras2015 <- predictPDP(pdp.result.gras2015, result.gras2015[[1]] ,
+pred.line.gras2015 <- predictPDP(pdp.result.gras2015, 20 ,
                                  log(getWeights(data_47, "gras2015",nrow(pdp.result.gras2015)) + exp(1)))
 ggplot(pred.line.gras2015[[1]], aes(x = gras2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -244,7 +244,7 @@ ggplot(pred.line.gras2015[[1]], aes(x = gras2015)) +
 
 result.impe2015[[1]] 
 result.impe2015[[2]] 
-pred.line.impe2015 <- predictPDP(pdp.result.impe2015, result.impe2015[[1]] ,
+pred.line.impe2015 <- predictPDP(pdp.result.impe2015, 20 ,
                                  log(getWeights(data_47, "impe2015",nrow(pdp.result.impe2015)) + exp(1)))
 ggplot(pred.line.impe2015[[1]], aes(x = impe2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -252,7 +252,7 @@ ggplot(pred.line.impe2015[[1]], aes(x = impe2015)) +
 
 result.shru2015[[1]] 
 result.shru2015[[2]] 
-pred.line.shru2015 <- predictPDP(pdp.result.shru2015, result.shru2015[[1]] ,
+pred.line.shru2015 <- predictPDP(pdp.result.shru2015, 20,
                                  log(getWeights(data_47, "shru2015",nrow(pdp.result.shru2015)) + exp(1)))
 ggplot(pred.line.shru2015[[1]], aes(x = shru2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -260,7 +260,7 @@ ggplot(pred.line.shru2015[[1]], aes(x = shru2015)) +
 
 result.wate2015[[1]] 
 result.wate2015[[2]] 
-pred.line.wate2015 <- predictPDP(pdp.result.wate2015, result.wate2015[[1]] ,
+pred.line.wate2015 <- predictPDP(pdp.result.wate2015, 20,
                                  log(getWeights(data_47, "wate2015",nrow(pdp.result.wate2015)) + exp(1)))
 ggplot(pred.line.wate2015[[1]], aes(x = wate2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -268,7 +268,7 @@ ggplot(pred.line.wate2015[[1]], aes(x = wate2015)) +
 
 result.wetl2015[[1]] 
 result.wetl2015[[2]] 
-pred.line.wetl2015 <- predictPDP(pdp.result.wetl2015, result.wetl2015[[1]] ,
+pred.line.wetl2015 <- predictPDP(pdp.result.wetl2015, 20,
                                  log(getWeights(data_47, "wetl2015",nrow(pdp.result.wetl2015)) + exp(1)))
 ggplot(pred.line.wetl2015[[1]], aes(x = wetl2015)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -276,7 +276,7 @@ ggplot(pred.line.wetl2015[[1]], aes(x = wetl2015)) +
 
 result.di_inc[[1]] 
 result.di_inc[[2]] 
-pred.line.di_inc <- predictPDP(pdp.result.di_inc, result.di_inc[[1]] ,
+pred.line.di_inc <- predictPDP(pdp.result.di_inc, 20 ,
                                log(getWeights(data_47, "di_inc_gdp",nrow(pdp.result.di_inc)) + exp(1)))
 ggplot(pred.line.di_inc[[1]], aes(x = di_inc_gdp)) +
   geom_point(aes(y = yhat, color = "yhat")) +
@@ -285,6 +285,6 @@ ggplot(pred.line.di_inc[[1]], aes(x = di_inc_gdp)) +
 save(pred.line.impe2015, pred.line.fore2015, pred.line.crop2015,
      pred.line.wetl2015, pred.line.bare2015, pred.line.gras2015,
      pred.line.shru2015, pred.line.wate2015, pred.line.di_inc,
-     file = "04_Results/04_pdp_refit_weights_rf47weighted.RData",
+     file = "04_Results/03_pdp_refit_weights_rf47weighted.RData",
      version = 2)
 ##### check the prediction and best order with the weights
