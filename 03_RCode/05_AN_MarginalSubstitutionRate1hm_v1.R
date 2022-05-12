@@ -7,7 +7,7 @@ library(tidyverse)
 library(ggplot2)
 
 load("04_Results/03_pdp_refit_weights_rf47weighted.RData")
-load("04_Results/01_RFresult_47var_weighted.RData")
+load("02_Data/SP_Data_47Variable_Weights_changeRangeOfLandCover.RData")
 
 #### Marginal Substitute Rate functions:
 land.MSR.estimation <- function(land_value, inc_value, input_land_model, 
