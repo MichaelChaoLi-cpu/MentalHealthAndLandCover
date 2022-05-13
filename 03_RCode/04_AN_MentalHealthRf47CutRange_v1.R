@@ -272,3 +272,11 @@ save(pdp.result.impe2015, pdp.result.fore2015, pdp.result.crop2015,
      pdp.result.shru2015, pdp.result.wate2015, pdp.result.di_inc,
      file = "04_Results/04_pdp_47weighted_resolution002.RData",
      version = 2)
+
+load("02_Data/SP_Data_47Variable_Weights_changeRangeOfLandCover.RData")
+data_47_no_weights <- data_47 %>% dplyr::select(-weights)
+
+tree.number.comfirmed <-
+  randomForest(GHQ12 ~ .,  data_47_no_weights,
+               na.action = na.omit, weights = data_47$weights,
+               ntree = ntree, importance = T, mtry = 16)
