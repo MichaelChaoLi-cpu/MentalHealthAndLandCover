@@ -75,7 +75,16 @@ f <- function(x, coef, b){
 
 calculate_root <- function(est_MH_inc, people_income, input_inc_model = input_inc_model){
   coef <- coefficients(input_inc_model)
-  root <- uniroot(f, c(people_income-0.05, people_income+0.05), coef = coef, b = est_MH_inc, tol = 0.0001)
+  bound <- 0.1
+  root <- try(uniroot(f, c(people_income - bound, people_income + bound),
+                      coef = coef, b = est_MH_inc, tol = 0.0001), silent = TRUE)
+  while((inherits(root, "try-error")&(bound!=0))){
+    bound <- bound - 0.005
+    root <- try(uniroot(f, c(people_income - bound, people_income + bound),
+                        coef = coef, b = est_MH_inc, tol = 0.0001), silent = TRUE)
+  } 
+  root <- uniroot(f, c(people_income - bound, people_income + bound),
+                      coef = coef, b = est_MH_inc, tol = 0.0001)
   return(root$root)
 }
 
