@@ -90,13 +90,13 @@ data.rf.47.weighted <-
           }
 
 stopCluster(cl)
-
+# do SNOW
 ols_compare <- lm(GHQ12 ~ ., data = data_47_no_weights, weights = data_47$weights) 
 ols_compare %>% summary()
 ols_compare %>% rmse()
 ols_compare$residuals^2 %>% mean() 
 ols_compare$residuals %>% abs() %>% mean()
-# do SNOW
+
 plot(data.rf.47.weighted)
 importance(data.rf.47.weighted)
 varImpPlot(data.rf.47.weighted)
@@ -137,6 +137,31 @@ plot(model_profile_data.rf.47.weighted,
 plot(model_profile_data.rf.47.weighted, variables = "di_inc_gdp")
 
 save(data.rf.47.weighted, file = "04_Results/01_RFresult_47var_weighted.RData", version = 2)
+
+# do SNOW use residuals 
+cl <- makeSOCKcluster(10)
+registerDoSNOW(cl)
+getDoParWorkers()
+
+ntasks <- 100
+pb <- tkProgressBar(max=ntasks)
+progress <- function(n) setTkProgressBar(pb, n)
+opts <- list(progress=progress)
+
+data_47_no_weights <- data_47 %>% dplyr::select(-weights)
+
+data.rf.47.residuals.weighted <- 
+  foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
+          .multicombine=TRUE, .packages='randomForest',
+          .options.snow=opts) %dopar% {
+            randomForest(GHQ12 ~ .,  data_47_no_weights,
+                         na.action = na.omit, weights = diag_data.rf.47.weighted$residuals,
+                         ntree = ntree, importance = T, mtry = 16)
+          }
+
+stopCluster(cl)
+# do SNOW
+
 
 #### pdp
 summary(data_47$impe2015)

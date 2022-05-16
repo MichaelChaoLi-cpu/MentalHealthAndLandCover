@@ -7,6 +7,31 @@ library(tidyverse)
 library(moments)
 library(ggplot2)
 library(grid)
+library(DALEX)
+library(randomForest)
+library("viridisLite")
+library("viridis") 
+library(grid)
+library(gridExtra)
+
+get_density <- function(x, y, ...) {
+    dens <- MASS::kde2d(x, y, ...)
+    ix <- findInterval(x, dens$x)
+    iy <- findInterval(y, dens$y)
+    ii <- cbind(ix, iy)
+    return(dens$z[ii])
+}
+
+getWeights <- function(input_data, aim_variable, division_num){
+    input_data <- input_data[, aim_variable]
+    half_step <- ((max(input_data) - min(input_data))/(division_num)/2)
+    wetl.weights <- hist(input_data,
+                         breaks = seq(min(input_data) - half_step, max(input_data) + half_step,
+                                      length = (division_num + 1)),
+                         plot = F)
+    wetl.weights <- wetl.weights$counts
+    return(wetl.weights)
+}
 
 load("02_Data/SP_Data_47Variable_Weights_changeRangeOfLandCover.RData")
 
@@ -50,4 +75,173 @@ grob <- grobTree(textGrob(paste0("Mean = ", Mean, "\nStd.dev = ", SD,"\nN = ", N
 jpeg(file="05_Figure\\descriptive_stat_income.jpeg", 
      width = 297, height = 210, units = "mm", quality = 300, res = 300)
 b
+dev.off()
+
+### residual
+load("04_Results/06_explainer_data.rf.47.weighted.RData")
+#explainer_data.rf.47.weighted$y
+#explainer_data.rf.47.weighted$residuals
+rf.y.yhat.resid <- cbind(explainer_data.rf.47.weighted$y, explainer_data.rf.47.weighted$y_hat,
+                         explainer_data.rf.47.weighted$residuals) %>% as.data.frame()
+colnames(rf.y.yhat.resid) <- c("y", "yhat", "residuals")
+rf.y.yhat.resid$y.yhat.Density <- get_density(rf.y.yhat.resid$y, rf.y.yhat.resid$yhat, n = 1000)
+grob.r2 <- grobTree(textGrob("R2 = 90.51%",
+                             x = 0.05,  y = 0.90, hjust = 0,
+                             gp = gpar(col = "black", fontsize = 12)))
+grob.rmse <- grobTree(textGrob("RMSE = 1.94",
+                               x = 0.05,  y = 0.87, hjust = 0,
+                               gp = gpar(col = "black", fontsize = 12)))
+grob.mse <- grobTree(textGrob("MSE = 3.77",
+                               x = 0.05,  y = 0.84, hjust = 0,
+                               gp = gpar(col = "black", fontsize = 12)))
+grob.mae <- grobTree(textGrob("MAE = 1.08",
+                              x = 0.05,  y = 0.81, hjust = 0,
+                              gp = gpar(col = "black", fontsize = 12)))
+grob.N <- grobTree(textGrob("N = 88730",
+                              x = 0.05,  y = 0.78, hjust = 0,
+                              gp = gpar(col = "black", fontsize = 12)))
+(plot.y.yhat <- ggplot(rf.y.yhat.resid) +
+    geom_point(aes(x = y, y = yhat, color = y.yhat.Density)) +
+    geom_smooth(aes(x = y, y = yhat), method = "lm") +
+    scale_color_viridis(name = "Density") + 
+    scale_x_continuous(name = "Measured Mental Health Score") +
+    scale_y_continuous(name = "Predicted Mental Health Score") +
+    geom_abline(intercept = 0, slope = 1, color="red", 
+                linetype = "dashed", size = 0.5) +
+    annotation_custom(grob.r2) + 
+    annotation_custom(grob.rmse) +
+    annotation_custom(grob.mse) +
+    annotation_custom(grob.mae) +
+    annotation_custom(grob.N) +
+    theme_bw())
+jpeg(file="05_Figure/y_yhat.jpeg", width = 210, height = 210, units = "mm", quality = 300, res = 300)
+plot.y.yhat
+dev.off()
+
+#### PDP
+load("04_Results/04_pdp_47weighted_resolution002.RData")
+load("02_Data/SP_Data_47Variable_Weights_changeRangeOfLandCover.RData")
+
+pdp.result.di_inc$weights <- getWeights(data_47, "di_inc_gdp",nrow(pdp.result.di_inc))
+pdp.result.di_inc <- pdp.result.di_inc %>% as.matrix() %>% as.data.frame()
+pdp.result.di_inc <- pdp.result.di_inc %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.di_inc <- ggplot(pdp.result.di_inc) +
+        geom_point(aes(x = di_inc_gdp, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "The Respondent's DIG") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw() +
+        annotate("text", x = -1, y = 24.375, label = 'bold("a")', parse = TRUE, size = 5)
+)
+
+pdp.result.bare2015$weights <- getWeights(data_47, "bare2015",nrow(pdp.result.bare2015))
+pdp.result.bare2015 <- pdp.result.bare2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.bare2015 <- pdp.result.bare2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.bare <- ggplot(pdp.result.bare2015) +
+    geom_point(aes(x = bare2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+    scale_color_viridis(name = "Counts", direction = -1) +
+    scale_x_continuous(name = "Bare Land in Respondent's Living Environment (%)") +
+    scale_y_continuous(name = "Predicted Mental Health Score") +
+    theme_bw() +
+    annotate("text", x = -0.5, y = 24.33, label = 'bold("b")', parse = TRUE, size = 5)
+    )
+
+pdp.result.crop2015$weights <- getWeights(data_47, "crop2015",nrow(pdp.result.crop2015))
+pdp.result.crop2015 <- pdp.result.crop2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.crop2015 <- pdp.result.crop2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.crop <- ggplot(pdp.result.crop2015) +
+        geom_point(aes(x = crop2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "Crop Land in Respondent's Living Environment (%)") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw() +
+        annotate("text", x = -0.5, y = 24.33, label = 'bold("c")', parse = TRUE, size = 5)
+)
+
+pdp.result.fore2015$weights <- getWeights(data_47, "fore2015",nrow(pdp.result.fore2015))
+pdp.result.fore2015 <- pdp.result.fore2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.fore2015 <- pdp.result.fore2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.fore <- ggplot(pdp.result.fore2015) +
+        geom_point(aes(x = fore2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "Forest Land in Respondent's Living Environment (%)") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw()) +
+    annotate("text", x = -0.5, y = 24.33, label = 'bold("d")', parse = TRUE, size = 5)
+)
+
+pdp.result.gras2015$weights <- getWeights(data_47, "gras2015",nrow(pdp.result.gras2015))
+pdp.result.gras2015 <- pdp.result.gras2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.gras2015 <- pdp.result.gras2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.gras <- ggplot(pdp.result.gras2015) +
+        geom_point(aes(x = gras2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "Grass Land in Respondent's Living Environment (%)") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw() +
+        annotate("text", x = -0.6, y = 24.5, label = 'bold("e")', parse = TRUE, size = 5)
+)
+
+pdp.result.impe2015$weights <- getWeights(data_47, "impe2015",nrow(pdp.result.impe2015))
+pdp.result.impe2015 <- pdp.result.impe2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.impe2015 <- pdp.result.impe2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.impe <- ggplot(pdp.result.impe2015) +
+        geom_point(aes(x = impe2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "Urban Land in Respondent's Living Environment (%)") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw() +
+        annotate("text", x = 100, y = 24.29, label = 'bold("f")', parse = TRUE, size = 5)
+)
+
+pdp.result.shru2015$weights <- getWeights(data_47, "shru2015",nrow(pdp.result.shru2015))
+pdp.result.shru2015 <- pdp.result.shru2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.shru2015 <- pdp.result.shru2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.shru <- ggplot(pdp.result.shru2015) +
+        geom_point(aes(x = shru2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "Shrub Land in Respondent's Living Environment (%)") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw() +
+        annotate("text", x = -0.6, y = 24.39, label = 'bold("g")', parse = TRUE, size = 5)
+)
+
+pdp.result.wate2015$weights <- getWeights(data_47, "wate2015",nrow(pdp.result.wate2015))
+pdp.result.wate2015 <- pdp.result.wate2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.wate2015 <- pdp.result.wate2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.wate <- ggplot(pdp.result.wate2015) +
+        geom_point(aes(x = wate2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "Water in Respondent's Living Environment (%)") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw() +
+        annotate("text", x = -0.6, y = 24.32, label = 'bold("i")', parse = TRUE, size = 5)
+)
+
+pdp.result.wetl2015$weights <- getWeights(data_47, "wetl2015",nrow(pdp.result.wetl2015))
+pdp.result.wetl2015 <- pdp.result.wetl2015 %>% as.matrix() %>% as.data.frame()
+pdp.result.wetl2015 <- pdp.result.wetl2015 %>%
+    mutate(weights = ifelse(weights > 100, 100, weights))
+(plot.wetl <- ggplot(pdp.result.wetl2015) +
+        geom_point(aes(x = wetl2015, y = yhat, color = weights), size = 1, alpha = 0.5) +
+        scale_color_viridis(name = "Counts", direction = -1) +
+        scale_x_continuous(name = "Wetland in Respondent's Living Environment (%)") +
+        scale_y_continuous(name = "Predicted Mental Health Score") +
+        theme_bw() +
+        annotate("text", x = -0, y = 24.52, label = 'bold("j")', parse = TRUE, size = 5)
+)
+
+jpeg(file="05_Figure/PDP.jpeg", width = 297, height = 210, units = "mm", quality = 300, res = 300)
+grid.arrange(plot.di_inc, plot.bare, plot.crop, 
+             plot.fore, plot.gras, plot.impe, 
+             plot.shru, plot.wate, plot.wetl, 
+             nrow = 3)
 dev.off()
