@@ -75,10 +75,10 @@ f <- function(x, coef, b){
 
 calculate_root <- function(est_MH_inc, people_income, input_inc_model = input_inc_model){
   coef <- coefficients(input_inc_model)
-  bound <- 0.1
+  bound <- 0.5
   root <- try(uniroot(f, c(people_income - bound, people_income + bound),
                       coef = coef, b = est_MH_inc, tol = 0.0001), silent = TRUE)
-  while((inherits(root, "try-error")&(bound!=0))){
+  while((inherits(root, "try-error")&(bound>0))){
     bound <- bound - 0.005
     root <- try(uniroot(f, c(people_income - bound, people_income + bound),
                         coef = coef, b = est_MH_inc, tol = 0.0001), silent = TRUE)
@@ -144,12 +144,12 @@ ggplot(data = data_47_MSR) +
 save(data_47_MSR, file = "04_Results/05_MSR_landcover.RData", version = 2)
 
 ### test log function with di_inc_gdp
-pdp.result.di_inc.test <- pdp.result.di_inc
-pdp.result.di_inc.test$yhat_exp <- exp(pdp.result.di_inc.test$yhat)
-coef <- coefficients(lm(yhat_exp ~ di_inc_gdp, data = pdp.result.di_inc.test))
-pdp.result.di_inc.test$yhat_pred <- log(pdp.result.di_inc.test$di_inc_gdp * as.numeric(coef[2]) +
-                                          as.numeric(coef[1]) )
-1 - sum((pdp.result.di_inc.test$yhat - pdp.result.di_inc.test$yhat_pred)^2)/
-  sum((pdp.result.di_inc.test$yhat - mean(pdp.result.di_inc.test$yhat) )^2)
+#pdp.result.di_inc.test <- pdp.result.di_inc
+#pdp.result.di_inc.test$yhat_exp <- exp(pdp.result.di_inc.test$yhat)
+#coef <- coefficients(lm(yhat_exp ~ di_inc_gdp, data = pdp.result.di_inc.test))
+#pdp.result.di_inc.test$yhat_pred <- log(pdp.result.di_inc.test$di_inc_gdp * as.numeric(coef[2]) +
+#                                          as.numeric(coef[1]) )
+#1 - sum((pdp.result.di_inc.test$yhat - pdp.result.di_inc.test$yhat_pred)^2)/
+#  sum((pdp.result.di_inc.test$yhat - mean(pdp.result.di_inc.test$yhat) )^2)
 #### fail!!!!
 

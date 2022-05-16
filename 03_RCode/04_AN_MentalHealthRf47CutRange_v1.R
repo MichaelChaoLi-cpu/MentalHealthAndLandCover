@@ -15,6 +15,7 @@ library(DALEX)
 library(doSNOW)
 library(tcltk)
 library(pdp)
+library(ModelMetrics)
 
 set.seed(123)
 
@@ -89,6 +90,12 @@ data.rf.47.weighted <-
           }
 
 stopCluster(cl)
+
+ols_compare <- lm(GHQ12 ~ ., data = data_47_no_weights, weights = data_47$weights) 
+ols_compare %>% summary()
+ols_compare %>% rmse()
+ols_compare$residuals^2 %>% mean() 
+ols_compare$residuals %>% abs() %>% mean()
 # do SNOW
 plot(data.rf.47.weighted)
 importance(data.rf.47.weighted)
@@ -104,7 +111,9 @@ explainer_data.rf.47.weighted = explain(data.rf.47.weighted, data = data_47_no_w
 diag_data.rf.47.weighted <- model_diagnostics(explainer_data.rf.47.weighted)
 plot(diag_data.rf.47.weighted)
 plot(diag_data.rf.47.weighted, variable = "y", yvariable = "residuals")
+plot(diag_data.rf.47.weighted, variable = "y", yvariable = "y_hat")
 hist(data_47$GHQ12, breaks = rep(0:36, 1))
+save(explainer_data.rf.47.weighted, file = "04_Results/06_explainer_data.rf.47.weighted.RData", version = 2)
 
 ### model information
 model_info(data.rf.47.weighted)
@@ -279,4 +288,4 @@ data_47_no_weights <- data_47 %>% dplyr::select(-weights)
 tree.number.comfirmed <-
   randomForest(GHQ12 ~ .,  data_47_no_weights,
                na.action = na.omit, weights = data_47$weights,
-               ntree = ntree, importance = T, mtry = 16)
+               ntree = 1000, importance = T, mtry = 16)
