@@ -138,30 +138,45 @@ plot(model_profile_data.rf.47.weighted, variables = "di_inc_gdp")
 
 save(data.rf.47.weighted, file = "04_Results/01_RFresult_47var_weighted.RData", version = 2)
 
-# do SNOW use residuals 
-cl <- makeSOCKcluster(10)
-registerDoSNOW(cl)
-getDoParWorkers()
-
-ntasks <- 100
-pb <- tkProgressBar(max=ntasks)
-progress <- function(n) setTkProgressBar(pb, n)
-opts <- list(progress=progress)
-
-data_47_no_weights <- data_47 %>% dplyr::select(-weights)
-
-data.rf.47.residuals.weighted <- 
-  foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
-          .multicombine=TRUE, .packages='randomForest',
-          .options.snow=opts) %dopar% {
-            randomForest(GHQ12 ~ .,  data_47_no_weights,
-                         na.action = na.omit, weights = diag_data.rf.47.weighted$residuals,
-                         ntree = ntree, importance = T, mtry = 16)
-          }
-
-stopCluster(cl)
-# do SNOW
-
+run <- F
+if(run){
+  # do SNOW use residuals as weight
+  cl <- makeSOCKcluster(10)
+  registerDoSNOW(cl)
+  getDoParWorkers()
+  
+  ntasks <- 100
+  pb <- tkProgressBar(max=ntasks)
+  progress <- function(n) setTkProgressBar(pb, n)
+  opts <- list(progress=progress)
+  
+  data_47_no_weights <- data_47 %>% dplyr::select(-weights)
+  
+  data.rf.47.residuals.weighted <- 
+    foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
+            .multicombine=TRUE, .packages='randomForest',
+            .options.snow=opts) %dopar% {
+              randomForest(GHQ12 ~ .,  data_47_no_weights,
+                           na.action = na.omit, weights = diag_data.rf.47.weighted$residuals,
+                           ntree = ntree, importance = T, mtry = 16)
+            }
+  
+  stopCluster(cl)
+  # do SNOW use residuals as weight
+  
+  ### calculate loss function use residuals as weight
+  loss_root_mean_square(data_47$GHQ12, yhat(data.rf.47.residuals.weighted, data_47_no_weights))
+  
+  ### unified the model use residuals as weight
+  explainer_data.rf.47.residuals.weighted = explain(data.rf.47.residuals.weighted, data = data_47_no_weights, 
+                                          y = data_47_no_weights$GHQ12)
+  diag_data.rf.47.residuals.weighted <- model_diagnostics(explainer_data.rf.47.residuals.weighted)
+  plot(diag_data.rf.47.residuals.weighted)
+  plot(diag_data.rf.47.residuals.weighted, variable = "y", yvariable = "residuals")
+  plot(diag_data.rf.47.residuals.weighted, variable = "y", yvariable = "y_hat")
+  ### unified the model use residuals as weight
+}
+####^^^^^^^^^^^^^^^^^^^^^^ does not work, abort!
 
 #### pdp
 summary(data_47$impe2015)

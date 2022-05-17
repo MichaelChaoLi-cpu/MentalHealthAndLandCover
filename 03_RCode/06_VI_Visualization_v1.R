@@ -158,7 +158,7 @@ pdp.result.crop2015 <- pdp.result.crop2015 %>%
         geom_point(aes(x = crop2015, y = yhat, color = weights), size = 1, alpha = 0.5,
                    show.legend = F) +
         scale_color_viridis(name = "Counts", direction = -1) +
-        scale_x_continuous(name = "Crop Land in Respondent's Living Environment (%)") +
+        scale_x_continuous(name = "Cropland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
         annotate("text", x = -0.5, y = 24.33, label = 'bold("c")', parse = TRUE, size = 5)
@@ -172,7 +172,7 @@ pdp.result.fore2015 <- pdp.result.fore2015 %>%
         geom_point(aes(x = fore2015, y = yhat, color = weights), size = 1, alpha = 0.5,
                    show.legend = F) +
         scale_color_viridis(name = "Counts", direction = -1) +
-        scale_x_continuous(name = "Forest Land in Respondent's Living Environment (%)") +
+        scale_x_continuous(name = "Forest in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
         annotate("text", x = 100, y = 24.26, label = 'bold("d")', parse = TRUE, size = 5)
@@ -186,7 +186,7 @@ pdp.result.gras2015 <- pdp.result.gras2015 %>%
         geom_point(aes(x = gras2015, y = yhat, color = weights), size = 1, alpha = 0.5,
                    show.legend = F) +
         scale_color_viridis(name = "Counts", direction = -1) +
-        scale_x_continuous(name = "Grass Land in Respondent's Living Environment (%)") +
+        scale_x_continuous(name = "Grassland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
         annotate("text", x = -0.6, y = 24.5, label = 'bold("e")', parse = TRUE, size = 5)
@@ -215,7 +215,7 @@ pdp.result.shru2015 <- pdp.result.shru2015 %>%
         geom_point(aes(x = shru2015, y = yhat, color = weights), size = 1, alpha = 0.5,
                    show.legend = F) +
         scale_color_viridis(name = "Counts", direction = -1) +
-        scale_x_continuous(name = "Shrub Land in Respondent's Living Environment (%)") +
+        scale_x_continuous(name = "Shrubland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
         annotate("text", x = -0.6, y = 24.39, label = 'bold("g")', parse = TRUE, size = 5)
@@ -304,7 +304,7 @@ pred.line.crop2015[[2]] %>% summary()
                                                        color = pred.line.crop2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
         scale_color_viridis(name = "Weights", direction = -1) +
-        scale_x_continuous(name = "Crop Land in Respondent's Living Environment (%)") +
+        scale_x_continuous(name = "Cropland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
         theme(legend.position = c(.25, .3),
@@ -340,7 +340,7 @@ pred.line.gras2015[[2]] %>% summary()
                                                        color = pred.line.gras2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
         scale_color_viridis(name = "Weights", direction = -1) +
-        scale_x_continuous(name = "Grass Land in Respondent's Living Environment (%)") +
+        scale_x_continuous(name = "Grassland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
         theme(legend.position = c(.85, .7),
@@ -376,7 +376,7 @@ pred.line.shru2015[[2]] %>% summary()
                                                        color = pred.line.shru2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
         scale_color_viridis(name = "Weights", direction = -1) +
-        scale_x_continuous(name = "Shrub Land in Respondent's Living Environment (%)") +
+        scale_x_continuous(name = "Shrubland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
         theme(legend.position = c(.25, .3),
@@ -428,3 +428,66 @@ grid.arrange(ppdf.di_inc, ppdf.bare, ppdf.crop,
              nrow = 3)
 dev.off()
 #### PPDF
+
+#### importance plot
+load("04_Results/06_explainer_data.rf.47.weighted.RData")
+data.rf.47.weightedr_aps <- model_parts(explainer_data.rf.47.weighted, type = "raw")
+test <- data.rf.47.weightedr_aps
+test <- test %>% 
+    mutate(
+        variable = ifelse(variable == "sadness_all", "Sadness", variable),
+        variable = ifelse(variable == "sr_health", "Self-reported Health", variable),
+        variable = ifelse(variable == "pleasure_all", "Pleasure", variable),
+        variable = ifelse(variable == "smile_all", "Smile", variable),
+        variable = ifelse(variable == "anxious", "Anxious", variable),
+        variable = ifelse(variable == "com_attach", "Community Attachment", variable),
+        variable = ifelse(variable == "age", "Age", variable),
+        variable = ifelse(variable == "enjoyment_all", "Enjoyment", variable),
+        variable = ifelse(variable == "di_inc_gdp", "DIG", variable),
+        variable = ifelse(variable == "anger_all", "Anger", variable),
+        variable = ifelse(variable == "com_satety", "Community Safety", variable),
+        variable = ifelse(variable == "income_group", "Income Group", variable),
+        variable = ifelse(variable == "gras2015", "Grassland (%)", variable),
+        variable = ifelse(variable == "social_class", "Social Class", variable),
+        variable = ifelse(variable == "calm", "Calm", variable),
+        variable = ifelse(variable == "fore2015", "Forest (%)", variable),
+        variable = ifelse(variable == "crop2015", "Cropland (%)", variable),
+        variable = ifelse(variable == "shru2015", "Shrubland (%)", variable),
+        variable = ifelse(variable == "wate2015", "Water (%)", variable),
+        variable = ifelse(variable == "impe2015", "Urban Land (%)", variable),
+        variable = ifelse(variable == "wetl2015", "Wetland (%)", variable),
+        variable = ifelse(variable == "bare2015", "Bare Land (%)", variable),
+        variable = ifelse(variable == "com_livable", "Community Livable", variable),
+        variable = ifelse(variable == "enthusiastic", "Enthusiastic", variable),
+        variable = ifelse(variable == "child_num", "Children", variable),
+        variable = ifelse(variable == "female_dummy", "Female", variable),
+        variable = ifelse(variable == "dependable", "Dependable", variable),
+        variable = ifelse(variable == "careless", "Careless", variable),
+        variable = ifelse(variable == "reserved", "Reserved", variable),
+        variable = ifelse(variable == "sympathetic", "Sympathetic", variable),
+        variable = ifelse(variable == "open_to_new_exp", "Open to New Experience", variable),
+        variable = ifelse(variable == "critical", "Critical", variable),
+        variable = ifelse(variable == "worker", "Worker", variable),
+        variable = ifelse(variable == "bachelor", "Bachelor", variable),
+        variable = ifelse(variable == "uncreative", "Uncreative", variable),
+        variable = ifelse(variable == "unemployed", "Unemployed", variable),
+        variable = ifelse(variable == "urban_cent", "Urban Center Dummy", variable),
+        variable = ifelse(variable == "master", "Master", variable),
+        variable = ifelse(variable == "urban_area", "Urban Area Dummy", variable),
+        variable = ifelse(variable == "housewife", "Housewife", variable),
+        variable = ifelse(variable == "self_employed", "Self-Employed", variable),
+        variable = ifelse(variable == "phd", "PhD", variable),
+        variable = ifelse(variable == "rural_area", "Rural Area Dummy", variable),
+        variable = ifelse(variable == "student", "Student", variable),
+        variable = ifelse(variable == "professional", "Professional Job", variable),
+        variable = ifelse(variable == "company_owner", "Company Owner", variable),
+        variable = ifelse(variable == "government_officer", "Government Officer", variable),
+        variable = ifelse(variable == "GHQ12", "Mental Health Score", variable)
+           )
+jpeg(file="05_Figure/importance.jpeg", width = 297, height = 210, units = "mm", quality = 300, res = 300)
+plot(test, bar_width = 4, subtitle = "Results of the Random Forest")
+dev.off()
+
+figure <- plot(test, bar_width = 4, subtitle = "Results of the Random Forest")
+figure$data %>% View()
+#### importance plot
