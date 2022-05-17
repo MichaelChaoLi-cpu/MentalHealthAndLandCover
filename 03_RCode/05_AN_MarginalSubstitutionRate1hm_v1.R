@@ -10,6 +10,29 @@ load("04_Results/03_pdp_refit_weights_rf47weighted.RData")
 load("02_Data/SP_Data_47Variable_Weights_changeRangeOfLandCover.RData")
 
 #### Marginal Substitute Rate functions:
+land.ME.estimation <- function(land_value, inc_value, input_land_model, 
+                                input_inc_model = pred.line.di_inc[[2]]){
+  hm2 <- 0.01273885
+  decided_order <- length(coefficients(input_land_model))
+  land_value <- land_value %>% as.data.frame()
+  x <- land_value
+  for (order in seq(1,decided_order)){
+    x[,paste0("order_", as.character(order))] <- land_value^order
+  }
+  x <- x[2:ncol(x)]
+  f_LA <- predict(input_land_model, x)
+  
+  land_value_hm <- (land_value+hm2) %>% as.data.frame()
+  x <- land_value_hm
+  for (order in seq(1,decided_order)){
+    x[,paste0("order_", as.character(order))] <- land_value_hm^order
+  }
+  x <- x[2:ncol(x)]
+  f_LA_delta <- predict(input_land_model, x)
+  ME <- f_LA_delta - f_LA
+  return(ME)
+}
+
 land.MSR.estimation <- function(land_value, inc_value, input_land_model, 
                                 input_inc_model = pred.line.di_inc[[2]]){
   hm2 <- 0.01273885
@@ -140,6 +163,29 @@ summary(data_47_MSR$MSR_impe)
 ggplot(data = data_47_MSR) + 
   geom_histogram(aes(x = MSR_impe), bins = 100) 
 
+data_47_MSR$ME_bare <- land.ME.estimation(data_47_MSR$bare2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.bare2015[[2]], pred.line.di_inc[[2]])
+
+data_47_MSR$ME_crop <- land.ME.estimation(data_47_MSR$crop2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.crop2015[[2]], pred.line.di_inc[[2]])
+
+data_47_MSR$ME_fore <- land.ME.estimation(data_47_MSR$fore2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.fore2015[[2]], pred.line.di_inc[[2]])
+
+data_47_MSR$ME_gras <- land.ME.estimation(data_47_MSR$gras2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.gras2015[[2]], pred.line.di_inc[[2]])
+
+data_47_MSR$ME_shru <- land.ME.estimation(data_47_MSR$shru2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.shru2015[[2]], pred.line.di_inc[[2]])
+
+data_47_MSR$ME_wetl <- land.ME.estimation(data_47_MSR$wetl2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.wetl2015[[2]], pred.line.di_inc[[2]])
+
+data_47_MSR$ME_wate <- land.ME.estimation(data_47_MSR$wate2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.wate2015[[2]], pred.line.di_inc[[2]])
+
+data_47_MSR$ME_impe <- land.ME.estimation(data_47_MSR$impe2015, data_47_MSR$di_inc_gdp,
+                                            pred.line.impe2015[[2]], pred.line.di_inc[[2]])
 
 save(data_47_MSR, file = "04_Results/05_MSR_landcover.RData", version = 2)
 

@@ -491,3 +491,49 @@ dev.off()
 figure <- plot(test, bar_width = 4, subtitle = "Results of the Random Forest")
 figure$data %>% View()
 #### importance plot
+
+load("04_Results/05_MSR_landcover.RData")
+data_47_MSR.plot <- data_47_MSR
+
+data_47_MSR.plot <- data_47_MSR.plot %>%
+    mutate(
+        MSR_bare = ifelse(ME_bare > 0, MSR_bare, MSR_bare*-1),
+        MSR_crop = ifelse(ME_crop > 0, MSR_crop, MSR_crop*-1),
+        MSR_fore = ifelse(ME_fore > 0, MSR_fore, MSR_fore*-1),
+        MSR_gras = ifelse(ME_gras > 0, MSR_gras, MSR_gras*-1),
+        MSR_shru = ifelse(ME_shru > 0, MSR_shru, MSR_shru*-1),
+        MSR_wetl = ifelse(ME_wetl > 0, MSR_wetl, MSR_wetl*-1),
+        MSR_wate = ifelse(ME_wate > 0, MSR_wate, MSR_wate*-1),
+        MSR_impe = ifelse(ME_impe > 0, MSR_impe, MSR_impe*-1)
+           )
+data_47_MSR.plot <- data_47_MSR.plot[,50:57]
+data_47_MSR.plot$MSR_wetl <- data_47_MSR.plot$MSR_wetl/20
+#### squeeze 20 times
+mean.value <- colMeans(data_47_MSR.plot, na.rm = T) * 100
+mean.se <- sapply(data_47_MSR.plot,function(x)sd(x, na.rm = T)/sqrt(length(na.omit(x)))) * 100
+land.names <- c("Bare Land", "Cropland", "Forest", "Grassland", "Shrubland", "Wetland",
+                "Water", "Urban Land") 
+plot.df.err <- cbind(mean.value, mean.se) %>% as.data.frame()
+plot.df.err$land.names <- land.names 
+(MSR <- 
+    ggplot(plot.df.err, aes(x = land.names, y = mean.value, color = land.names)) + 
+    geom_point(size = 3) +
+    geom_errorbar(aes(ymin = mean.value - 1.96 * mean.se, ymax = mean.value + 1.96 * mean.se,
+                      color = land.names), width=.2, position=position_dodge(0.05))+
+    scale_y_continuous(name = "Monetary Value of One Hectare Increase in A Certain Land Type") +
+    scale_x_discrete(name = "Land Type") +
+    scale_color_discrete(name = NULL) +
+    theme_bw() +
+    theme(legend.position = c(.93, .25),
+          legend.key.size = unit(0.8, 'cm'),
+          axis.text=element_text(size=12),
+          axis.title=element_text(size=14,face="bold")) +
+    annotate("text", x = 6.34, y = -0.375, 
+             label = 'bold("Note: The monetary value of wetland is reduced by a factor of 20.")', 
+             parse = TRUE, size = 5)
+)
+jpeg(file="05_Figure/MSR.jpeg", width = 297, height = 210, units = "mm", quality = 300, res = 300)
+MSR
+dev.off()
+plot.df.err$lower.ci <- mean.value - 1.96 * mean.se
+plot.df.err$upper.ci <- mean.value + 1.96 * mean.se
