@@ -267,7 +267,7 @@ pred.line.di_inc[[2]] %>% summary()
     geom_point(data = pred.line.di_inc[[1]], aes(x = di_inc_gdp, y = yhat_pred, 
                                                  color = pred.line.di_inc[[2]]$weights),
                size = 1, alpha = 0.8, show.legend = T) +
-    scale_color_viridis(name = "Weights", direction = -1) +
+    scale_color_viridis(name = "Weights", direction = -1, option = "C") +
     scale_x_continuous(name = "The Respondent's DIG") +
     scale_y_continuous(name = "Predicted Mental Health Score") +
     theme_bw() +
@@ -285,7 +285,7 @@ pred.line.bare2015[[2]] %>% summary()
     geom_point(data = pred.line.bare2015[[1]], aes(x = bare2015, y = yhat_pred, 
                                                    color = pred.line.bare2015[[2]]$weights),
                size = 1, alpha = 0.8, show.legend = T) +
-    scale_color_viridis(name = "Weights", direction = -1) +
+    scale_color_viridis(name = "Weights", direction = -1, option = "C") +
     scale_x_continuous(name = "Bare Land in Respondent's Living Environment (%)") +
     scale_y_continuous(name = "Predicted Mental Health Score") +
     theme_bw() +
@@ -303,7 +303,7 @@ pred.line.crop2015[[2]] %>% summary()
         geom_point(data = pred.line.crop2015[[1]], aes(x = crop2015, y = yhat_pred, 
                                                        color = pred.line.crop2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
-        scale_color_viridis(name = "Weights", direction = -1) +
+        scale_color_viridis(name = "Weights", direction = -1, option = "C") +
         scale_x_continuous(name = "Cropland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
@@ -321,7 +321,7 @@ pred.line.fore2015[[2]] %>% summary()
         geom_point(data = pred.line.fore2015[[1]], aes(x = fore2015, y = yhat_pred, 
                                                        color = pred.line.fore2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
-        scale_color_viridis(name = "Weights", direction = -1) +
+        scale_color_viridis(name = "Weights", direction = -1, option = "C") +
         scale_x_continuous(name = "Forest in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
@@ -339,7 +339,7 @@ pred.line.gras2015[[2]] %>% summary()
         geom_point(data = pred.line.gras2015[[1]], aes(x = gras2015, y = yhat_pred, 
                                                        color = pred.line.gras2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
-        scale_color_viridis(name = "Weights", direction = -1) +
+        scale_color_viridis(name = "Weights", direction = -1, option = "C") +
         scale_x_continuous(name = "Grassland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
@@ -357,7 +357,7 @@ pred.line.impe2015[[2]] %>% summary()
         geom_point(data = pred.line.impe2015[[1]], aes(x = impe2015, y = yhat_pred, 
                                                        color = pred.line.impe2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
-        scale_color_viridis(name = "Weights", direction = -1) +
+        scale_color_viridis(name = "Weights", direction = -1, option = "C") +
         scale_x_continuous(name = "Urban Land in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
@@ -375,7 +375,7 @@ pred.line.shru2015[[2]] %>% summary()
         geom_point(data = pred.line.shru2015[[1]], aes(x = shru2015, y = yhat_pred, 
                                                        color = pred.line.shru2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
-        scale_color_viridis(name = "Weights", direction = -1) +
+        scale_color_viridis(name = "Weights", direction = -1, option = "C") +
         scale_x_continuous(name = "Shrubland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
@@ -393,7 +393,7 @@ pred.line.wate2015[[2]] %>% summary()
         geom_point(data = pred.line.wate2015[[1]], aes(x = wate2015, y = yhat_pred, 
                                                        color = pred.line.wate2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
-        scale_color_viridis(name = "Weights", direction = -1) +
+        scale_color_viridis(name = "Weights", direction = -1, option = "C") +
         scale_x_continuous(name = "Water in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
@@ -411,7 +411,7 @@ pred.line.wetl2015[[2]] %>% summary()
         geom_point(data = pred.line.wetl2015[[1]], aes(x = wetl2015, y = yhat_pred, 
                                                        color = pred.line.wetl2015[[2]]$weights),
                    size = 1, alpha = 0.8, show.legend = T) +
-        scale_color_viridis(name = "Weights", direction = -1) +
+        scale_color_viridis(name = "Weights", direction = -1, option = "C") +
         scale_x_continuous(name = "Wetland in Respondent's Living Environment (%)") +
         scale_y_continuous(name = "Predicted Mental Health Score") +
         theme_bw() +
