@@ -16,6 +16,7 @@ library(doSNOW)
 library(tcltk)
 library(pdp)
 library(ModelMetrics)
+library(stargazer)
 
 set.seed(123)
 
@@ -329,3 +330,35 @@ tree.number.comfirmed <-
   randomForest(GHQ12 ~ .,  data_47_no_weights,
                na.action = na.omit, weights = data_47$weights,
                ntree = 1000, importance = T, mtry = 16)
+
+i <- 17
+while(i < 30){
+  data_47_no_weights[,i] <- data_47_no_weights[,i] %>% as.character() %>% as.numeric()
+  i <- i + 1
+}
+
+
+stargazer(data_47_no_weights,  
+          title = "Table S1: Descriptive Statistics of Features", type = "text", no.space = T,
+          covariate.labels = c('Meantal Health Score','DIG',
+                               'Social Class', 'Student Dummy',
+                               'Worker Dummy', 'Company Owner Dummy',
+                               'Government Officer Dummy',
+                               'Self-employed Dummy', 'Housewife Dummy',
+                               'Unemployed Dummy', 'Pleasure',
+                               'Anger', 'Sadness', 'Enjoyment', 'Smile',
+                               'Euthusiastic', 'Critical', 'Dependable',
+                               'Anxious', 'Open to New Experience',
+                               'Reserved', 'Sympathetic', 'Careless', 'Calm',
+                               'Uncreative', "Urban Center Dummy", 'Urban Area Dummy',
+                               "Rural Area Dummy", "Income Group", "Female Dummy",
+                               "Age", "Self-reported Health", "Bachelor Dummy",
+                               'Master Dummy', "PhD Dummy", "Community Livable",
+                               "Community Attachment", "Community Safety",
+                               "Children Number", "Cropland (%)",
+                               "Forest (%)", "Grassland (%)", "Shrubland (%)",
+                               "Wetland (%)", "Water (%)", "Urban Land (%)", 
+                               "Bare Land (%)"),
+          out = '04_Results\\summary.html'
+)
+
