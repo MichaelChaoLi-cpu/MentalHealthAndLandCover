@@ -1,5 +1,37 @@
 # Author: M.L.
 
+# input: 01_Dataset.RData
+
+# 01_Dataset.RData: raw data set. In this data set, the features of interst are
+#                   renamed.
+
+# output: SP_Data_47Variable_Weights_changeRangeOfLandCover.RData
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: This data set for 
+#                                                        weighted random forest.
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "di_inc_gdp" -1 to 3,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "shru2015" 0 to 40,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wetl2015" 0 to 3,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wate2015" 0 to 60,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "bare2015" 0 to 20.
+# Note: the ranges of di_inc_gdp, shru2015, wetl2015, wate2015, bare2015 have been cut
+
+# ouput: 01_RFresult_47var_weighted.RData
+# 01_RFresult_47var_weighted.RData: This is the result of weighted random forest 
+#                                   with 47 features.
+
+# output: 06_explainer_data.rf.47.weighted.RData: the unified result of 
+#                       "SP_Data_47Variable_Weights_changeRangeOfLandCover.RData"
+
+# output: 04_pdp_47weighted_resolution002.RData: This is aggregated result, including 
+#                               "pdp.result.gras2015", "pdp.result.fore2015", 
+#                               "pdp.result.impe2015", "pdp.result.crop2015",
+#                               "pdp.result.shru2015", "pdp.result.wetl2015", 
+#                               "pdp.result.bare2015", "pdp.result.wate2015", and
+#                               "pdp.result.di_inc". All these data set have 5000
+#                               rows. PDPs based on "01_RFresult_47var_weighted.RData".
+
+# summary.html
+# summary.html: a summary table for the article 
 
 # Note: this script to change the range of some land cover variables
 
@@ -344,7 +376,7 @@ stargazer(data_47_no_weights,
                                'Social Class', 'Student Dummy',
                                'Worker Dummy', 'Company Owner Dummy',
                                'Government Officer Dummy',
-                               'Self-employed Dummy', 'Housewife Dummy',
+                               'Self-employed Dummy', "Professional Job Dummy", 'Housewife Dummy',
                                'Unemployed Dummy', 'Pleasure',
                                'Anger', 'Sadness', 'Enjoyment', 'Smile',
                                'Euthusiastic', 'Critical', 'Dependable',

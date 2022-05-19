@@ -1,6 +1,9 @@
 # Author: M.L.
 
+# output: 01_Dataset.RData
 
+# 01_Dataset.RData: raw data set. In this data set, the features of interst are
+#                   renamed.
 
 # end
 

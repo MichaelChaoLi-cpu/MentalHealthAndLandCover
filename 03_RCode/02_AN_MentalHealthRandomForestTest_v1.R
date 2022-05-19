@@ -1,6 +1,37 @@
 # Author: M.L.
 
+# input: 01_Dataset.RData
 
+# 01_Dataset.RData: raw data set. In this data set, the features of interst are
+#                   renamed.
+
+# output: 01_RFresult_48var.RData
+
+# 01_RFresult_48var.RData: This is the result of random forest with 48 feature,
+#                          including tundra. In after version, the tundra has
+#                          been dropped.
+
+# output: SP_Data_48Variable_Weights.RData
+
+# SP_Data_48Variable_Weights.RData: This is the result of random forest with 48 
+#                                   feature, and add the weights to improve the 
+#                                   model. The weights are the counts of each
+#                                   mental health scores.
+
+# output: 02_pdp_48weighted_5000.RData
+
+# 02_pdp_48weighted_5000.RData: This is aggregated resul, including 
+#                               "pdp.result.gras2015", "pdp.result.fore2015", 
+#                               "pdp.result.impe2015", "pdp.result.crop2015",
+#                               "pdp.result.shru2015", "pdp.result.wetl2015", 
+#                               "pdp.result.bare2015", "pdp.result.wate2015", and
+#                               "pdp.result.di_inc". All these data set have 5000
+#                               rows. PDPs based on SP_Data_48Variable_Weights.RData.
+
+# pdp.result.XXXX: "yhat" the prediction of mental health in PDP.
+#                  "XXXX" the values of the feature of interest.
+
+# Note: this script is aborted. 
 
 # end
 

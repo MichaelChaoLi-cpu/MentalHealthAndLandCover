@@ -1,5 +1,41 @@
 # Author: M.L.
 
+# Note: after 01_DW, we should run 04_AN then 03_AN
+
+# input: 01_Dataset.RData
+
+# 01_Dataset.RData: raw data set. In this data set, the features of interst are
+#                   renamed.
+
+# input: SP_Data_47Variable_Weights_changeRangeOfLandCover.RData
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: This data set for 
+#                                                        weighted random forest.
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "di_inc_gdp" -1 to 3,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "shru2015" 0 to 40,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wetl2015" 0 to 3,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wate2015" 0 to 60,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "bare2015" 0 to 20.
+# Note: the ranges of di_inc_gdp, shru2015, wetl2015, wate2015, bare2015 have been cut
+
+# input: 04_pdp_47weighted_resolution002.RData: This is aggregated result, including 
+#                               "pdp.result.gras2015", "pdp.result.fore2015", 
+#                               "pdp.result.impe2015", "pdp.result.crop2015",
+#                               "pdp.result.shru2015", "pdp.result.wetl2015", 
+#                               "pdp.result.bare2015", "pdp.result.wate2015", and
+#                               "pdp.result.di_inc". All these data set have 5000
+#                               rows. PDPs based on "01_RFresult_47var_weighted.RData".
+
+# output: 03_pdp_refit_weights_rf47weighted.RData
+
+# 03_pdp_refit_weights_rf47weighted.RData: This is aggregated result, including
+#                                          "pred.line.impe2015", "pred.line.fore2015", 
+#                                          "pred.line.crop2015", "pred.line.wetl2015", 
+#                                          "pred.line.bare2015", "pred.line.gras2015",
+#                                          "pred.line.shru2015", "pred.line.wate2015", 
+#                                          and "pred.line.di_inc". This are PPDF.
+# pred.line.XXXX: [[1]] "data.frame": "yhat_pred" PPDF predicted values.
+# pred.line.XXXX: [[2]] "lm": lm regression result.
+
 # end
 
 library(dplyr)

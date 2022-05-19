@@ -1,5 +1,51 @@
 # Author: M.L.
 
+# input: 03_pdp_refit_weights_rf47weighted.RData
+
+# 03_pdp_refit_weights_rf47weighted.RData: This is aggregated result, including
+#                                          "pred.line.impe2015", "pred.line.fore2015", 
+#                                          "pred.line.crop2015", "pred.line.wetl2015", 
+#                                          "pred.line.bare2015", "pred.line.gras2015",
+#                                          "pred.line.shru2015", "pred.line.wate2015", 
+#                                          and "pred.line.di_inc". This are PPDF.
+# pred.line.XXXX: [[1]] "data.frame": "yhat_pred" PPDF predicted values.
+# pred.line.XXXX: [[2]] "lm": lm regression result.
+
+# input: 01_Dataset.RData
+
+# 01_Dataset.RData: raw data set. In this data set, the features of interst are
+#                   renamed.
+
+# input: SP_Data_47Variable_Weights_changeRangeOfLandCover.RData
+
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: This data set for 
+#                                                        weighted random forest.
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "di_inc_gdp" -1 to 3,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "shru2015" 0 to 40,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wetl2015" 0 to 3,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wate2015" 0 to 60,
+# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "bare2015" 0 to 20.
+# Note: the ranges of di_inc_gdp, shru2015, wetl2015, wate2015, bare2015 have been cut
+
+# output: 05_MSR_landcover.RData
+
+# 05_MSR_landcover.RData: "MSR_bare" Montary values of a 1-ha increase in bare land
+# 05_MSR_landcover.RData: "MSR_crop" Montary values of a 1-ha increase in cropland 
+# 05_MSR_landcover.RData: "MSR_fore" Montary values of a 1-ha increase in forest 
+# 05_MSR_landcover.RData: "MSR_gras" Montary values of a 1-ha increase in grass land 
+# 05_MSR_landcover.RData: "MSR_impe" Montary values of a 1-ha increase in urban land
+# 05_MSR_landcover.RData: "MSR_shru" Montary values of a 1-ha increase in shrub land 
+# 05_MSR_landcover.RData: "MSR_wate" Montary values of a 1-ha increase in water 
+# 05_MSR_landcover.RData: "MSR_wetl" Montary values of a 1-ha increase in wetland 
+# 05_MSR_landcover.RData: "ME_bare" ME of a 1-ha increase in bare land
+# 05_MSR_landcover.RData: "ME_crop" ME of a 1-ha increase in cropland 
+# 05_MSR_landcover.RData: "ME_fore" ME of a 1-ha increase in forest 
+# 05_MSR_landcover.RData: "ME_gras" ME of a 1-ha increase in grass land 
+# 05_MSR_landcover.RData: "ME_impe" ME of a 1-ha increase in urban land
+# 05_MSR_landcover.RData: "ME_shru" ME of a 1-ha increase in shrub land 
+# 05_MSR_landcover.RData: "ME_wate" ME of a 1-ha increase in water 
+# 05_MSR_landcover.RData: "ME_wetl" ME of a 1-ha increase in wetland 
+
 # end
 
 library(dplyr)
