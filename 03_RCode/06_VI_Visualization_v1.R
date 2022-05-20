@@ -53,7 +53,8 @@ grob_add <- grobTree(textGrob("a",
     geom_histogram(colour = "black", fill = "white", bins = 37, binwidth = 1) +
     xlab("Mental Health Assessment") + 
     ylab("Frequency") +
-    annotation_custom(grob))
+    annotation_custom(grob) +
+    theme_bw())
 
 jpeg(file="05_Figure\\descriptive_stat_GHQ.jpeg", 
      width = 297, height = 210, units = "mm", quality = 300, res = 300)
@@ -70,9 +71,10 @@ grob <- grobTree(textGrob(paste0("Mean = ", Mean, "\nStd.dev = ", SD,"\nN = ", N
     aes(x = di_inc_gdp) +
     xlim(-1.1, 3.1) +
     geom_histogram(colour = "black", fill = "white", bins = 41, binwidth = 0.1) +
-    xlab("Difference between Individual Income and GDP per Capita") + 
+    xlab("DIG") + 
     ylab("Frequency") +
-    annotation_custom(grob))
+    annotation_custom(grob) + 
+    theme_bw())
 
 jpeg(file="05_Figure\\descriptive_stat_income.jpeg", 
      width = 297, height = 210, units = "mm", quality = 300, res = 300)

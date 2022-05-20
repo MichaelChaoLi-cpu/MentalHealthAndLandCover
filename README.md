@@ -1,5 +1,5 @@
 # Mental Health and Land Cover: A Global Analysis Based on Random Forests (DP02)  
-Nature features and processes in living environments can help to reduce stress and improve mental. Different land types have disproportionate impacts on mental health. However, the relationships between mental health and land cover are inconclusive. Here, we show the complicated relationships between mental health and percentages of eight land types based on the random forest method. The accuracy, root mean square error, mean square error, and mean absolute error of our model are 90.51%, 1.94, 3.77, and 1.08, respectively, while the mean of the output variable is 24.31. According to the analysis results, we estimate the average monetary values of eight land types, which are an 8.24%-GDP-per-capita (95% CI: 8.17% - 8.32%) increase in the individual income for wetland, 0.44% (95% CI: 0.39% - 0.49%) for bare land, 0.31% (95% CI: 0.39% - 0.49%) for shrubland, 0.10% (95% CI: 0.06% - 0.14%) for forest, 0.09% (95% CI: 0.05% - 0.12%) for water, 0.04% (95% CI: 0 % - 0.07%) for cropland, -0.21% (95% CI: -0.25% - -0.18%) for urban land, and -0.35% (95% CI: -0.39 % - -0.31%) for grassland. Due to complicated relationships, the current land cover composition influences people’s attitudes towards a certain land type. This paper proves that the relationships between mental health and land cover are complicated and far from linear. Furthermore, it provides insights to formulate better land-use policies.  
+Nature features and processes in living environments can help to reduce stress and improve mental. Different land types have disproportionate impacts on mental health. However, the relationships between mental health and land cover are inconclusive. Here, we show the complex relationships between mental health and percentages of eight land types based on the random forest method. The accuracy of our model is 90.51%, while it is normally no more than 20% in the previous studies. According to the analysis results, we estimate the average monetary values of eight land types, which are an 8.24%-GDP-per-capita (95% confidence interval: 8.17% - 8.32%) increase in the individual income for wetland, 0.44% (0.39% - 0.49%) for bare land, 0.31% (0.39% - 0.49%) for shrubland, 0.10% (0.06% - 0.14%) for forest, 0.09% (0.05% - 0.12%) for water, 0.04% (0 % - 0.07%) for cropland, -0.21% (-0.25% - -0.18%) for urban land, and -0.35% (-0.39 % - -0.31%) for grassland. Due to complex relationships, the current land cover composition influences people’s attitudes towards a certain land type. This paper proves that the relationships between mental health and land cover are complex and far from linear. Furthermore, it provides insights to formulate better land-use policies.  
   
 ## Author  
 Chao Li, Shunsuke Managi  
@@ -8,7 +8,10 @@ Chao Li, Shunsuke Managi
 ![](05_Figure/MSR.jpeg)  
     
 ## Result: PPDFs of Features of Interest  
-![](05_Figure/PPDF.jpeg)  
+![](05_Figure/PPDF.jpeg)
+
+## Maunscript  
+[**Mental Health and Land Cover: A Global Analysis Based on Random Forests**](06_Manuscript/MentalHealthandLandCover.pdf)  
   
 ## R Code  
 **[01_DW_BuildDataset_v1.R](03_RCode/01_DW_BuildDataset_v1.R)**: This script is to wash the data to get the data set in the analysis. All features are reserved.  
