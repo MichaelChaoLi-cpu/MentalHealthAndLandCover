@@ -1,37 +1,5 @@
 # Author: M.L.
 
-# input: 01_Dataset.RData
-
-# 01_Dataset.RData: raw data set. In this data set, the features of interst are
-#                   renamed.
-
-# output: SP_Data_47Variable_Weights_changeRangeOfLandCover.RData
-# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: This data set for 
-#                                                        weighted random forest.
-# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "di_inc_gdp" -1 to 3,
-# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "shru2015" 0 to 40,
-# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wetl2015" 0 to 3,
-# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "wate2015" 0 to 60,
-# SP_Data_47Variable_Weights_changeRangeOfLandCover.RData: "bare2015" 0 to 20.
-# Note: the ranges of di_inc_gdp, shru2015, wetl2015, wate2015, bare2015 have been cut
-
-# ouput: 01_RFresult_47var_weighted.RData
-# 01_RFresult_47var_weighted.RData: This is the result of weighted random forest 
-#                                   with 47 features.
-
-# output: 06_explainer_data.rf.47.weighted.RData: the unified result of 
-#                       "SP_Data_47Variable_Weights_changeRangeOfLandCover.RData"
-
-# output: 04_pdp_47weighted_resolution002.RData: This is aggregated result, including 
-#                               "pdp.result.gras2015", "pdp.result.fore2015", 
-#                               "pdp.result.impe2015", "pdp.result.crop2015",
-#                               "pdp.result.shru2015", "pdp.result.wetl2015", 
-#                               "pdp.result.bare2015", "pdp.result.wate2015", and
-#                               "pdp.result.di_inc". All these data set have 5000
-#                               rows. PDPs based on "01_RFresult_47var_weighted.RData".
-
-# summary.html
-# summary.html: a summary table for the article 
 
 # Note: this script to change the range of some land cover variables
 
@@ -47,8 +15,6 @@ library(DALEX)
 library(doSNOW)
 library(tcltk)
 library(pdp)
-library(ModelMetrics)
-library(stargazer)
 
 set.seed(123)
 
@@ -124,12 +90,6 @@ data.rf.47.weighted <-
 
 stopCluster(cl)
 # do SNOW
-ols_compare <- lm(GHQ12 ~ ., data = data_47_no_weights, weights = data_47$weights) 
-ols_compare %>% summary()
-ols_compare %>% rmse()
-ols_compare$residuals^2 %>% mean() 
-ols_compare$residuals %>% abs() %>% mean()
-
 plot(data.rf.47.weighted)
 importance(data.rf.47.weighted)
 varImpPlot(data.rf.47.weighted)
@@ -144,9 +104,7 @@ explainer_data.rf.47.weighted = explain(data.rf.47.weighted, data = data_47_no_w
 diag_data.rf.47.weighted <- model_diagnostics(explainer_data.rf.47.weighted)
 plot(diag_data.rf.47.weighted)
 plot(diag_data.rf.47.weighted, variable = "y", yvariable = "residuals")
-plot(diag_data.rf.47.weighted, variable = "y", yvariable = "y_hat")
 hist(data_47$GHQ12, breaks = rep(0:36, 1))
-save(explainer_data.rf.47.weighted, file = "04_Results/06_explainer_data.rf.47.weighted.RData", version = 2)
 
 ### model information
 model_info(data.rf.47.weighted)
@@ -170,46 +128,6 @@ plot(model_profile_data.rf.47.weighted,
 plot(model_profile_data.rf.47.weighted, variables = "di_inc_gdp")
 
 save(data.rf.47.weighted, file = "04_Results/01_RFresult_47var_weighted.RData", version = 2)
-
-run <- F
-if(run){
-  # do SNOW use residuals as weight
-  cl <- makeSOCKcluster(10)
-  registerDoSNOW(cl)
-  getDoParWorkers()
-  
-  ntasks <- 100
-  pb <- tkProgressBar(max=ntasks)
-  progress <- function(n) setTkProgressBar(pb, n)
-  opts <- list(progress=progress)
-  
-  data_47_no_weights <- data_47 %>% dplyr::select(-weights)
-  
-  data.rf.47.residuals.weighted <- 
-    foreach(ntree = rep(10, ntasks), .combine = randomForest::combine,
-            .multicombine=TRUE, .packages='randomForest',
-            .options.snow=opts) %dopar% {
-              randomForest(GHQ12 ~ .,  data_47_no_weights,
-                           na.action = na.omit, weights = diag_data.rf.47.weighted$residuals,
-                           ntree = ntree, importance = T, mtry = 16)
-            }
-  
-  stopCluster(cl)
-  # do SNOW use residuals as weight
-  
-  ### calculate loss function use residuals as weight
-  loss_root_mean_square(data_47$GHQ12, yhat(data.rf.47.residuals.weighted, data_47_no_weights))
-  
-  ### unified the model use residuals as weight
-  explainer_data.rf.47.residuals.weighted = explain(data.rf.47.residuals.weighted, data = data_47_no_weights, 
-                                          y = data_47_no_weights$GHQ12)
-  diag_data.rf.47.residuals.weighted <- model_diagnostics(explainer_data.rf.47.residuals.weighted)
-  plot(diag_data.rf.47.residuals.weighted)
-  plot(diag_data.rf.47.residuals.weighted, variable = "y", yvariable = "residuals")
-  plot(diag_data.rf.47.residuals.weighted, variable = "y", yvariable = "y_hat")
-  ### unified the model use residuals as weight
-}
-####^^^^^^^^^^^^^^^^^^^^^^ does not work, abort!
 
 #### pdp
 summary(data_47$impe2015)
@@ -362,35 +280,3 @@ tree.number.comfirmed <-
   randomForest(GHQ12 ~ .,  data_47_no_weights,
                na.action = na.omit, weights = data_47$weights,
                ntree = 1000, importance = T, mtry = 16)
-
-i <- 17
-while(i < 30){
-  data_47_no_weights[,i] <- data_47_no_weights[,i] %>% as.character() %>% as.numeric()
-  i <- i + 1
-}
-
-
-stargazer(data_47_no_weights,  
-          title = "Table S1: Descriptive Statistics of Features", type = "text", no.space = T,
-          covariate.labels = c('Meantal Health Score','DIG',
-                               'Social Class', 'Student Dummy',
-                               'Worker Dummy', 'Company Owner Dummy',
-                               'Government Officer Dummy',
-                               'Self-employed Dummy', "Professional Job Dummy", 'Housewife Dummy',
-                               'Unemployed Dummy', 'Pleasure',
-                               'Anger', 'Sadness', 'Enjoyment', 'Smile',
-                               'Euthusiastic', 'Critical', 'Dependable',
-                               'Anxious', 'Open to New Experience',
-                               'Reserved', 'Sympathetic', 'Careless', 'Calm',
-                               'Uncreative', "Urban Center Dummy", 'Urban Area Dummy',
-                               "Rural Area Dummy", "Income Group", "Female Dummy",
-                               "Age", "Self-reported Health", "Bachelor Dummy",
-                               'Master Dummy', "PhD Dummy", "Community Livable",
-                               "Community Attachment", "Community Safety",
-                               "Children Number", "Cropland (%)",
-                               "Forest (%)", "Grassland (%)", "Shrubland (%)",
-                               "Wetland (%)", "Water (%)", "Urban Land (%)", 
-                               "Bare Land (%)"),
-          out = '04_Results\\summary.html'
-)
-

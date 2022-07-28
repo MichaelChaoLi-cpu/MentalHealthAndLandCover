@@ -96,3 +96,6 @@ while(MTRY < 22){
   accuracy.df <- rbind(accuracy.df, line.accuracy)
   MTRY <- MTRY + 1
 }
+
+colnames(accuracy.df) <- c("mtry", "MSE", "RMSE", "R2", "MAD")
+save(accuracy.df, file = "04_Results/08_Mtry_accuracy.df.RData")
