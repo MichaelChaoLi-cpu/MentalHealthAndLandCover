@@ -106,11 +106,18 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
                   Characters=character(),
                   stringsAsFactors=FALSE)
   i = 1
+  cat("Bar:", nrow(dfUsedInRf), " \n")
   while(i < (nrow(dfUsedInRf) + 1)){
     boundaryTibble <- singlePointBoundaryXY(dfUsedInRf[i,], Xcolname=Xcolname, Ycolname=Ycolname,
                                             yRangeList=yRangeList, xRangeList=xRangeList,
                                             clusterNumber=clusterNumber)
     df <- rbind(df, boundaryTibble)
+    if(i%%floor(nrow(dfUsedInRf)/100)>(floor(nrow(dfUsedInRf)/100)-1)){
+      cat('.')
+    }
+    if(i%%floor(nrow(dfUsedInRf)/500)>(floor(nrow(dfUsedInRf)/500)-1)){
+      cat('|')
+    }
     i = i + 1
   }
   colnames(df) <- c("xLeft", "xRight", "yBottom", "yRoof")

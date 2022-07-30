@@ -132,9 +132,3 @@ plot(model_profile_data.rf.49.weighted,
 plot(model_profile_data.rf.49.weighted, variables = "di_inc_gdp")
 
 save(data.rf.49.weighted, file = "04_Results/10_RFresult_49var_weighted.RData", version = 2)
-
-singleTree <- getTree(data.rf.49.weighted, k=1, labelVar = T)
-singleTree <- singleTree %>% filter(`split var` == 'Y')
-
-singleTree2 <- getTree(data.rf.49.weighted, k=2, labelVar = T)
-singleTree2 <- singleTree2 %>% filter(`split var` == 'Y')
