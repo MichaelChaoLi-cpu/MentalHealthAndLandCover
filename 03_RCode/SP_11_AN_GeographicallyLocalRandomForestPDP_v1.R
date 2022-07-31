@@ -33,9 +33,13 @@ source("DP02/03_RCode/SP_10_AF_GeographicallyLocalRandomForestPDP_v1.R")
 load("DP02/04_Results/10_RFresult_49var_weighted.RData")
 load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
 
-yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 100)
-xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 100)
+cat("loaded data! \n")
 
-boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 100)
+yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 20)
+xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 20)
+
+cat("Range data! \n")
+
+boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 50, 2)
 
 save(boundaryTibble, file = "DP02/04_Results/99_temp_boundaryTibble.Rdata")

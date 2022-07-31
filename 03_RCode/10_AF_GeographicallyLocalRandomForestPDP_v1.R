@@ -98,7 +98,8 @@ boundaryValuesSelectionSingleTree <- function(valueOfPoi, rangeListSingColumn){
 }
 
 neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname, 
-                                      xRangeList, yRangeList, clusterNumber = 4){
+                                      xRangeList, yRangeList, clusterNumber = 4,
+                                      previousfunction.clusterNumber = 2){
   df = data.frame(Doubles=double(),
                   Integers=integer(),
                   Factors=factor(),
@@ -107,16 +108,28 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
                   stringsAsFactors=FALSE)
   i = 1
   cat("Bar:", nrow(dfUsedInRf), " \n")
-  while(i < (nrow(dfUsedInRf) + 1)){
-    boundaryTibble <- singlePointBoundaryXY(dfUsedInRf[i,], Xcolname=Xcolname, Ycolname=Ycolname,
-                                            yRangeList=yRangeList, xRangeList=xRangeList,
-                                            clusterNumber=clusterNumber)
-    df <- rbind(df, boundaryTibble)
-    cat(i, " ")
-    i = i + 1
-  }
+  cl <- makeSOCKcluster(clusterNumber)
+  clusterExport(cl, "singlePointBoundaryXY")
+  registerDoSNOW(cl)
+  opts <- list(progress=progress_fun)
+  xRangeBoundary <-
+    foreach(i = seq(1,nrow(dfUsedInRf),1), .combine = 'rbind', 
+            .packages='tidyverse', .export = "singlePointBoundaryXY",
+            .options.snow=opts) %dopar% {
+              boundaryTibble <- singlePointBoundaryXY(dfUsedInRf[i,], Xcolname=Xcolname, Ycolname=Ycolname,
+                                                      yRangeList=yRangeList, xRangeList=xRangeList,
+                                                      clusterNumber=previousfunction.clusterNumber)
+              
+            }
   colnames(df) <- c("xLeft", "xRight", "yBottom", "yRoof")
   return(df)
+}
+
+progress_fun <- function(n){
+  cat(n, ' ')
+  if (n%%100==0){
+    cat('\n')
+  }
 }
 
 ### example
@@ -124,7 +137,7 @@ yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10)
 xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10)
 
 
-boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
+boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 5, 2)
 
 load("DP02/04_Results/10_RFresult_49var_weighted.RData")
 load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
