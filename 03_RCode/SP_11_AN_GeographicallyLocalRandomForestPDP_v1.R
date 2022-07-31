@@ -40,6 +40,6 @@ xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 20)
 
 cat("Range data! \n")
 
-boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 50, 2)
+boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 100)
 
 save(boundaryTibble, file = "DP02/04_Results/99_temp_boundaryTibble.Rdata")

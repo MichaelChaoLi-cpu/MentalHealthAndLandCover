@@ -40,44 +40,6 @@ treeRangeList <- function(rfObj, aimVariable, clusterNumber = 4, fixedLength = 4
   return(rangeList)
 }
 
-singlePointBoundaryXY <- function(inputDF.single, Xcolname, Ycolname,
-                                  xRangeList, yRangeList, clusterNumber = 4){
-  xValueOfPoi = inputDF.single[,Xcolname]
-  yValueOfPoi = inputDF.single[,Ycolname]
-  cl <- makeSOCKcluster(clusterNumber)
-  clusterExport(cl, "boundaryValuesSelectionSingleTree")
-  registerDoSNOW(cl)
-  xRangeBoundary <-
-    foreach(i = seq(1,ncol(xRangeList),1), .combine = 'rbind', 
-          .packages='tidyverse', .export = "boundaryValuesSelectionSingleTree") %dopar% {
-            xBoundarySingleTree <- 
-              boundaryValuesSelectionSingleTree(xValueOfPoi, xRangeList[,i]) 
-          }
-  xRangeBoundary <- xRangeBoundary %>% as.data.frame()
-  colnames(xRangeBoundary) <- c("xLower", "xUpper")
-  yRangeBoundary <-
-    foreach(i = seq(1,ncol(yRangeList),1), .combine = 'rbind', 
-            .packages='tidyverse', .export = "boundaryValuesSelectionSingleTree") %dopar% {
-              yBoundarySingleTree <- 
-                boundaryValuesSelectionSingleTree(yValueOfPoi, yRangeList[,i])
-            }
-  yRangeBoundary <- yRangeBoundary %>% as.data.frame()
-  colnames(yRangeBoundary) <- c("yLower", "yUpper")
-  stopCluster(cl)
-  #we find median small in the left side, from here absolutely more than half amounts 
-  # of lines are overlaped.
-  # the the left side becomes smaller and smaller until right side small than median
-  
-  xLeft <- median(xRangeBoundary$xLower)
-  xRight <- median(xRangeBoundary$xUpper)
-  
-  yBottom <- median(yRangeBoundary$yLower)
-  yRoof <- median(yRangeBoundary$yUpper)
-  
-  boundaryXY <- c(xLeft, xRight, yBottom, yRoof)
-  return(boundaryXY)
-}
-
 boundaryValuesSelectionSingleTree <- function(valueOfPoi, rangeListSingColumn){
   step = 1
   while (step < 4000){
@@ -97,9 +59,52 @@ boundaryValuesSelectionSingleTree <- function(valueOfPoi, rangeListSingColumn){
   }
 }
 
+singlePointBoundaryXY <- function(inputDF.single, Xcolname, Ycolname,
+                                  xRangeList, yRangeList, clusterNumber = 4){
+  xValueOfPoi = inputDF.single[,Xcolname]
+  yValueOfPoi = inputDF.single[,Ycolname]
+  xRangeBoundary <- data.frame(Doubles=double(),
+                               Integers=integer(),
+                               Factors=factor(),
+                               Logicals=logical(),
+                               Characters=character(),
+                               stringsAsFactors=FALSE)
+    
+  for(i in seq(1,ncol(xRangeList),1)) {
+    xBoundarySingleTree <- boundaryValuesSelectionSingleTree(xValueOfPoi, xRangeList[,i]) 
+    xRangeBoundary <- rbind(xRangeBoundary, xBoundarySingleTree)
+          }
+  xRangeBoundary <- xRangeBoundary %>% as.data.frame()
+  colnames(xRangeBoundary) <- c("xLower", "xUpper")
+  
+  yRangeBoundary <- data.frame(Doubles=double(),
+                               Integers=integer(),
+                               Factors=factor(),
+                               Logicals=logical(),
+                               Characters=character(),
+                               stringsAsFactors=FALSE)
+  for(i in seq(1,ncol(xRangeList),1)) {
+    yBoundarySingleTree <- boundaryValuesSelectionSingleTree(yValueOfPoi, yRangeList[,i]) 
+    yRangeBoundary <- rbind(yRangeBoundary, yBoundarySingleTree)
+  }
+  yRangeBoundary <- yRangeBoundary %>% as.data.frame()
+  colnames(yRangeBoundary) <- c("yLower", "yUpper")
+  #we find median small in the left side, from here absolutely more than half amounts 
+  # of lines are overlaped.
+  # the the left side becomes smaller and smaller until right side small than median
+  
+  xLeft <- median(xRangeBoundary$xLower)
+  xRight <- median(xRangeBoundary$xUpper)
+  
+  yBottom <- median(yRangeBoundary$yLower)
+  yRoof <- median(yRangeBoundary$yUpper)
+  
+  boundaryXY <- c(xLeft, xRight, yBottom, yRoof)
+  return(boundaryXY)
+}
+
 neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname, 
-                                      xRangeList, yRangeList, clusterNumber = 4,
-                                      previousfunction.clusterNumber = 2){
+                                      xRangeList, yRangeList, clusterNumber = 4){
   df = data.frame(Doubles=double(),
                   Integers=integer(),
                   Factors=factor(),
@@ -117,8 +122,7 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
             .packages='tidyverse', .export = "singlePointBoundaryXY",
             .options.snow=opts) %dopar% {
               boundaryTibble <- singlePointBoundaryXY(dfUsedInRf[i,], Xcolname=Xcolname, Ycolname=Ycolname,
-                                                      yRangeList=yRangeList, xRangeList=xRangeList,
-                                                      clusterNumber=previousfunction.clusterNumber)
+                                                      yRangeList=yRangeList, xRangeList=xRangeList)
     
   }
   colnames(df) <- c("xLeft", "xRight", "yBottom", "yRoof")
