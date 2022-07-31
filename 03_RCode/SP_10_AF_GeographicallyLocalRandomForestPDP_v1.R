@@ -120,11 +120,10 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
 }
 
 ### example
-yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10)
-xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10)
+#yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10)
+#xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10)
 
-
-boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
+#boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
 
 load("DP02/04_Results/10_RFresult_49var_weighted.RData")
 load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
