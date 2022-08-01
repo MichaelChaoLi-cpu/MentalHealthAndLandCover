@@ -132,6 +132,33 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
   return(df)
 }
 
+neighborOrderList <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, fixedLength, clusterNumber){
+  boundaryTibbleDF <- boundaryTibbleDF %>% as.data.frame()
+  dfUsedInRf <- dfUsedInRf[,c(Xcolname, Ycolname)]
+  cat("Bar:", nrow(dfUsedInRf), " \n")
+  cl <- makeSOCKcluster(clusterNumber)
+  registerDoSNOW(cl)
+  opts <- list(progress=progress_fun)
+  df.ouput <-
+    foreach(i = seq(1,nrow(dfUsedInRf),1), .combine = 'rbind', 
+            .packages='tidyverse', .options.snow=opts) %dopar% {
+              boundaryTibbleDF.row <- boundaryTibbleDF[i,]
+              neighbor.list <- c()
+              for(j in seq(1,nrow(dfUsedInRf),1)){
+                if(i!=j){
+                  if((dfUsedInRf[j,Xcolname]>boundaryTibbleDF.row[1,1])&(dfUsedInRf[j,Xcolname]<boundaryTibbleDF.row[1,2])){
+                    if((dfUsedInRf[j,Ycolname]>boundaryTibbleDF.row[1,3])&(dfUsedInRf[j,Ycolname]<boundaryTibbleDF.row[1,4])){
+                      neighbor.list <- append(neighbor.list, j)
+                    }
+                  }
+                }
+              }
+              neighbor.list <- c(neighbor.list, rep(NA, (fixedLength - length(neighbor.list))))
+            }
+  stopCluster(cl)
+  return(df.ouput)
+}
+
 ### example
 # not super
 #load("DP02/04_Results/10_RFresult_49var_weighted.RData")
@@ -146,3 +173,4 @@ xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10)
 
 
 boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
+neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 400, 10)
