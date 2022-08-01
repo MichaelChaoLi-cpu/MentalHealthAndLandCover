@@ -103,32 +103,6 @@ singlePointBoundaryXY <- function(inputDF.single, Xcolname, Ycolname,
   return(boundaryXY)
 }
 
-neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname, 
-                                      xRangeList, yRangeList, clusterNumber = 4){
-  df = data.frame(Doubles=double(),
-                  Integers=integer(),
-                  Factors=factor(),
-                  Logicals=logical(),
-                  Characters=character(),
-                  stringsAsFactors=FALSE)
-  i = 1
-  cat("Bar:", nrow(dfUsedInRf), " \n")
-  cl <- makeSOCKcluster(clusterNumber)
-  clusterExport(cl, "singlePointBoundaryXY")
-  registerDoSNOW(cl)
-  opts <- list(progress=progress_fun)
-  xRangeBoundary <-
-    foreach(i = seq(1,nrow(dfUsedInRf),1), .combine = 'rbind', 
-            .packages='tidyverse', .export = "singlePointBoundaryXY",
-            .options.snow=opts) %dopar% {
-              boundaryTibble <- singlePointBoundaryXY(dfUsedInRf[i,], Xcolname=Xcolname, Ycolname=Ycolname,
-                                                      yRangeList=yRangeList, xRangeList=xRangeList)
-              
-            }
-  colnames(df) <- c("xLeft", "xRight", "yBottom", "yRoof")
-  return(df)
-}
-
 progress_fun <- function(n){
   cat(n, ' ')
   if (n%%100==0){
@@ -136,12 +110,39 @@ progress_fun <- function(n){
   }
 }
 
+neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname, 
+                                      xRangeList, yRangeList, clusterNumber = 4){
+  cat("Bar:", nrow(dfUsedInRf), " \n")
+  cl <- makeSOCKcluster(clusterNumber)
+  clusterExport(cl, "singlePointBoundaryXY")
+  clusterExport(cl, "boundaryValuesSelectionSingleTree")
+  registerDoSNOW(cl)
+  opts <- list(progress=progress_fun)
+  df <-
+    foreach(i = seq(1,nrow(dfUsedInRf),1), .combine = 'rbind', 
+            .packages='tidyverse', .export = c("singlePointBoundaryXY",
+                                               "boundaryValuesSelectionSingleTree"),
+            .options.snow=opts) %dopar% {
+              boundaryTibble <- singlePointBoundaryXY(dfUsedInRf[i,], Xcolname=Xcolname, Ycolname=Ycolname,
+                                                      yRangeList=yRangeList, xRangeList=xRangeList)
+              
+            }
+  stopCluster(cl)
+  colnames(df) <- c("xLeft", "xRight", "yBottom", "yRoof")
+  return(df)
+}
+
 ### example
+# not super
+#load("DP02/04_Results/10_RFresult_49var_weighted.RData")
+#load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
+
+
+load("04_Results/10_RFresult_49var_weighted.RData")
+load("02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
+
 yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10)
 xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10)
 
 
-boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 100)
-
-load("DP02/04_Results/10_RFresult_49var_weighted.RData")
-load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
+boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
