@@ -25,17 +25,17 @@ treeRangeList <- function(rfObj, aimVariable, clusterNumber = 4, fixedLength = 4
   registerDoSNOW(cl)
   rangeList <- 
     foreach(treeOrder = seq(1,treeNumber,1), .combine = 'cbind', 
-            .packages=c('randomForest','tidyverse')) %dopar% {
-    singleTree <- getTree(rfObj, k=treeOrder, labelVar = T)
-    singleTree <- singleTree %>% filter(`split var` == aimVariable) %>% 
-      arrange(`split point`) %>% dplyr::select(`split point`) %>% distinct()
-    if (nrow(singleTree) > 0){
-      singleList <- c(as.vector(singleTree$`split point`), rep(NA, (fixedLength-nrow(singleTree))))
-    } else {
-      singleList <- rep(NA, fixedLength)
-    }
-    singleList <- as.data.frame(singleList)
-  }
+            .packages=c('randomForest','tidyverse', 'dplyr')) %dopar% {
+              singleTree <- randomForest::getTree(rfObj, k=treeOrder, labelVar = T)
+              singleTree <- singleTree %>% filter(`split var` == aimVariable) %>% 
+                arrange(`split point`) %>% dplyr::select(`split point`) %>% distinct()
+              if (nrow(singleTree) > 0){
+                singleList <- c(as.vector(singleTree$`split point`), rep(NA, (fixedLength-nrow(singleTree))))
+              } else {
+                singleList <- rep(NA, fixedLength)
+              }
+              singleList <- as.data.frame(singleList)
+            }
   stopCluster(cl)
   return(rangeList)
 }
@@ -69,11 +69,11 @@ singlePointBoundaryXY <- function(inputDF.single, Xcolname, Ycolname,
                                Logicals=logical(),
                                Characters=character(),
                                stringsAsFactors=FALSE)
-    
+  
   for(i in seq(1,ncol(xRangeList),1)) {
     xBoundarySingleTree <- boundaryValuesSelectionSingleTree(xValueOfPoi, xRangeList[,i]) 
     xRangeBoundary <- rbind(xRangeBoundary, xBoundarySingleTree)
-          }
+  }
   xRangeBoundary <- xRangeBoundary %>% as.data.frame()
   colnames(xRangeBoundary) <- c("xLower", "xUpper")
   
@@ -125,11 +125,67 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
             .options.snow=opts) %dopar% {
               boundaryTibble <- singlePointBoundaryXY(dfUsedInRf[i,], Xcolname=Xcolname, Ycolname=Ycolname,
                                                       yRangeList=yRangeList, xRangeList=xRangeList)
-    
+              
             }
   stopCluster(cl)
   colnames(df) <- c("xLeft", "xRight", "yBottom", "yRoof")
   return(df)
+}
+
+neighborOrderList <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, fixedLength, clusterNumber){
+  boundaryTibbleDF <- boundaryTibbleDF %>% as.data.frame()
+  dfUsedInRf <- dfUsedInRf[,c(Xcolname, Ycolname)]
+  cat("Bar:", nrow(dfUsedInRf), " \n")
+  cl <- makeSOCKcluster(clusterNumber)
+  registerDoSNOW(cl)
+  opts <- list(progress=progress_fun)
+  df.ouput <-
+    foreach(i = seq(1,nrow(dfUsedInRf), 1), .combine = 'rbind', 
+            .packages='tidyverse', .options.snow=opts) %dopar% {
+              
+              boundaryTibbleDF.row <- boundaryTibbleDF[i,]
+              neighbor.list <- c()
+              for(j in seq(1,nrow(dfUsedInRf),1)){
+                if(i!=j){
+                  if((dfUsedInRf[j,Xcolname]>boundaryTibbleDF.row[1,1])&(dfUsedInRf[j,Xcolname]<boundaryTibbleDF.row[1,2])){
+                    if((dfUsedInRf[j,Ycolname]>boundaryTibbleDF.row[1,3])&(dfUsedInRf[j,Ycolname]<boundaryTibbleDF.row[1,4])){
+                      neighbor.list <- append(neighbor.list, j)
+                    }
+                  }
+                }
+              }
+              neighbor.list <- c(neighbor.list, rep(NA, (fixedLength - length(neighbor.list))))
+            }
+  stopCluster(cl)
+  return(df.ouput)
+}
+
+localDataEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListTibble, index, landCoverName, marginalChange){
+  neighborOrderList <- neighborOrderListTibble[index,]
+  neighborOrderList.add <- c(index, neighborOrderList)
+  neighborOrderList.add <- na.omit(neighborOrderList.add) 
+  dataInUse <- data_49[neighborOrderList.add,2:ncol(data_49)]
+  y_ori = predict(modelRF, newdata = dataInUse)
+  dataInUse.ha1 <- as.data.frame(dataInUse)
+  dataInUse.ha1[,landCoverName] <- dataInUse.ha1[,landCoverName] + marginalChange
+  y_inc = predict(modelRF, newdata = dataInUse.ha1)
+  marginalChangeY <- mean(y_inc) - mean(y_ori)
+  return(marginalChangeY)
+}
+
+allDatasetEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListTibble, 
+                                             landCoverName, marginalChange, clusterNumber){
+  cl <- makeSOCKcluster(clusterNumber)
+  clusterExport(cl, "localDataEstiamtionBasedOnModel")
+  registerDoSNOW(cl)
+  opts <- list(progress=progress_fun)
+  df.ouput <-
+    foreach(i = seq(1,nrow(data_49), 1), .combine = 'c', 
+            .packages='randomForest', .options.snow=opts) %dopar% {
+              localDataEstiamtionBasedOnModel(dataRF, modelRF, neighborOrderListTibble, i, landCoverName, marginalChange)
+            }
+  stopCluster(cl)
+  return(df.ouput)
 }
   
 ### example

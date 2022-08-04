@@ -35,11 +35,39 @@ load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
 
 cat("loaded data! \n")
 
-yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 20)
-xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 20)
+notHave <- F
+if(notHave){
+  yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 20)
+  xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 20)
+}
 
 cat("Range data! \n")
 
-boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 100)
+notHave <- F
+if(notHave){
+  boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 100)
+  save(boundaryTibble, file = "DP02/04_Results/99_temp_boundaryTibble.Rdata")
+} else {
+  load("DP02/04_Results/99_temp_boundaryTibble.Rdata")
+}
 
-save(boundaryTibble, file = "DP02/04_Results/99_temp_boundaryTibble.Rdata")
+notHave <- F
+if(notHave){
+  neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 1000, 100)
+  save(neighborOrderListTibble, file = "DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")
+} else {
+  load("DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")
+}
+
+crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 20)
+fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 20)
+gras <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "gras2015", 0.1, 20)
+shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 20)
+wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 20)
+wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 20)
+impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 20)
+bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 20)
+income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 20)
+
+geographicallyMarginalEffect <- cbind(crop, fore, gras, shru, wetl, wate, impe, bare, income)
+save(geographicallyMarginalEffect, file = "DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")

@@ -17,6 +17,7 @@ library(dplyr)
 library(foreach)
 library(doParallel)
 library(doSNOW)
+library(dplyr)
 
 treeRangeList <- function(rfObj, aimVariable, clusterNumber = 4, fixedLength = 4000){
   # This function is to obtain the judgment of a certain variable in the rf 
@@ -25,17 +26,17 @@ treeRangeList <- function(rfObj, aimVariable, clusterNumber = 4, fixedLength = 4
   registerDoSNOW(cl)
   rangeList <- 
     foreach(treeOrder = seq(1,treeNumber,1), .combine = 'cbind', 
-            .packages=c('randomForest','tidyverse')) %dopar% {
-    singleTree <- getTree(rfObj, k=treeOrder, labelVar = T)
-    singleTree <- singleTree %>% filter(`split var` == aimVariable) %>% 
-      arrange(`split point`) %>% dplyr::select(`split point`) %>% distinct()
-    if (nrow(singleTree) > 0){
-      singleList <- c(as.vector(singleTree$`split point`), rep(NA, (fixedLength-nrow(singleTree))))
-    } else {
-      singleList <- rep(NA, fixedLength)
-    }
-    singleList <- as.data.frame(singleList)
-  }
+            .packages=c('randomForest','tidyverse', 'dplyr')) %dopar% {
+              singleTree <- randomForest::getTree(rfObj, k=treeOrder, labelVar = T)
+              singleTree <- singleTree %>% filter(`split var` == aimVariable) %>% 
+                arrange(`split point`) %>% dplyr::select(`split point`) %>% distinct()
+              if (nrow(singleTree) > 0){
+                singleList <- c(as.vector(singleTree$`split point`), rep(NA, (fixedLength-nrow(singleTree))))
+                } else {
+                singleList <- rep(NA, fixedLength)
+                }
+              singleList <- as.data.frame(singleList)
+              }
   stopCluster(cl)
   return(rangeList)
 }
@@ -140,8 +141,9 @@ neighborOrderList <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, 
   registerDoSNOW(cl)
   opts <- list(progress=progress_fun)
   df.ouput <-
-    foreach(i = seq(1,nrow(dfUsedInRf),1), .combine = 'rbind', 
+    foreach(i = seq(1,nrow(dfUsedInRf), 1), .combine = 'rbind', 
             .packages='tidyverse', .options.snow=opts) %dopar% {
+              
               boundaryTibbleDF.row <- boundaryTibbleDF[i,]
               neighbor.list <- c()
               for(j in seq(1,nrow(dfUsedInRf),1)){
@@ -159,6 +161,34 @@ neighborOrderList <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, 
   return(df.ouput)
 }
 
+localDataEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListTibble, index, landCoverName, marginalChange){
+  neighborOrderList <- neighborOrderListTibble[index,]
+  neighborOrderList.add <- c(index, neighborOrderList)
+  neighborOrderList.add <- na.omit(neighborOrderList.add) 
+  dataInUse <- data_49[neighborOrderList.add,2:ncol(data_49)]
+  y_ori = predict(modelRF, newdata = dataInUse)
+  dataInUse.ha1 <- as.data.frame(dataInUse)
+  dataInUse.ha1[,landCoverName] <- dataInUse.ha1[,landCoverName] + marginalChange
+  y_inc = predict(modelRF, newdata = dataInUse.ha1)
+  marginalChangeY <- mean(y_inc) - mean(y_ori)
+  return(marginalChangeY)
+}
+
+allDatasetEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListTibble, 
+                                            landCoverName, marginalChange, clusterNumber){
+  cl <- makeSOCKcluster(clusterNumber)
+  clusterExport(cl, "localDataEstiamtionBasedOnModel")
+  registerDoSNOW(cl)
+  opts <- list(progress=progress_fun)
+  df.ouput <-
+    foreach(i = seq(1,nrow(data_49), 1), .combine = 'c', 
+            .packages='randomForest', .options.snow=opts) %dopar% {
+              localDataEstiamtionBasedOnModel(dataRF, modelRF, neighborOrderListTibble, i, landCoverName, marginalChange)
+            }
+  stopCluster(cl)
+  return(df.ouput)
+}
+
 ### example
 # not super
 #load("DP02/04_Results/10_RFresult_49var_weighted.RData")
@@ -168,9 +198,23 @@ neighborOrderList <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, 
 load("04_Results/10_RFresult_49var_weighted.RData")
 load("02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
 
-yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10)
-xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10)
+#yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10, 4000)
+#xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10, 4000)
 
+#boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
+#neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 1000, 10)
 
-boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
-neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 400, 10)
+load("04_Results/99_temp_neighborOrderListTibble.Rdata")
+#allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 100)
+
+crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 10)
+fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 20)
+gras <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "gras2015", 0.1, 20)
+shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 20)
+wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 20)
+wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 20)
+impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 20)
+bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 20)
+income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 20)
+
+geographicallyMarginalEffect <- cbind(crop, fore, gras, shru, wetl, wate, impe, bare, income)
