@@ -164,7 +164,7 @@ localDataEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListTi
   neighborOrderList <- neighborOrderListTibble[index,]
   neighborOrderList.add <- c(index, neighborOrderList)
   neighborOrderList.add <- na.omit(neighborOrderList.add) 
-  dataInUse <- data_49[neighborOrderList.add,2:ncol(data_49)]
+  dataInUse <- dataRF[neighborOrderList.add,2:ncol(dataRF)]
   y_ori = predict(modelRF, newdata = dataInUse)
   dataInUse.ha1 <- as.data.frame(dataInUse)
   dataInUse.ha1[,landCoverName] <- dataInUse.ha1[,landCoverName] + marginalChange
@@ -180,7 +180,7 @@ allDatasetEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListT
   registerDoSNOW(cl)
   opts <- list(progress=progress_fun)
   df.ouput <-
-    foreach(i = seq(1,nrow(data_49), 1), .combine = 'c', 
+    foreach(i = seq(1,nrow(dataRF), 1), .combine = 'c', 
             .packages='randomForest', .options.snow=opts) %dopar% {
               localDataEstiamtionBasedOnModel(dataRF, modelRF, neighborOrderListTibble, i, landCoverName, marginalChange)
             }

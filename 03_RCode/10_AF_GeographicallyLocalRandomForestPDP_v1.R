@@ -165,7 +165,7 @@ localDataEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListTi
   neighborOrderList <- neighborOrderListTibble[index,]
   neighborOrderList.add <- c(index, neighborOrderList)
   neighborOrderList.add <- na.omit(neighborOrderList.add) 
-  dataInUse <- data_49[neighborOrderList.add,2:ncol(data_49)]
+  dataInUse <- dataRF[neighborOrderList.add,2:ncol(dataRF)]
   y_ori = predict(modelRF, newdata = dataInUse)
   dataInUse.ha1 <- as.data.frame(dataInUse)
   dataInUse.ha1[,landCoverName] <- dataInUse.ha1[,landCoverName] + marginalChange
@@ -181,7 +181,7 @@ allDatasetEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListT
   registerDoSNOW(cl)
   opts <- list(progress=progress_fun)
   df.ouput <-
-    foreach(i = seq(1,nrow(data_49), 1), .combine = 'c', 
+    foreach(i = seq(1,nrow(dataRF), 1), .combine = 'c', 
             .packages='randomForest', .options.snow=opts) %dopar% {
               localDataEstiamtionBasedOnModel(dataRF, modelRF, neighborOrderListTibble, i, landCoverName, marginalChange)
             }
@@ -208,13 +208,13 @@ load("04_Results/99_temp_neighborOrderListTibble.Rdata")
 #allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 100)
 
 crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 10)
-fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 20)
-gras <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "gras2015", 0.1, 20)
-shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 20)
-wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 20)
-wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 20)
-impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 20)
-bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 20)
-income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 20)
+fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 10)
+gras <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "gras2015", 0.1, 10)
+shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 10)
+wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 10)
+wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 10)
+impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 10)
+bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 10)
+income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 10)
 
 geographicallyMarginalEffect <- cbind(crop, fore, gras, shru, wetl, wate, impe, bare, income)
