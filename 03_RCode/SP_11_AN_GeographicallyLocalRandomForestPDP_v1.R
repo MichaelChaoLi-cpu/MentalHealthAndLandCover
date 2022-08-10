@@ -59,15 +59,41 @@ if(notHave){
   load("DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")
 }
 
-crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 20)
-fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 20)
-gras <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "gras2015", 0.1, 20)
-shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 20)
-wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 20)
-wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 20)
-impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 20)
-bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 20)
-income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 20)
+notHave <- F
+if(notHave){
+	crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 10)
+	save(crop, file = "DP02/04_Results/99_temp_cropNeighborOrderListTibble.Rdata")
+}
+
+notHave <- F
+if(notHave){
+	fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 10)
+	save(fore, file = "DP02/04_Results/99_temp_foreNeighborOrderListTibble.Rdata")
+}
+
+notHave <- F
+if(notHave){
+	gras <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "gras2015", 0.1, 10)
+	save(gras, file = "DP02/04_Results/99_temp_grasNeighborOrderListTibble.Rdata")
+}
+
+shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 10)
+save(shru, file = "DP02/04_Results/99_temp_shruNeighborOrderListTibble.Rdata")
+
+wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 10)
+save(wetl, file = "DP02/04_Results/99_temp_wetlNeighborOrderListTibble.Rdata")
+
+wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 10)
+save(wate, file = "DP02/04_Results/99_temp_wateNeighborOrderListTibble.Rdata")
+
+impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 10)
+save(impe, file = "DP02/04_Results/99_temp_impeNeighborOrderListTibble.Rdata")
+
+bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 10)
+save(bare, file = "DP02/04_Results/99_temp_bareNeighborOrderListTibble.Rdata")
+
+income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 10)
+save(income, file = "DP02/04_Results/99_temp_incomeNeighborOrderListTibble.Rdata")
 
 geographicallyMarginalEffect <- cbind(crop, fore, gras, shru, wetl, wate, impe, bare, income)
 save(geographicallyMarginalEffect, file = "DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")
