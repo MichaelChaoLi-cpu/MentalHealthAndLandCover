@@ -77,20 +77,35 @@ if(notHave){
 	save(gras, file = "DP02/04_Results/99_temp_grasNeighborOrderListTibble.Rdata")
 }
 
-shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 10)
-save(shru, file = "DP02/04_Results/99_temp_shruNeighborOrderListTibble.Rdata")
+notHave <- F
+if(notHave){
+	shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 10)
+	save(shru, file = "DP02/04_Results/99_temp_shruNeighborOrderListTibble.Rdata")
+}
 
-wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 10)
-save(wetl, file = "DP02/04_Results/99_temp_wetlNeighborOrderListTibble.Rdata")
+notHave <- F
+if(notHave){
+	wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 10)
+	save(wetl, file = "DP02/04_Results/99_temp_wetlNeighborOrderListTibble.Rdata")
+}
 
-wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 10)
-save(wate, file = "DP02/04_Results/99_temp_wateNeighborOrderListTibble.Rdata")
+notHave <- F
+if(notHave){
+	wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 10)
+	save(wate, file = "DP02/04_Results/99_temp_wateNeighborOrderListTibble.Rdata")
+}
 
-impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 10)
-save(impe, file = "DP02/04_Results/99_temp_impeNeighborOrderListTibble.Rdata")
+notHave <- F
+if(notHave){
+	impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 10)
+	save(impe, file = "DP02/04_Results/99_temp_impeNeighborOrderListTibble.Rdata")
+}
 
-bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 10)
-save(bare, file = "DP02/04_Results/99_temp_bareNeighborOrderListTibble.Rdata")
+notHave <- F
+if(notHave){
+	bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 10)
+	save(bare, file = "DP02/04_Results/99_temp_bareNeighborOrderListTibble.Rdata")
+}
 
 income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 10)
 save(income, file = "DP02/04_Results/99_temp_incomeNeighborOrderListTibble.Rdata")
