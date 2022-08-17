@@ -35,17 +35,17 @@ load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
 
 cat("loaded data! \n")
 
-notHave <- T
+notHave <- F
 if(notHave){
-  yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 100)
-  xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 100)
+  yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 36)
+  xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 36)
 }
 
 cat("Range data! \n")
 
-notHave <- T
+notHave <- F
 if(notHave){
-  boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 100)
+  boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 36)
   save(boundaryTibble, file = "DP02/04_Results/99_temp_boundaryTibble.Rdata")
 } else {
   load("DP02/04_Results/99_temp_boundaryTibble.Rdata")
@@ -53,7 +53,7 @@ if(notHave){
 
 notHave <- T
 if(notHave){
-  neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 1000, 100)
+  neighborOrderListTibble <- neighborOrderListDf(boundaryTibble, data_49, "X", "Y", 4000, 36)
   save(neighborOrderListTibble, file = "DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")
 } else {
   load("DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")

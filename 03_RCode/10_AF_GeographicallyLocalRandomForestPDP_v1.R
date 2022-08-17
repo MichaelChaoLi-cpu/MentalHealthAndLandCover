@@ -141,7 +141,7 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
   return(df)
 }
 
-neighborOrderList <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, fixedLength, clusterNumber){
+neighborOrderListDf <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, fixedLength, clusterNumber){
   boundaryTibbleDF <- boundaryTibbleDF %>% as.data.frame()
   dfUsedInRf <- dfUsedInRf[,c(Xcolname, Ycolname)]
   cat("Bar:", nrow(dfUsedInRf), " \n")
@@ -210,7 +210,7 @@ yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10, 4000)
 xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10, 4000)
 
 boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 14)
-#neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 1000, 10)
+neighborOrderListTibble <- neighborOrderListDf(boundaryTibble, data_49, "X", "Y", 2000, 10)
 
 load("04_Results/99_temp_neighborOrderListTibble.Rdata")
 #allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 100)

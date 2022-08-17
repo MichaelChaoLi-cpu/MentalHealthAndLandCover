@@ -140,7 +140,7 @@ neighborBoundaryDataFrame <- function(dfUsedInRf, Xcolname, Ycolname,
   return(df)
 }
 
-neighborOrderList <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, fixedLength, clusterNumber){
+neighborOrderListDf <- function(boundaryTibbleDF, dfUsedInRf, Xcolname, Ycolname, fixedLength, clusterNumber){
   boundaryTibbleDF <- boundaryTibbleDF %>% as.data.frame()
   dfUsedInRf <- dfUsedInRf[,c(Xcolname, Ycolname)]
   cat("Bar:", nrow(dfUsedInRf), " \n")
