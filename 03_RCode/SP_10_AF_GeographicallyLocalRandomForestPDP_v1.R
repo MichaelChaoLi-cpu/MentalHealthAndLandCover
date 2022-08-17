@@ -93,11 +93,19 @@ singlePointBoundaryXY <- function(inputDF.single, Xcolname, Ycolname,
   # of lines are overlaped.
   # the the left side becomes smaller and smaller until right side small than median
   
-  xLeft <- median(xRangeBoundary$xLower)
-  xRight <- median(xRangeBoundary$xUpper)
+  #### version Aug 4th median
+  #xLeft <- median(xRangeBoundary$xLower)
+  #xRight <- median(xRangeBoundary$xUpper)
   
-  yBottom <- median(yRangeBoundary$yLower)
-  yRoof <- median(yRangeBoundary$yUpper)
+  #yBottom <- median(yRangeBoundary$yLower)
+  #yRoof <- median(yRangeBoundary$yUpper)
+  
+  #### version Aug 16th max
+  xLeft <- min(xRangeBoundary$xLower)
+  xRight <- max(xRangeBoundary$xUpper)
+  
+  yBottom <- min(yRangeBoundary$yLower)
+  yRoof <- max(yRangeBoundary$yUpper)
   
   boundaryXY <- c(xLeft, xRight, yBottom, yRoof)
   return(boundaryXY)

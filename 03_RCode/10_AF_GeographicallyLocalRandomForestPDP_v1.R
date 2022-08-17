@@ -61,7 +61,7 @@ boundaryValuesSelectionSingleTree <- function(valueOfPoi, rangeListSingColumn){
 }
 
 singlePointBoundaryXY <- function(inputDF.single, Xcolname, Ycolname,
-                                  xRangeList, yRangeList, clusterNumber = 4){
+                                  xRangeList, yRangeList){
   xValueOfPoi = inputDF.single[,Xcolname]
   yValueOfPoi = inputDF.single[,Ycolname]
   xRangeBoundary <- data.frame(Doubles=double(),
@@ -94,11 +94,19 @@ singlePointBoundaryXY <- function(inputDF.single, Xcolname, Ycolname,
   # of lines are overlaped.
   # the the left side becomes smaller and smaller until right side small than median
   
-  xLeft <- median(xRangeBoundary$xLower)
-  xRight <- median(xRangeBoundary$xUpper)
+  #### version Aug 4th median
+  #xLeft <- median(xRangeBoundary$xLower)
+  #xRight <- median(xRangeBoundary$xUpper)
   
-  yBottom <- median(yRangeBoundary$yLower)
-  yRoof <- median(yRangeBoundary$yUpper)
+  #yBottom <- median(yRangeBoundary$yLower)
+  #yRoof <- median(yRangeBoundary$yUpper)
+  
+  #### version Aug 16th max
+  xLeft <- min(xRangeBoundary$xLower)
+  xRight <- max(xRangeBoundary$xUpper)
+  
+  yBottom <- min(yRangeBoundary$yLower)
+  yRoof <- max(yRangeBoundary$yUpper)
   
   boundaryXY <- c(xLeft, xRight, yBottom, yRoof)
   return(boundaryXY)
@@ -198,10 +206,10 @@ allDatasetEstiamtionBasedOnModel <- function(dataRF, modelRF, neighborOrderListT
 load("04_Results/10_RFresult_49var_weighted.RData")
 load("02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
 
-#yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10, 4000)
-#xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10, 4000)
+yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10, 4000)
+xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10, 4000)
 
-#boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 10)
+boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 14)
 #neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 1000, 10)
 
 load("04_Results/99_temp_neighborOrderListTibble.Rdata")

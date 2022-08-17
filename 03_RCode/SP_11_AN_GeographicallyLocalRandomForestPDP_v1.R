@@ -35,15 +35,15 @@ load("DP02/02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover.RData")
 
 cat("loaded data! \n")
 
-notHave <- F
+notHave <- T
 if(notHave){
-  yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 20)
-  xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 20)
+  yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 100)
+  xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 100)
 }
 
 cat("Range data! \n")
 
-notHave <- F
+notHave <- T
 if(notHave){
   boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 100)
   save(boundaryTibble, file = "DP02/04_Results/99_temp_boundaryTibble.Rdata")
@@ -51,7 +51,7 @@ if(notHave){
   load("DP02/04_Results/99_temp_boundaryTibble.Rdata")
 }
 
-notHave <- F
+notHave <- T
 if(notHave){
   neighborOrderListTibble <- neighborOrderList(boundaryTibble, data_49, "X", "Y", 1000, 100)
   save(neighborOrderListTibble, file = "DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")
@@ -59,10 +59,10 @@ if(notHave){
   load("DP02/04_Results/99_temp_neighborOrderListTibble.Rdata")
 }
 
-notHave <- F
+notHave <- T
 if(notHave){
 	crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 10)
-	save(crop, file = "DP02/04_Results/99_temp_cropNeighborOrderListTibble.Rdata")
+	save(crop, file = "DP02/04_Results/98_temp_cropNeighborOrderListTibble.Rdata")
 }
 
 notHave <- F
