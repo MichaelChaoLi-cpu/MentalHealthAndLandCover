@@ -210,19 +210,19 @@ yRangeList <- treeRangeList(data.rf.49.weighted, 'Y', 10, 4000)
 xRangeList <- treeRangeList(data.rf.49.weighted, 'X', 10, 4000)
 
 boundaryTibble <- neighborBoundaryDataFrame(data_49, "X", "Y", xRangeList, yRangeList, 14)
-neighborOrderListTibble <- neighborOrderListDf(boundaryTibble, data_49, "X", "Y", 2000, 10)
+neighborOrderListTibble <- neighborOrderListDf(boundaryTibble, data_49, "X", "Y", 8000, 10)
 
 load("04_Results/99_temp_neighborOrderListTibble.Rdata")
 #allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 100)
 
-crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 10)
-fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 10)
+crop <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "crop2015", 0.1, 2)
+fore <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "fore2015", 0.1, 4)
 gras <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "gras2015", 0.1, 10)
 shru <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "shru2015", 0.1, 10)
 wetl <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wetl2015", 0.1, 10)
 wate <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "wate2015", 0.1, 10)
 impe <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "impe2015", 0.1, 10)
-bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 10)
+bare <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "bare2015", 0.1, 4)
 income <- allDatasetEstiamtionBasedOnModel(data_49, data.rf.49.weighted, neighborOrderListTibble, "di_inc_gdp", 0.1, 10)
 
 geographicallyMarginalEffect <- cbind(crop, fore, gras, shru, wetl, wate, impe, bare, income)
