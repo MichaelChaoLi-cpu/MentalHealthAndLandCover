@@ -77,6 +77,11 @@ load("04_results/10_RFresult_49var_weighted.RData")
 X <- dataPre(data_49)
 #y_inc <- rfPredictYchangeFeature(X, data.rf.49.weighted, "crop2015", 1)
 #stepIncrease <- singleCounterfactual(X[1,], data.rf.49.weighted, y_inc[1], 0.01, "di_inc_gdp", 1, 10^-3)
-test <- aggregateCounterfactual(X[1:200,], data.rf.49.weighted, "crop2015",marginalChange = 1,
-                                0.01, "di_inc_gdp", 1, 10^-3, 4)
+counterfactualValueOfCropChange1 <-
+  aggregateCounterfactual(X, data.rf.49.weighted, "crop2015",marginalChange = 1,
+                          0.01, "di_inc_gdp", 1, 10^-3, 10)
+counterfactualValueOfCropChange1 %>% save(file = "04_Results/97_temp_cropCounterfactualValue.RData")
 
+counterfactualValueOfForeChange1 <-
+  aggregateCounterfactual(X, data.rf.49.weighted, "fore2015",marginalChange = 1,
+                          0.01, "di_inc_gdp", 1, 10^-3, 10)
