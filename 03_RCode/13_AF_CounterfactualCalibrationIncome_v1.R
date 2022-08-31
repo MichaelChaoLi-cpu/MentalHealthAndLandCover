@@ -40,6 +40,9 @@ singleCounterfactual <- function(singleDataRF, modelRF, aimY, tolerance, incomeN
     resultTable[,1] <- abs(resultTable[,1])
     direction <- resultTable[resultTable[,1]==min(resultTable[,1]),3]
     returnValue <- min(resultTable[,1]) * direction * incomeAccuracy
+    if(length(returnValue)>1){
+      returnValue <- returnValue[1]
+    }
   } else {
     returnValue <- NA
   }
@@ -80,8 +83,9 @@ X <- dataPre(data_49)
 counterfactualValueOfCropChange1 <-
   aggregateCounterfactual(X, data.rf.49.weighted, "crop2015",marginalChange = 1,
                           0.01, "di_inc_gdp", 1, 10^-3, 10)
-counterfactualValueOfCropChange1 %>% save(file = "04_Results/97_temp_cropCounterfactualValue.RData")
+save(counterfactualValueOfCropChange1, file = "04_Results/97_temp_cropCounterfactualValue.Rdata")
 
 counterfactualValueOfForeChange1 <-
   aggregateCounterfactual(X, data.rf.49.weighted, "fore2015",marginalChange = 1,
                           0.01, "di_inc_gdp", 1, 10^-3, 10)
+save(counterfactualValueOfForeChange1, file = "04_Results/97_temp_foreCounterfactualValue.Rdata")
