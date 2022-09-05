@@ -7,6 +7,8 @@ library(tidyverse)
 library(dplyr)
 library(sp)
 
+source("03_RCode/16_AF_LocalMeanBasedonRF_v1.R")
+
 load("04_Results/97_temp_bareCounterfactualValue.Rdata")
 load("04_Results/97_temp_cropCounterfactualValue.Rdata")
 load("04_Results/97_temp_foreCounterfactualValue.Rdata")
@@ -22,6 +24,30 @@ dataWithCounterfactual <- cbind(data_49, counterfactualValueOfBareChange1, count
                                 counterfactualValueOfForeChange1, counterfactualValueOfGrasChange1,
                                 counterfactualValueOfImpeChange1, counterfactualValueOfShruChange1,
                                 counterfactualValueOfWateChange1, counterfactualValueOfWetlChange1)
+
+load("04_Results/99_temp_neighborOrderListTibble.Rdata")
+
+bare.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfBareChange1",
+                                      neighborOrderListTibble, 18)
+crop.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfCropChange1",
+                                      neighborOrderListTibble, 18)
+fore.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfForeChange1",
+                                      neighborOrderListTibble, 18)
+gras.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfGrasChange1",
+                                      neighborOrderListTibble, 18)
+impe.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfImpeChange1",
+                                      neighborOrderListTibble, 18)
+shru.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfShruChange1",
+                                      neighborOrderListTibble, 18)
+wate.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfWateChange1",
+                                      neighborOrderListTibble, 18)
+wetl.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfWetlChange1",
+                                      neighborOrderListTibble, 18)
+
+
+
+
+##### build spatial point data frame
 
 counterValueWithLocation <- dataWithCounterfactual %>% 
   dplyr::select(X, Y, counterfactualValueOfBareChange1:counterfactualValueOfWetlChange1)
