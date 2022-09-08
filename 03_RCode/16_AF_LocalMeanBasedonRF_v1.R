@@ -33,11 +33,19 @@ localNeighborMeanSePval <- function(dataWithCounterfactual, landCoverCVname,
       if(length(singleNeighborOrderListTibble) > 2){
         aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
         aimCol <- na.omit(aimDF[landCoverCVname])
-        t <- t.test(aimCol)
-        line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
+        if(length(aimCol) > 1){
+          t <- t.test(aimCol)
+          line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
+        } else {
+          line <- c(NA, NA, NA, NA, NA)
+        }
       } else {
         if(length(singleNeighborOrderListTibble) > 0){
-          line <- c(mean(aimCol), NA, NA, NA, NA)
+          aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
+          aimCol <- na.omit(aimDF[landCoverCVname])
+          if(length(aimCol) > 1){
+            line <- c(mean(aimCol), NA, NA, NA, NA)
+          } else {line <- c(NA, NA, NA, NA, NA)}
         }else{
           line <- c(NA, NA, NA, NA, NA)
         }
@@ -59,18 +67,27 @@ localNeighborMeanSePvalSingle <-
                          Characters=character(),
                          stringsAsFactors=FALSE)
   for(i in seq(1, nrow(neighborOrderListTibble), 1)){
-    #print(i)
+    cat(i, " ")
     singleNeighborOrderListTibble <- neighborOrderListTibble[i,]
     singleNeighborOrderListTibble <- as.vector(as.matrix(singleNeighborOrderListTibble))
     singleNeighborOrderListTibble <- na.omit(singleNeighborOrderListTibble)
     if(length(singleNeighborOrderListTibble) > 2){
       aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
       aimCol <- na.omit(aimDF[landCoverCVname])
-      t <- t.test(aimCol)
-      line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
+      if(length(aimCol) > 1){
+        cat(length(aimCol), " ")
+        t <- t.test(aimCol)
+        line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
+      } else {
+        line <- c(NA, NA, NA, NA, NA)
+      }
     } else {
       if(length(singleNeighborOrderListTibble) > 0){
-        line <- c(mean(aimCol), NA, NA, NA, NA)
+        aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
+        aimCol <- na.omit(aimDF[landCoverCVname])
+        if(length(aimCol) > 1){
+          line <- c(mean(aimCol), NA, NA, NA, NA)
+        } else {line <- c(NA, NA, NA, NA, NA)}
       }else{
         line <- c(NA, NA, NA, NA, NA)
       }
@@ -80,4 +97,4 @@ localNeighborMeanSePvalSingle <-
   }
   colnames(df.output) <- c("meanVal", "stderr", "tValue", "pValue", "df.para")
   return(df.output)
-}
+  }
