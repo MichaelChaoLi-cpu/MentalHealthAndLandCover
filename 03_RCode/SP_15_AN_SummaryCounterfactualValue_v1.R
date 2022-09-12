@@ -56,7 +56,7 @@ wate.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualVal
 saveRDS(wate.table, file = "DP02/04_Results/97_temp_counterfactualValueOfWateChange1.rds")
 cat("wate.table\n\n\n")
 wetl.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfWetlChange1",
-                                      neighborOrderListTibble, 18)
+                                      neighborOrderListTibble, 3)
 saveRDS(wetl.table, file = "DP02/04_Results/97_temp_counterfactualValueOfWetlChange1.rds")
 cat("wetl.table\n\n\n")
 
