@@ -33,8 +33,8 @@ localNeighborMeanSePval <- function(dataWithCounterfactual, landCoverCVname,
       if(length(singleNeighborOrderListTibble) > 2){
         aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
         aimCol <- na.omit(aimDF[landCoverCVname])
-        if(length(aimCol) > 1){
-          t <- t.test(aimCol)
+        t <- try(t.test(aimCol[,1]), T)
+        if(!inherits(t, "try-error")){
           line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
         } else {
           line <- c(NA, NA, NA, NA, NA)
@@ -43,10 +43,13 @@ localNeighborMeanSePval <- function(dataWithCounterfactual, landCoverCVname,
         if(length(singleNeighborOrderListTibble) > 0){
           aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
           aimCol <- na.omit(aimDF[landCoverCVname])
-          if(length(aimCol) > 1){
-            line <- c(mean(aimCol), NA, NA, NA, NA)
-          } else {line <- c(NA, NA, NA, NA, NA)}
-        }else{
+          t <- try(t.test(aimCol[,1]), T)
+          if(!inherits(t, "try-error")){
+            line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
+          } else {
+            line <- c(NA, NA, NA, NA, NA)
+          } 
+        } else {
           line <- c(NA, NA, NA, NA, NA)
         }
       }
@@ -74,9 +77,8 @@ localNeighborMeanSePvalSingle <-
     if(length(singleNeighborOrderListTibble) > 2){
       aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
       aimCol <- na.omit(aimDF[landCoverCVname])
-      if(length(aimCol) > 1){
-        cat(length(aimCol), " ")
-        t <- t.test(aimCol)
+      t <- try(t.test(aimCol[,1]), T)
+      if(!inherits(t, "try-error")){
         line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
       } else {
         line <- c(NA, NA, NA, NA, NA)
@@ -85,10 +87,13 @@ localNeighborMeanSePvalSingle <-
       if(length(singleNeighborOrderListTibble) > 0){
         aimDF <- dataWithCounterfactual[singleNeighborOrderListTibble,] 
         aimCol <- na.omit(aimDF[landCoverCVname])
-        if(length(aimCol) > 1){
-          line <- c(mean(aimCol), NA, NA, NA, NA)
-        } else {line <- c(NA, NA, NA, NA, NA)}
-      }else{
+        t <- try(t.test(aimCol[,1]), T)
+        if(!inherits(t, "try-error")){
+          line <- c(t$estimate, t$stderr, t$statistic, t$p.value, t$parameter)
+        } else {
+          line <- c(NA, NA, NA, NA, NA)
+        } 
+      } else {
         line <- c(NA, NA, NA, NA, NA)
       }
     }

@@ -47,16 +47,16 @@ impe.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualVal
                                       neighborOrderListTibble, 18)
 saveRDS(impe.table, file = "DP02/04_Results/97_temp_counterfactualValueOfImpeChange1.rds")
 cat("impe.table\n\n\n")
-shru.table <- localNeighborMeanSePvalSingle(dataWithCounterfactual, "counterfactualValueOfShruChange1",
-                                      neighborOrderListTibble)
+shru.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfShruChange1",
+                                      neighborOrderListTibble, 18)
 saveRDS(shru.table, file = "DP02/04_Results/97_temp_counterfactualValueOfShruChange1.rds")
 cat("shru.table\n\n\n")
 wate.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfWateChange1",
-                                      neighborOrderListTibble, 3)
+                                      neighborOrderListTibble, 18)
 saveRDS(wate.table, file = "DP02/04_Results/97_temp_counterfactualValueOfWateChange1.rds")
 cat("wate.table\n\n\n")
 wetl.table <- localNeighborMeanSePval(dataWithCounterfactual, "counterfactualValueOfWetlChange1",
-                                      neighborOrderListTibble, 3)
+                                      neighborOrderListTibble, 18)
 saveRDS(wetl.table, file = "DP02/04_Results/97_temp_counterfactualValueOfWetlChange1.rds")
 cat("wetl.table\n\n\n")
 
