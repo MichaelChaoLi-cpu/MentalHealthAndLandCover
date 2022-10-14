@@ -37,7 +37,7 @@ shap.df <- data.frame(Doubles=double(),
                       stringsAsFactors=FALSE)
 
 row.num <- 1
-while (row.num < nrow(data_49) + 1){
+while (row.num < 101){
   test1 <- data_49[row.num,]
   shap_test1 <- DALEX::predict_parts(
     explainer = explain_rf, 
