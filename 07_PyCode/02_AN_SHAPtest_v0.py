@@ -14,7 +14,7 @@ Created on Fri Oct 14 09:50:41 2022
 #PJM -X
 module use /home/exp/modulefiles
 module load gcc/10.2.0
-mpirun  -np 72  -ppn 18  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/02_AN_SHAPtest_v0.py
+mpirun  -np 144  -ppn 36  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/02_AN_SHAPtest_v0.py
 """
 
 import os
@@ -29,8 +29,8 @@ import pyreadr
 
 from sklearn.model_selection import train_test_split
 
-#import dask_mpi as dm
-#from dask.distributed import Client, progress
+import dask_mpi as dm
+from dask.distributed import Client, progress
 
 from datetime import datetime
 
@@ -55,11 +55,21 @@ weight = dataset[['weights']].values.flatten()
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
                                random_state=1, n_jobs=36, max_features = 14)
 
-#dm.initialize(local_directory=os.getcwd(),  nthreads=18)
-#client = Client()
+dm.initialize(local_directory=os.getcwd(),  nthreads=36)
+client = Client()
 
-#with joblib.parallel_backend("dask"): model.fit(X, y, sample_weight = weight)
+start = datetime.now()
 model.fit(X, y, sample_weight = weight)
+end = datetime.now()
+test_time8 = end - start
+print(f"model without dask: Time taken: {end - start}")
+
+start = datetime.now()
+with joblib.parallel_backend("dask"): model.fit(X, y, sample_weight = weight)
+end = datetime.now()
+test_time8 = end - start
+print(f"model with dask: Time taken: {end - start}")
+#model.fit(X, y, sample_weight = weight)
 
 # SHAP
 import dalex as dx
@@ -67,10 +77,10 @@ import dalex as dx
 model_14feature_rf_exp = dx.Explainer(model, X, y,  
                                       label = "RF Pipeline")
 
-def singleSHAPprocess(obs_num, model_rf_exp, X):
+def singleSHAPprocess(obs_num):
     test_obs = X.iloc[obs_num:obs_num+1,:]
-    shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 5, N = 5000)
+    shap_test = model_14feature_rf_exp.predict_parts(test_obs, type = 'shap', 
+                                                     B = 5, N = 5000)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -79,41 +89,17 @@ def singleSHAPprocess(obs_num, model_rf_exp, X):
     result = result.reset_index(drop=True)
     return result
 
+import dask.bag as db
+b = db.from_sequence(list(range(144)), npartitions=144)
+b = b.map(singleSHAPprocess)
 
 start = datetime.now()
-
-test_result = Parallel(n_jobs=30)(delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X, result_df) for obs_num in np.linspace(0, 29, 30))
-
-end = datetime.now()
-test_time7 = end - start
-
-print(f"B 5, N 5000: Time taken: {end - start}")
-
-print(test_result)
-
-start = datetime.now()
-
-#for obs_num in np.linspace(0, 143, 144):
-def with_dask():
-    results = []
-    for obs_num in np.linspace(0, 29, 30):
-        # Note the difference in way the inc function is called!
-        y = dask.delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X)
-        results.append(y)
-        
-    total = sum(results)
-    return total
-
-c = with_dask()
-test_result_2 = c.compute()
-
+results_bag = b.compute()
 end = datetime.now()
 test_time8 = end - start
-
 print(f"B 5, N 5000: Time taken: {end - start}")
 
-print(test_result_2)
-
+print(results_bag)
 
 """
 test_obs = X.iloc[0:1,:]
@@ -129,3 +115,51 @@ with joblib.parallel_backend("dask"): shap_test = model_14feature_rf_exp.predict
 end = datetime.now()
 print(f"With Dask Time taken: {end - start}")
 """
+
+"""
+def singleSHAPprocess(obs_num, model_rf_exp, X):
+    test_obs = X.iloc[obs_num:obs_num+1,:]
+    shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
+                                           B = 5, N = 5000)
+    result = shap_test.result[shap_test.result.B == 0]
+    result = result[['contribution', 'variable_name']]
+    result = result.transpose()
+    result = result.rename(columns=result.iloc[1])
+    result = result.drop(['variable_name'], axis=0)
+    result = result.reset_index(drop=True)
+    return result
+
+start = datetime.now()
+
+
+end = datetime.now()
+test_time7 = end - start
+
+print(f"B 5, N 5000: Time taken: {end - start}")
+
+print(test_result)
+
+import dask
+from dask.distributed import Client, LocalCluster
+cluster = LocalCluster()
+client = Client(cluster)
+
+#for obs_num in np.linspace(0, 143, 144):
+results = []
+for obs_num in np.linspace(0, 9, 10):
+    # Note the difference in way the inc function is called!
+    y = dask.delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X)
+    results.append(y)
+
+start = datetime.now()
+
+test_result_2 = dask.persist(*results)
+
+end = datetime.now()
+test_time8 = end - start
+
+print(f"B 5, N 5000: Time taken: {end - start}")
+
+print(test_result_2)
+"""
+
