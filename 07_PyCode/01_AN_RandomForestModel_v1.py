@@ -78,31 +78,12 @@ def singleSHAPprocess(obs_num, model_rf_exp, X, result_df):
 
 start = datetime.now()
 
-Parallel(n_jobs=10)(delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X, result_df) for obs_num in np.linspace(0, 29, 30))
+test_result = Parallel(n_jobs=30)(delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X, result_df) for obs_num in np.linspace(0, 29, 30))
 
 end = datetime.now()
 test_time7 = end - start
 
 print(f"B 5, N 5000: Time taken: {end - start}")
-
-def parallel_shap(observation_id):
-    shap_test = model_14feature_rf_exp.predict_parts(X[[observation_id]], 
-                                                     type="shap", N=5000, B=5)
-    result = shap_test.result[shap_test.result.B == 0]
-    result = result[['contribution', 'variable_name']]
-    result = result.transpose()
-    result = result.rename(columns=result.iloc[1])
-    result = result.drop(['variable_name'], axis=0)
-    result = result.reset_index(drop=True)
-    return result_df
-
-
-
-pool = Pool(processes=10)
-observation_ids = list(range(30))
-result = pool.map(parallel_shap, observation_ids)
-pool.close()
-
 
     
 """
@@ -161,3 +142,24 @@ shap_test1.result[shap_test1.result.B == 0]
 # Because of time, 
 """
 
+"""
+
+def parallel_shap(observation_id):
+    shap_test = model_14feature_rf_exp.predict_parts(X[[observation_id]], 
+                                                     type="shap", N=5000, B=5)
+    result = shap_test.result[shap_test.result.B == 0]
+    result = result[['contribution', 'variable_name']]
+    result = result.transpose()
+    result = result.rename(columns=result.iloc[1])
+    result = result.drop(['variable_name'], axis=0)
+    result = result.reset_index(drop=True)
+    return result_df
+
+
+
+pool = Pool(processes=10)
+observation_ids = list(range(30))
+result = pool.map(parallel_shap, observation_ids)
+pool.close()
+
+"""
