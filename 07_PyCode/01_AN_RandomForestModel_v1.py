@@ -13,6 +13,7 @@ from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 from joblib import dump
 import joblib
+from joblib import Parallel, delayed
 
 import pyreadr
 
@@ -20,11 +21,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import HalvingGridSearchCV
 
+from multiprocessing import Pool
+
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 
 ### local folder on PC:
-# DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio"
+# DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
 # DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
 
 dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
@@ -57,8 +60,51 @@ import dalex as dx
 model_14feature_rf_exp = dx.Explainer(model, X, y,  
                                       label = "RF Pipeline")
 
-test_obs1 = X.iloc[1:2,:]
+result_df = None
 
+def singleSHAPprocess(obs_num, model_rf_exp, X, result_df):
+    test_obs = X.iloc[obs_num:obs_num+1,:]
+    shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
+                                           B = 5, N = 5000)
+    result = shap_test.result[shap_test.result.B == 0]
+    result = result[['contribution', 'variable_name']]
+    result = result.transpose()
+    result = result.rename(columns=result.iloc[1])
+    result = result.drop(['variable_name'], axis=0)
+    result = result.reset_index(drop=True)
+    result_df = pd.concat([result_df, result])
+    return result_df
+
+
+start = datetime.now()
+
+Parallel(n_jobs=10)(delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X, result_df) for obs_num in np.linspace(0, 29, 30))
+
+end = datetime.now()
+test_time7 = end - start
+
+print(f"B 5, N 5000: Time taken: {end - start}")
+
+def parallel_shap(observation_id):
+    shap_test = model_14feature_rf_exp.predict_parts(X[[observation_id]], 
+                                                     type="shap", N=5000, B=5)
+    result = shap_test.result[shap_test.result.B == 0]
+    result = result[['contribution', 'variable_name']]
+    result = result.transpose()
+    result = result.rename(columns=result.iloc[1])
+    result = result.drop(['variable_name'], axis=0)
+    result = result.reset_index(drop=True)
+    return result_df
+
+
+
+pool = Pool(processes=10)
+observation_ids = list(range(30))
+result = pool.map(parallel_shap, observation_ids)
+pool.close()
+
+
+    
 """
 start = datetime.now()
 shap_test1 = model_14feature_rf_exp.predict_parts(test_obs1, type = 'shap')
@@ -114,3 +160,4 @@ shap_test1.result[shap_test1.result.B == 0]
 
 # Because of time, 
 """
+

@@ -28,13 +28,13 @@ import joblib
 import pyreadr
 
 from sklearn.model_selection import train_test_split
-from sklearn.experimental import enable_halving_search_cv
-from sklearn.model_selection import HalvingGridSearchCV
 
-import dask_mpi as dm
-from dask.distributed import Client, progress
+#import dask_mpi as dm
+#from dask.distributed import Client, progress
 
 from datetime import datetime
+
+from joblib import Parallel, delayed
 
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
@@ -53,18 +53,48 @@ X = dataset.iloc[:, 1:50]
 weight = dataset[['weights']].values.flatten()
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, n_jobs=-1, max_features = 14)
+                               random_state=1, n_jobs=36, max_features = 14)
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=18)
-client = Client()
+#dm.initialize(local_directory=os.getcwd(),  nthreads=18)
+#client = Client()
 
-with joblib.parallel_backend("dask"): model.fit(X, y, sample_weight = weight)
+#with joblib.parallel_backend("dask"): model.fit(X, y, sample_weight = weight)
+model.fit(X, y, sample_weight = weight)
 
 # SHAP
 import dalex as dx
 
 model_14feature_rf_exp = dx.Explainer(model, X, y,  
                                       label = "RF Pipeline")
+
+start = datetime.now()
+result_df = None
+
+i = 0
+while i < 30:
+    test_obs1 = X.iloc[i:i+1,:]
+    shap_test1_NB3 = model_14feature_rf_exp.predict_parts(test_obs1, type = 'shap', 
+                                                          B = 5, N = 5000)
+    result = shap_test1_NB3.result[shap_test1_NB3.result.B == 0]
+    result = result[['contribution', 'variable_name']]
+    result = result.transpose()
+    result = result.rename(columns=result.iloc[1])
+    result = result.drop(['variable_name'], axis=0)
+    result = result.reset_index(drop=True)
+    result_df = pd.concat([result_df, result])
+    print("obs:", i)
+    i = i + 1
+
+end = datetime.now()
+test_time7 = end - start
+
+print(f"B 5, N 5000: Time taken: {end - start}")
+
+print(result_df)
+
+
+
+"""
 test_obs = X.iloc[0:1,:]
 
 start = datetime.now()
@@ -77,3 +107,4 @@ start = datetime.now()
 with joblib.parallel_backend("dask"): shap_test = model_14feature_rf_exp.predict_parts(test_obs, type = 'shap')
 end = datetime.now()
 print(f"With Dask Time taken: {end - start}")
+"""
