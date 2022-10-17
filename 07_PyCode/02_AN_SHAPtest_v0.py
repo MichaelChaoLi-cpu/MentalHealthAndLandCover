@@ -61,13 +61,13 @@ client = Client()
 start = datetime.now()
 model.fit(X, y, sample_weight = weight)
 end = datetime.now()
-test_time8 = end - start
+test_time6 = end - start
 print(f"model without dask: Time taken: {end - start}")
 
 start = datetime.now()
 with joblib.parallel_backend("dask"): model.fit(X, y, sample_weight = weight)
 end = datetime.now()
-test_time8 = end - start
+test_time7 = end - start
 print(f"model with dask: Time taken: {end - start}")
 #model.fit(X, y, sample_weight = weight)
 
@@ -99,7 +99,11 @@ end = datetime.now()
 test_time8 = end - start
 print(f"B 5, N 5000: Time taken: {end - start}")
 
+dump(results_bag, DP02_result_location + '02_SHAP_testResult.joblib') 
+pd.Series([test_time6, test_time7, test_time8]).to_csv(DP02_result_location + '03_SHAP_report.csv')
+
 print(results_bag)
+
 
 """
 test_obs = X.iloc[0:1,:]
@@ -163,3 +167,17 @@ print(f"B 5, N 5000: Time taken: {end - start}")
 print(test_result_2)
 """
 
+"""
+lazy_results = []
+for obs_num in np.linspace(0, 29, 30):
+    lazy_result = dask.delayed(singleSHAPprocess)(int(obs_num))
+    lazy_results.append(lazy_result)
+    
+futures = []
+for obs_num in np.linspace(0, 29, 30):
+    shap_test = model_14feature_rf_exp.predict_parts(int(obs_num), 
+                                                     type = 'shap', 
+                                                     B = 5, N = 5000)
+    return shap_test.result
+    
+"""

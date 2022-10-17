@@ -62,7 +62,7 @@ model_14feature_rf_exp = dx.Explainer(model, X, y,
 
 result_df = None
 
-def singleSHAPprocess(obs_num, model_rf_exp, X, result_df):
+def singleSHAPprocess(obs_num, model_rf_exp, X):
     test_obs = X.iloc[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
                                            B = 5, N = 5000)
@@ -72,13 +72,12 @@ def singleSHAPprocess(obs_num, model_rf_exp, X, result_df):
     result = result.rename(columns=result.iloc[1])
     result = result.drop(['variable_name'], axis=0)
     result = result.reset_index(drop=True)
-    result_df = pd.concat([result_df, result])
-    return result_df
+    return result
 
 
 start = datetime.now()
 
-test_result = Parallel(n_jobs=30)(delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X, result_df) for obs_num in np.linspace(0, 29, 30))
+test_result = Parallel(n_jobs=30)(delayed(singleSHAPprocess)(int(obs_num), model_14feature_rf_exp, X) for obs_num in np.linspace(0, 29, 30))
 
 end = datetime.now()
 test_time7 = end - start
@@ -156,10 +155,14 @@ def parallel_shap(observation_id):
     return result_df
 
 
-
-pool = Pool(processes=10)
+start = datetime.now()
+pool = Pool(processes=30)
 observation_ids = list(range(30))
 result = pool.map(parallel_shap, observation_ids)
 pool.close()
+end = datetime.now()
+print(f"B 5, N 5000: Time taken: {end - start}")
+
+
 
 """
