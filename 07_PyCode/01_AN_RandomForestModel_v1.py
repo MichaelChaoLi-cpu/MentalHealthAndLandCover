@@ -21,8 +21,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import HalvingGridSearchCV
 
-from multiprocessing import Pool
-
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 
