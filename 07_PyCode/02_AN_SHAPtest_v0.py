@@ -73,7 +73,7 @@ print(f"model without dask: Time taken: {end - start}")
 pd.Series(['import done', 'initial done', 'first done', test_time6]).to_csv(DP02_result_location + '03_SHAP_report.csv')
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 14)
+                               random_state=1, max_features = 11)
 start = datetime.now()
 with joblib.parallel_backend("dask"): model.fit(X, y)
 

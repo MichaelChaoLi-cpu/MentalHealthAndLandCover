@@ -34,6 +34,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import GridSearchCV
 
+import warnings
+
+warnings.filterwarnings(action='ignore', category=UserWarning)
+
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 
@@ -48,6 +52,7 @@ print("Data Done!")
 
 dm.initialize(local_directory=os.getcwd(),  nthreads=36)
 client = Client()
+# client = Client(threads_per_worker=36)
 
 param_grid= {'max_features': [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
              'n_estimators': [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
@@ -65,3 +70,5 @@ print("finish fitting!")
 dump(search, DP02_result_location + '01_hyperParaSearching.joblib')
 
 print("Output!")
+
+client.close()
