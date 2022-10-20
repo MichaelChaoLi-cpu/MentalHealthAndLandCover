@@ -52,7 +52,7 @@ print("Data Done!")
 
 dm.initialize(local_directory=os.getcwd(),  nthreads=36)
 client = Client()
-# client = Client(threads_per_worker=36)
+# client = Client(threads_per_worker=8, n_workers=1)
 
 param_grid= {'max_features': [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
              'n_estimators': [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
