@@ -14,7 +14,7 @@ Created on Tue Oct 18 15:53:19 2022
 #PJM -X
 module use /home/exp/modulefiles
 module load gcc/10.2.0
-mpirun  -np 6  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
+mpirun  -np 8  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
 
 Test: 0 - 1399
 Time: 24h
@@ -48,7 +48,7 @@ pd.Series(['import done']).to_csv(DP02_result_location + '05_8node_TEST_report.c
 
 warnings.filterwarnings(action='ignore', category=UserWarning)
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=4, memory_limit=0.99)
+dm.initialize(local_directory=os.getcwd(),  nthreads=12, memory_limit=0)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -78,7 +78,6 @@ model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 
 pd.Series(['import done', client, "load data", model.oob_score_, "dalex"]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
-
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
@@ -93,9 +92,9 @@ def singleSHAPprocess(obs_num):
 
 start = datetime.now()
 with joblib.parallel_backend('dask'):
-    results_bag = joblib.Parallel(n_jobs=16, verbose=100)(
+    results_bag = joblib.Parallel(n_jobs=12, verbose=100)(
         joblib.delayed(singleSHAPprocess)(int(obs_num))
-        for obs_num in np.linspace(0, 1399, 1400))
+        for obs_num in np.linspace(0, 79, 80))
 
 
 end = datetime.now()
