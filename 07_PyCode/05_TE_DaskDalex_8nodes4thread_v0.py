@@ -48,7 +48,7 @@ pd.Series(['import done']).to_csv(DP02_result_location + '05_8node_TEST_report.c
 
 warnings.filterwarnings(action='ignore', category=UserWarning)
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=12, memory_limit=0)
+dm.initialize(local_directory=os.getcwd(),  nthreads=4, memory_limit=0)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -92,9 +92,9 @@ def singleSHAPprocess(obs_num):
 
 start = datetime.now()
 with joblib.parallel_backend('dask'):
-    results_bag = joblib.Parallel(n_jobs=12, verbose=100)(
+    results_bag = joblib.Parallel(n_jobs=24, verbose=100)(
         joblib.delayed(singleSHAPprocess)(int(obs_num))
-        for obs_num in np.linspace(0, 999, 1000))
+        for obs_num in np.linspace(0, 1999, 2000))
 
 
 end = datetime.now()
