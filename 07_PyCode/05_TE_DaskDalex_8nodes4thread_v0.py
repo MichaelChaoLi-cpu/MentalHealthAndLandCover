@@ -94,7 +94,7 @@ start = datetime.now()
 with joblib.parallel_backend('dask'):
     results_bag = joblib.Parallel(n_jobs=12, verbose=100)(
         joblib.delayed(singleSHAPprocess)(int(obs_num))
-        for obs_num in np.linspace(0, 79, 80))
+        for obs_num in np.linspace(0, 999, 1000))
 
 
 end = datetime.now()
