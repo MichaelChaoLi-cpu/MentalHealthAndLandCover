@@ -29,8 +29,8 @@ import pyreadr
 
 from sklearn.model_selection import train_test_split
 
-import dask_mpi as dm
-from dask.distributed import Client, progress
+#import dask_mpi as dm
+#from dask.distributed import Client, progress
 
 from datetime import datetime
 
@@ -41,13 +41,13 @@ import warnings
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 
-pd.Series(['import done']).to_csv(DP02_result_location + '04_TEST_report.csv')
+#pd.Series(['import done']).to_csv(DP02_result_location + '04_TEST_report.csv')
 
 warnings.filterwarnings(action='ignore', category=UserWarning)
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=4, memory_limit=0.99)
-client = Client()
-pd.Series(['import done', client]).to_csv(DP02_result_location + '04_TEST_report.csv')
+#dm.initialize(local_directory=os.getcwd(),  nthreads=4, memory_limit=0.99)
+#client = Client()
+#pd.Series(['import done', client]).to_csv(DP02_result_location + '04_TEST_report.csv')
 
 dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
 
@@ -55,7 +55,7 @@ dataset = dataset[None]
 
 y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
 X = np.array(dataset.iloc[:, 1:50], dtype='float64')
-pd.Series(['import done', client, "load data"]).to_csv(DP02_result_location + '04_TEST_report.csv')
+#pd.Series(['import done', client, "load data"]).to_csv(DP02_result_location + '04_TEST_report.csv')
 
 
 #from sklearn.datasets import make_regression
@@ -63,17 +63,18 @@ pd.Series(['import done', client, "load data"]).to_csv(DP02_result_location + '0
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
                                random_state=1, max_features = 11, n_jobs=-1)
-with joblib.parallel_backend("dask"): model.fit(X, y)
+model.fit(X, y)
+#with joblib.parallel_backend("dask"): model.fit(X, y)
 
 
-pd.Series(['import done', client, "load data", model.oob_score_]).to_csv(DP02_result_location + '04_TEST_report.csv')
+#pd.Series(['import done', client, "load data", model.oob_score_]).to_csv(DP02_result_location + '04_TEST_report.csv')
 
 # SHAP
 import dalex as dx
 
 model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 
-pd.Series(['import done', client, "load data", model.oob_score_, "dalex"]).to_csv(DP02_result_location + '04_TEST_report.csv')
+#pd.Series(['import done', client, "load data", model.oob_score_, "dalex"]).to_csv(DP02_result_location + '04_TEST_report.csv')
 
 
 def singleSHAPprocess(obs_num):
@@ -88,18 +89,22 @@ def singleSHAPprocess(obs_num):
     result = result.reset_index(drop=True)
     return result
 
-start = datetime.now()
-with joblib.parallel_backend('dask'):
-    results_bag = joblib.Parallel(n_jobs=16, verbose=100)(
-        joblib.delayed(singleSHAPprocess)(int(obs_num))
-        for obs_num in np.linspace(0, 1339, 1400))
+#start = datetime.now()
+#with joblib.parallel_backend('dask'):
+#    results_bag = joblib.Parallel(n_jobs=16, verbose=100)(
+#        joblib.delayed(singleSHAPprocess)(int(obs_num))
+#        for obs_num in np.linspace(0, 1339, 1400))
+    
+results_bag = joblib.Parallel(n_jobs=4, verbose=100)(
+    joblib.delayed(singleSHAPprocess)(int(obs_num))
+    for obs_num in np.linspace(2000, 3999, 2000))
 
 
-end = datetime.now()
-print(f"B 5, N 5000: Time taken: {end - start}")   
+#end = datetime.now()
+#print(f"B 5, N 5000: Time taken: {end - start}")   
 
-pd.Series(['import done', client, "load data", model.oob_score_, "dalex", end - start]).to_csv(DP02_result_location + '04_TEST_report.csv')
+#pd.Series(['import done', client, "load data", model.oob_score_, "dalex", end - start]).to_csv(DP02_result_location + '04_TEST_report.csv')
 
 dump(results_bag, DP02_result_location + '00_04_TE_result.joblib')
 
-client.close()
+#client.close()
