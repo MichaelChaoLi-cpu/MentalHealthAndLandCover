@@ -16,8 +16,11 @@ module use /home/exp/modulefiles
 module load gcc/10.2.0
 mpirun  -np 8  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
 
-Test: 0 - 1399
-Time: 24h
+Test: 0 - 1999
+Time: 15.5h
+
+mpirun  -np 16  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
+Test: 2000 - 7999
 """
 
 import os
@@ -92,9 +95,9 @@ def singleSHAPprocess(obs_num):
 
 start = datetime.now()
 with joblib.parallel_backend('dask'):
-    results_bag = joblib.Parallel(n_jobs=24, verbose=100)(
+    results_bag = joblib.Parallel(n_jobs=56, verbose=100)(
         joblib.delayed(singleSHAPprocess)(int(obs_num))
-        for obs_num in np.linspace(0, 1999, 2000))
+        for obs_num in np.linspace(2000, 7999, 6000))
 
 
 end = datetime.now()
@@ -102,6 +105,6 @@ print(f"B 5, N 5000: Time taken: {end - start}")
 
 pd.Series(['import done', client, "load data", model.oob_score_, "dalex", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
-dump(results_bag, DP02_result_location + '00_05_TE_result.joblib')
+dump(results_bag, DP02_result_location + '00_05_TE_result_2000_7999.joblib')
 
 client.close()
