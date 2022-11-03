@@ -34,7 +34,7 @@ import pandas as pd
 import numpy as np
 
 from sklearn.ensemble import RandomForestRegressor
-from joblib import dump
+from joblib import dump, load
 import joblib
 
 import pyreadr
@@ -73,10 +73,10 @@ pd.Series(['import done', client, "load data"]).to_csv(DP02_result_location + '0
 #from sklearn.datasets import make_regression
 #X, y = make_regression(n_samples = 100000, n_features = 50, random_state=1)
 
-model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 11, n_jobs=-1)
-with joblib.parallel_backend("dask"): model.fit(X, y)
-
+#model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
+#                               random_state=1, max_features = 11, n_jobs=-1)
+#with joblib.parallel_backend("dask"): model.fit(X, y)
+model = load(DP02_result_location + '00_randomForest_model.joblib')
 
 pd.Series(['import done', client, "load data", model.oob_score_]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
