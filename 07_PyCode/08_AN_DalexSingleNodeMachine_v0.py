@@ -72,11 +72,11 @@ def singleSHAPprocess(obs_num):
 start = datetime.now()
 results_bag = joblib.Parallel(n_jobs=-1, verbose=20000, backend="multiprocessing")(
     joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in np.linspace(30000, 49999, 20000))
+    for obs_num in np.linspace(10000, 19999, 10000))
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")
 
-dump(results_bag, DP02_result_location + '00_05_TE_result_30000_49999.joblib')
+dump(results_bag, DP02_result_location + '00_05_TE_result_10000_19999.joblib')
 
 """
 dump(model, DP02_result_location + '00_randomForest_model.joblib')
