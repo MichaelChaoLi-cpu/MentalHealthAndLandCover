@@ -57,7 +57,7 @@ pd.Series(['import done']).to_csv(DP02_result_location + '05_8node_TEST_report.c
 
 warnings.filterwarnings(action='ignore', category=UserWarning)
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=4, memory_limit=0)
+dm.initialize(local_directory=os.getcwd(),  nthreads=36, memory_limit=0)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -90,7 +90,7 @@ pd.Series(['import done', client, "load data", model.oob_score_, "dalex"]).to_cs
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 5, N = 5000)
+                                           B = 5, N = 1000)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -100,17 +100,21 @@ def singleSHAPprocess(obs_num):
     return result
 
 start = datetime.now()
-with joblib.parallel_backend('dask'):
-    results_bag = joblib.Parallel(n_jobs=-1, verbose=100)(
-        joblib.delayed(singleSHAPprocess)(int(obs_num))
-        for obs_num in np.linspace(8000, 10999, 3000))
-
+#with joblib.parallel_backend('dask'):
+#    results_bag = joblib.Parallel(n_jobs=-1, verbose=100)(
+#        joblib.delayed(singleSHAPprocess)(int(obs_num))
+#        for obs_num in np.linspace(8000, 10999, 3000))
+    
+results_bag = joblib.Parallel(n_jobs=-1, verbose=2000, 
+                              backend="multiprocessing")(
+    joblib.delayed(singleSHAPprocess)(int(obs_num))
+    for obs_num in np.linspace(0, 99, 100))
 
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")   
 
 pd.Series(['import done', client, "load data", model.oob_score_, "dalex", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
-dump(results_bag, DP02_result_location + '00_05_TE_result_8000_10999.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_8000_10999.joblib')
 
 client.close()
