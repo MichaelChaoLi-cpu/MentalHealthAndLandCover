@@ -63,13 +63,15 @@ def renameReindexDataframe(results):
 def mergeXandResults(results):
     dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
     dataset = dataset[None]
-    X = dataset.iloc[:, 1:50]
-    XResults = pd.concat([X, results], axis=1)
+    #X = dataset.iloc[:, 1:50]
+    XResults = pd.concat([dataset, results], axis=1)
     return XResults
 
 results = makeSHAPdataframe()
 results = renameReindexDataframe(results)
 XResults = mergeXandResults(results)
+
+XResults.to_csv(DP02_result_location + "mergedXSHAP.csv")
 
 
 

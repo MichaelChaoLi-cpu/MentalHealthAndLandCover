@@ -60,7 +60,7 @@ model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 25, N = 10000)
+                                           B = 5, N = 10000)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()

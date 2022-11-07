@@ -105,10 +105,11 @@ start = datetime.now()
 #        joblib.delayed(singleSHAPprocess)(int(obs_num))
 #        for obs_num in np.linspace(8000, 10999, 3000))
     
-results_bag = joblib.Parallel(n_jobs=-1, verbose=2000, 
-                              backend="multiprocessing")(
-    joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in np.linspace(0, 99, 100))
+with joblib.parallel_backend('dask'):
+    results_bag = joblib.Parallel(n_jobs=-1, verbose=2000, 
+                                  backend="dask")(
+        joblib.delayed(singleSHAPprocess)(int(obs_num))
+        for obs_num in np.linspace(0, 99, 100))
 
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")   

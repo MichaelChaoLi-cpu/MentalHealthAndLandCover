@@ -41,8 +41,14 @@ X = np.array(dataset.iloc[:, 1:50], dtype='float64')
 #X, y = make_regression(n_samples = 100000, n_features = 50, random_state=1)
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 11, n_jobs=1)
+                               random_state=1, max_features = 11, n_jobs=-1)
 model.fit(X, y)
+
+# use shap
+import shap
+
+explainer = shap.TreeExplainer(model)
+shap_values = explainer(X)
 
 # SHAP
 import dalex as dx
