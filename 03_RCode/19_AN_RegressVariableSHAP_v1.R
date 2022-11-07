@@ -36,4 +36,32 @@ GWPR.POLS.bandwidth <- #
           SDF = spatialPoint, adaptive = T, p = 2, bigdata = F,
           upperratio = 0.10, effect = "individual", model = "pooling", approach = "CV",
           kernel = "bisquare",doParallel = T, cluster.number = 10, gradientIncrement = T,
-          GI.step = 1, GI.upper = 400, GI.lower = 20)
+          GI.step = 100, GI.upper = 2000, GI.lower = 1000)
+GWPR.bandwidth = 1300
+GWPR.result.fore <- GWPR(formula = formula, data = XSHAP, index = c("X.1", "X.2"),
+                         SDF = spatialPoint, bw = GWPR.bandwidth, adaptive = F,
+                         p = 2, effect = "individual", kernel = "bisquare", longlat = F,
+                         model = "pooling")
+
+
+formula <- crop2015_SHAP ~ crop2015
+GWPR.POLS.bandwidth.crop <-  
+  bw.GWPR(formula = formula, data = XSHAP, index = c("X.1", "X.2"),
+          SDF = spatialPoint, adaptive = T, p = 2, bigdata = F,
+          upperratio = 0.10, effect = "individual", model = "pooling", approach = "CV",
+          kernel = "bisquare",doParallel = T, cluster.number = 15, gradientIncrement = T,
+          GI.step = 100, GI.upper = 3000, GI.lower = 1000)
+GWPR.bandwidth = 1300
+GWPR.result.crop <- GWPR(formula = formula, data = XSHAP, index = c("X.1", "X.2"),
+                         SDF = spatialPoint, bw = GWPR.bandwidth, adaptive = F,
+                         p = 2, effect = "individual", kernel = "bisquare", longlat = F,
+                         model = "pooling")
+
+formula <- impe2015_SHAP ~ impe2015
+GWPR.POLS.bandwidth.impe <- # 
+  bw.GWPR(formula = formula, data = XSHAP, index = c("X.1", "X.2"),
+          SDF = spatialPoint, adaptive = T, p = 2, bigdata = F,
+          upperratio = 0.10, effect = "individual", model = "pooling", approach = "CV",
+          kernel = "bisquare",doParallel = T, cluster.number = 10, gradientIncrement = T,
+          GI.step = 100, GI.upper = 2000, GI.lower = 1000)
+
