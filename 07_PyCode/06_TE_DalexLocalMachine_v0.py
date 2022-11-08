@@ -47,14 +47,6 @@ model.fit(X, y)
 model.oob_score_
 
 
-feature = model.estimators_[1].tree_.feature
-threshold = model.estimators_[1].tree_.threshold
-
-df = pd.concat([pd.Series(feature0), pd.Series(threshold0)], axis=1)
-df.columns = ['feature', 'threshold']
-X_split = df[df['feature']==47]
-Y_split = df[df['feature']==48]
-
 # use shap
 #import shap
 
@@ -93,5 +85,10 @@ dump(model, DP02_result_location + '00_randomForest_model.joblib')
 results_bag = joblib.Parallel(n_jobs=1, verbose=10000, backend="multiprocessing")(
     joblib.delayed(singleSHAPprocess)(int(obs_num))
     for obs_num in np.linspace(80000, 80009, 10))
+
+# mac
+DP02_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+DP02_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+
 """
 
