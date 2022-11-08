@@ -6,15 +6,15 @@ Created on Tue Oct 18 15:17:49 2022
 
 #!/bin/bash
 #PJM -L "rscunit=ito-a"
-#PJM -L "rscgrp=ito-s"
-#PJM -L "vnode=4"
+#PJM -L "rscgrp=ito-m"
+#PJM -L "vnode=8"
 #PJM -L "vnode-core=36"
 #PJM -L "elapse=24:00:00"
 #PJM -j
 #PJM -X
 module use /home/exp/modulefiles
 module load gcc/10.2.0
-mpirun  -np 144  -ppn 36  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/03_AN_HyperparameterTuning_v0.py
+mpirun  -np 8  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/03_AN_HyperparameterTuning_v0.py
 """
 
 import os
@@ -50,19 +50,21 @@ y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
 
 print("Data Done!")
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=36)
+dm.initialize(local_directory=os.getcwd(),  nthreads=36, memory=0)
 client = Client()
 # client = Client(threads_per_worker=8, n_workers=1)
 
-param_grid= {'max_features': [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-             'n_estimators': [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+param_grid= {'max_features': [11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                              21, 22, 23, 24, 25, 26, 27. 28, 29, 30],
+             'min_samples_split':[5, 10, 15, 20, 25, 30, 35, 40]
              }
-base_estimator = RandomForestRegressor(oob_score=True, random_state=1)
+base_estimator = RandomForestRegressor(oob_score=True, random_state=1,
+                                       n_estimators = 1000, n_jobs=36)
 
 print("To fit!")
 
 from dask_ml.model_selection import GridSearchCV
-search = GridSearchCV(base_estimator, param_grid, n_jobs=-1)
+search = GridSearchCV(base_estimator, param_grid, n_jobs=6)
 search.fit(X, y)
 
 print("finish fitting!")

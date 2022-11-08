@@ -41,14 +41,25 @@ X = np.array(dataset.iloc[:, 1:50], dtype='float64')
 #X, y = make_regression(n_samples = 100000, n_features = 50, random_state=1)
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 11, n_jobs=-1)
+                               random_state=1, max_features = 11, n_jobs=-1, 
+                               min_samples_split = 30)
 model.fit(X, y)
+model.oob_score_
+
+
+feature = model.estimators_[1].tree_.feature
+threshold = model.estimators_[1].tree_.threshold
+
+df = pd.concat([pd.Series(feature0), pd.Series(threshold0)], axis=1)
+df.columns = ['feature', 'threshold']
+X_split = df[df['feature']==47]
+Y_split = df[df['feature']==48]
 
 # use shap
-import shap
+#import shap
 
-explainer = shap.TreeExplainer(model)
-shap_values = explainer(X)
+#explainer = shap.TreeExplainer(model)
+#shap_values = explainer(X)
 
 # SHAP
 import dalex as dx
@@ -68,9 +79,9 @@ def singleSHAPprocess(obs_num):
     return result
 
 start = datetime.now()
-results_bag = joblib.Parallel(n_jobs=-1, verbose=10000, backend="multiprocessing")(
+results_bag = joblib.Parallel(n_jobs=-1, verbose=10000, backend="threading")(
     joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in np.linspace(80000, 82999, 3000))
+    for obs_num in np.linspace(0, 99, 100))
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")
 

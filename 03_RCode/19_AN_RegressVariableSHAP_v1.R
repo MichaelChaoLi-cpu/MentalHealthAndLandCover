@@ -14,15 +14,24 @@ XSHAP = read.csv("08_PyResults/mergedXSHAP.csv")
 XSHAP$X.2 <- 1
 
 fore_SHAP <- lm('fore2015_SHAP ~ fore2015', data = XSHAP)
+summary(fore_SHAP)
 crop_SHAP <- lm('crop2015_SHAP ~ crop2015', data = XSHAP)
+summary(crop_SHAP)
 impe_SHAP <- lm('impe2015_SHAP ~ impe2015', data = XSHAP)
+summary(impe_SHAP)
 gras_SHAP <- lm('gras2015_SHAP ~ gras2015', data = XSHAP)
+summary(gras_SHAP)
 shru_SHAP <- lm('shru2015_SHAP ~ shru2015', data = XSHAP)
+summary(shru_SHAP)
 wetl_SHAP <- lm('wetl2015_SHAP ~ wetl2015', data = XSHAP)
+summary(wetl_SHAP)
 wate_SHAP <- lm('wate2015_SHAP ~ wate2015', data = XSHAP)
+summary(wate_SHAP)
 bare_SHAP <- lm('bare2015_SHAP ~ bare2015', data = XSHAP)
+summary(bare_SHAP)
 
 income_SHAP <- lm('di_inc_gdp_SHAP ~ di_inc_gdp', data = XSHAP)
+summary(income_SHAP)
 
 proj <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" 
 xy <- XSHAP %>% dplyr::select(X, Y)
@@ -31,15 +40,15 @@ spatialPoint <- SpatialPointsDataFrame(coords = xy, data = XSHAP[c('X.1', 'X.2')
 rm(xy)
 
 formula <- fore2015_SHAP ~ fore2015
-GWPR.POLS.bandwidth <- # 
+GWPR.POLS.bandwidth.fore <- # 
   bw.GWPR(formula = formula, data = XSHAP, index = c("X.1", "X.2"),
           SDF = spatialPoint, adaptive = T, p = 2, bigdata = F,
           upperratio = 0.10, effect = "individual", model = "pooling", approach = "CV",
           kernel = "bisquare",doParallel = T, cluster.number = 10, gradientIncrement = T,
-          GI.step = 100, GI.upper = 2000, GI.lower = 1000)
+          GI.step = 100, GI.upper = 3000, GI.lower = 1000)
 GWPR.bandwidth = 1300
 GWPR.result.fore <- GWPR(formula = formula, data = XSHAP, index = c("X.1", "X.2"),
-                         SDF = spatialPoint, bw = GWPR.bandwidth, adaptive = F,
+                         SDF = spatialPoint, bw = GWPR.bandwidth, adaptive = T,
                          p = 2, effect = "individual", kernel = "bisquare", longlat = F,
                          model = "pooling")
 
@@ -62,6 +71,5 @@ GWPR.POLS.bandwidth.impe <- #
   bw.GWPR(formula = formula, data = XSHAP, index = c("X.1", "X.2"),
           SDF = spatialPoint, adaptive = T, p = 2, bigdata = F,
           upperratio = 0.10, effect = "individual", model = "pooling", approach = "CV",
-          kernel = "bisquare",doParallel = T, cluster.number = 10, gradientIncrement = T,
-          GI.step = 100, GI.upper = 2000, GI.lower = 1000)
+          kernel = "bisquare",doParallel = T, cluster.number = 15, gradientIncrement = F)
 
