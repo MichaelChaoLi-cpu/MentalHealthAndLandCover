@@ -116,7 +116,7 @@ param_grid= {'max_features': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 base_estimator = RandomForestRegressor(oob_score=True, random_state=1,
                                        n_estimators = 1000, n_jobs=-1)
 
-search = GridSearchCV(base_estimator, param_grid, n_jobs=1, cv=3,
+search = GridSearchCV(base_estimator, param_grid, n_jobs=1, cv=10,
                       verbose=50, scoring='r2')
 search.fit(X, y)
 search.cv_results_

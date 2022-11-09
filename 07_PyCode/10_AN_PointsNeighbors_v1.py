@@ -103,20 +103,41 @@ def getMergeSHAPresult():
 
 def SpatialCoefficientBetweenLandCoverAndItsSHAP(variable_name, result, 
                                                  neighborList):
-    coef_array = []
-    intercept_array = []
-    for neighbors in neighborList:
-        result_selected = result.iloc[neighbors,:]
-        result_selected = result_selected[[variable_name, variable_name+'_SHAP']]
-        reg = LinearRegression().fit(result_selected[[variable_name]], 
-                                     np.array(result_selected[[variable_name+'_SHAP']]))
-        coef_array.append(reg.coef_[0][0])
-        intercept_array.append(reg.intercept_[0])
-    coef_mat = pd.concat([pd.Series(coef_array),
-                          pd.Series(intercept_array)], axis=1)
+    coef_mat = joblib.Parallel(n_jobs=10)(
+        joblib.delayed(singleCoefficientBetweenLandCoverAndItsSHAP)(neighbors, variable_name, result)
+        for neighbors in neighborList)
+    coef_mat = pd.DataFrame(np.array(coef_mat))
     coef_mat.columns = [variable_name+'_coef', variable_name+'_interc']
     
     return coef_mat
+
+def singleCoefficientBetweenLandCoverAndItsSHAP(neighbors, variable_name, result):
+    result_selected = result.iloc[neighbors,:]
+    result_selected = result_selected[[variable_name, variable_name+'_SHAP']]
+    X_data = result_selected[[variable_name]]
+    y = np.array(result_selected[[variable_name+'_SHAP']])
+    reg = LinearRegression().fit(X_data, y)
+    predictions = reg.predict(X_data)
+    newX = X_data
+    newX['Constant'] = 1
+    try:
+        MSE = (sum((y-predictions)**2))/(len(newX)-len(newX.columns))
+        var_b = MSE*(np.linalg.inv(np.dot(newX.T,newX)).diagonal())
+        sd_b = np.sqrt(var_b) 
+        t_coef = reg.coef_[0][0]/sd_b[0]
+        t_interc = reg.intercept_[0]/sd_b[1]
+    except:
+        t_coef=0
+        t_interc=0
+    if t_coef > 1.64:
+        coef = reg.coef_[0][0]
+    else:
+        coef = 0
+    if t_interc > 1.64:
+        intercept = reg.intercept_[0]
+    else:
+        intercept = 0
+    return [coef, intercept]
 
 def obtainSpatialCoefficientDf(result, neighborList):
     ### get the spatial coefficient
@@ -145,6 +166,19 @@ def obtainSpatialCoefficientDf(result, neighborList):
                                       income_spatialcoefficient], axis = 1)
     return spatialCoefficientDf
 
+def calculateMonetaryValue(spatialCoefficientDf):
+    spatialCoefficientDf['di_inc_gdp_coef_add'] = spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf[spatialCoefficientDf['di_inc_gdp_coef_add']==0]['di_inc_gdp_coef_add'] = float('inf')
+    spatialCoefficientDf['crop2015_MV'] = spatialCoefficientDf.crop2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['fore2015_MV'] = spatialCoefficientDf.fore2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['gras2015_MV'] = spatialCoefficientDf.gras2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['shru2015_MV'] = spatialCoefficientDf.shru2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['wetl2015_MV'] = spatialCoefficientDf.wetl2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['wate2015_MV'] = spatialCoefficientDf.wate2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['impe2015_MV'] = spatialCoefficientDf.impe2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['bare2015_MV'] = spatialCoefficientDf.bare2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    return spatialCoefficientDf
+
 
 ### run
 dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
@@ -162,7 +196,7 @@ upDownBoundary = findBoundaryArray(Y_split_array, X[:,48])
 neighborList = buildNeighborList(X, leftRightBoundary, upDownBoundary)
 result = getMergeSHAPresult()
 spatialCoefficientDf = obtainSpatialCoefficientDf(result, neighborList)
-
+spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientDf)
 
 
 
