@@ -117,7 +117,35 @@ def SpatialCoefficientBetweenLandCoverAndItsSHAP(variable_name, result,
     coef_mat.columns = [variable_name+'_coef', variable_name+'_interc']
     
     return coef_mat
-        
+
+def obtainSpatialCoefficientDf(result, neighborList):
+    ### get the spatial coefficient
+    crop_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('crop2015', result, neighborList)
+    fore_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('fore2015', result, neighborList)
+    gras_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('gras2015', result, neighborList)
+    shru_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('shru2015', result, neighborList)
+    wetl_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('wetl2015', result, neighborList)
+    wate_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('wate2015', result, neighborList)
+    impe_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('impe2015', result, neighborList)
+    bare_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('bare2015', result, neighborList)
+    income_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsSHAP('di_inc_gdp', result, neighborList)
+    spatialCoefficientDf = pd.concat([crop_spatialcoefficient, fore_spatialcoefficient,
+                                      gras_spatialcoefficient, shru_spatialcoefficient,
+                                      wetl_spatialcoefficient, wate_spatialcoefficient,
+                                      impe_spatialcoefficient, bare_spatialcoefficient,
+                                      income_spatialcoefficient], axis = 1)
+    return spatialCoefficientDf
+
+
 ### run
 dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
 dataset = dataset[None]
@@ -133,13 +161,11 @@ leftRightBoundary = findBoundaryArray(X_split_array, X[:,47])
 upDownBoundary = findBoundaryArray(Y_split_array, X[:,48])
 neighborList = buildNeighborList(X, leftRightBoundary, upDownBoundary)
 result = getMergeSHAPresult()
-
-crop_spatialcoefficient = \
-    SpatialCoefficientBetweenLandCoverAndItsSHAP('crop2015', result, neighborList)
+spatialCoefficientDf = obtainSpatialCoefficientDf(result, neighborList)
 
 
-income_spatialcoefficient = \
-    SpatialCoefficientBetweenLandCoverAndItsSHAP('di_inc_gdp', result, neighborList)
+
+
 
 """
 # mac
