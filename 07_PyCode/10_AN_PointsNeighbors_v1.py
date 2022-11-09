@@ -13,10 +13,9 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from joblib import dump
 import joblib
+from sklearn.linear_model import LinearRegression
 
 import pyreadr
-
-from sklearn.model_selection import train_test_split
 
 from datetime import datetime
 
@@ -49,11 +48,15 @@ def XYSplit(model):
         
     return (X_split_array, Y_split_array)
 
-def findBoundaryArray(split_array = X_split_array, data_degree = X[:,47]):
-    boundary_array = []
-    for observation in data_degree:
-        boundary = findBoundary(split_array, observation)
-        boundary_array.append(boundary)
+def findBoundaryArray(split_array, data_degree):
+    #boundary_array = []
+    #for observation in data_degree:
+    #    boundary = findBoundary(split_array, observation)
+    #    boundary_array.append(boundary)
+        
+    boundary_array = joblib.Parallel(n_jobs=10)(
+        joblib.delayed(findBoundary)(split_array, observation)
+        for observation in data_degree)
         
     return boundary_array
     
@@ -80,6 +83,41 @@ def findBoundary(split_array, observation):
     #np.median
     return [before_observation, after_observation]
 
+def buildNeighborList(data, leftRightBoundary, upDownBoundary):
+    data = pd.DataFrame(data[:, 47:49], columns=['X', 'Y'])
+    index_select_array = []
+    for obs_order in list(range(len(data))):
+         data_select = data[
+             (data['X'] > leftRightBoundary[obs_order][0]) &
+             (data['X'] < leftRightBoundary[obs_order][1]) &
+             (data['Y'] > upDownBoundary[obs_order][0]) &
+             (data['Y'] < upDownBoundary[obs_order][1])
+             ]
+         index_select = np.array(data_select.index)
+         index_select_array.append(index_select)
+    return index_select_array
+
+def getMergeSHAPresult():
+    result = pd.read_csv(DP02_result_location + "mergedXSHAP.csv", index_col=0)
+    return result
+
+def SpatialCoefficientBetweenLandCoverAndItsSHAP(variable_name, result, 
+                                                 neighborList):
+    coef_array = []
+    intercept_array = []
+    for neighbors in neighborList:
+        result_selected = result.iloc[neighbors,:]
+        result_selected = result_selected[[variable_name, variable_name+'_SHAP']]
+        reg = LinearRegression().fit(result_selected[[variable_name]], 
+                                     np.array(result_selected[[variable_name+'_SHAP']]))
+        coef_array.append(reg.coef_[0][0])
+        intercept_array.append(reg.intercept_[0])
+    coef_mat = pd.concat([pd.Series(coef_array),
+                          pd.Series(intercept_array)], axis=1)
+    coef_mat.columns = [variable_name+'_coef', variable_name+'_interc']
+    
+    return coef_mat
+        
 ### run
 dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
 dataset = dataset[None]
@@ -92,7 +130,16 @@ model.fit(X, y)
 
 X_split_array, Y_split_array = XYSplit(model)
 leftRightBoundary = findBoundaryArray(X_split_array, X[:,47])
+upDownBoundary = findBoundaryArray(Y_split_array, X[:,48])
+neighborList = buildNeighborList(X, leftRightBoundary, upDownBoundary)
+result = getMergeSHAPresult()
 
+crop_spatialcoefficient = \
+    SpatialCoefficientBetweenLandCoverAndItsSHAP('crop2015', result, neighborList)
+
+
+income_spatialcoefficient = \
+    SpatialCoefficientBetweenLandCoverAndItsSHAP('di_inc_gdp', result, neighborList)
 
 """
 # mac
