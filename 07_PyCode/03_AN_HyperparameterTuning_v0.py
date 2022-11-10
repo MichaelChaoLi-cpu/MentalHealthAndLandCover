@@ -44,11 +44,14 @@ dataset = dataset[None]
 X = np.array(dataset.iloc[:, 1:50], dtype='float64')
 y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
 
-print("Data Done!")
+pd.Series(["load data"]).to_csv(DP02_result_location + '03_8node_grid_report.csv')
+
 
 dm.initialize(local_directory=os.getcwd(),  nthreads=36, memory_limit=0)
 client = Client()
 # client = Client(threads_per_worker=8, n_workers=1)
+pd.Series(["load data", client]).to_csv(DP02_result_location + '03_8node_grid_report.csv')
+
 
 param_grid= {'max_features': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                               11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
@@ -56,20 +59,19 @@ param_grid= {'max_features': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
              'min_samples_split':[2, 5, 10, 15, 20, 25, 30, 35, 40]
              }
 base_estimator = RandomForestRegressor(oob_score=True, random_state=1,
-                                       n_estimators = 1000, n_jobs=36)
+                                       n_estimators = 1000)
 
-print("To fit!")
+pd.Series(["load data", client, "To fit!"]).to_csv(DP02_result_location + '03_8node_grid_report.csv')
 
 from dask_ml.model_selection import GridSearchCV
-search = GridSearchCV(base_estimator, param_grid, n_jobs=14, cv=10)
+search = GridSearchCV(base_estimator, param_grid, n_jobs=-1, cv=10)
 search.fit(X, y)
 
-print(search.best_estimator_)
-print("finish fitting!")
+pd.Series(["load data", client, "To fit!", search.best_estimator_]).to_csv(DP02_result_location + '03_8node_grid_report.csv')
 
 dump(search, DP02_result_location + '01_hyperParaSearching.joblib')
 
-print("Output!")
+pd.Series(["load data", client, "To fit!", search.best_estimator_, "done"]).to_csv(DP02_result_location + '03_8node_grid_report.csv')
 
 client.close()
 

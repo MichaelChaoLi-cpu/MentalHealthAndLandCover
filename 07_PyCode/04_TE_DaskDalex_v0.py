@@ -6,16 +6,17 @@ Created on Tue Oct 18 15:53:19 2022
 
 #!/bin/bash
 #PJM -L "rscunit=ito-a"
-#PJM -L "rscgrp=ito-m"
-#PJM -L "vnode=8"
+#PJM -L "rscgrp=ito-s-dbg"
+#PJM -L "vnode=4"
 #PJM -L "vnode-core=36"
-#PJM -L "elapse=24:00:00"
+#PJM -L "elapse=01:00:00"
 #PJM -j
 #PJM -X
 module use /home/exp/modulefiles
 module load gcc/10.2.0
-mpirun  -np 8  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
+mpirun  -np 4  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/04_TE_DaskDalex_v0.py
 
+FAIL: this does not work.
 """
 
 import os
@@ -44,7 +45,7 @@ pd.Series(['import done']).to_csv(DP02_result_location + '04_TEST_report.csv')
 
 warnings.filterwarnings(action='ignore', category=UserWarning)
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=4, memory_limit=0)
+dm.initialize(local_directory=os.getcwd(),  nthreads=36, memory_limit=0)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '04_TEST_report.csv')
 
@@ -79,12 +80,12 @@ def singleSHAPprocess(obs_num):
 def multiprocessingLayer(loop_time):
     results_bag = joblib.Parallel(n_jobs=36, backend="multiprocessing")(
         joblib.delayed(singleSHAPprocess)(obs_num)
-        for obs_num in list(range(1000*loop_time, 1000*(loop_time+1), 1)))
+        for obs_num in list(range(100*loop_time, 100*(loop_time+1), 1)))
     return results_bag
 
 start = datetime.now()
 with joblib.parallel_backend('dask'):
-    results_bag_dask = joblib.Parallel(n_jobs=-1, verbose=100)(
+    results_bag_dask = joblib.Parallel(n_jobs=2, verbose=1000)(
         joblib.delayed(multiprocessingLayer)(int(loop_time))
         for loop_time in list(range(6)))
 

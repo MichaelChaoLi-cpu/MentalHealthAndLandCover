@@ -24,7 +24,7 @@ Test: 2000 - 7999
 
 2000 - 4999 on the way
 
-mpirun  -np 8  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
+mpirun  -np 80  -ppn 20  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
 Test: 8000 - 10999
 
 """
@@ -57,7 +57,7 @@ pd.Series(['import done']).to_csv(DP02_result_location + '05_8node_TEST_report.c
 
 warnings.filterwarnings(action='ignore', category=UserWarning)
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=36, memory_limit=0)
+dm.initialize(local_directory=os.getcwd(),  nthreads=4, memory_limit=0)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -73,10 +73,10 @@ pd.Series(['import done', client, "load data"]).to_csv(DP02_result_location + '0
 #from sklearn.datasets import make_regression
 #X, y = make_regression(n_samples = 100000, n_features = 50, random_state=1)
 
-#model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-#                               random_state=1, max_features = 11, n_jobs=-1)
-#with joblib.parallel_backend("dask"): model.fit(X, y)
-model = load(DP02_result_location + '00_randomForest_model.joblib')
+model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
+                               random_state=1, max_features = 11, n_jobs=-1)
+with joblib.parallel_backend("dask"): model.fit(X, y)
+#model = load(DP02_result_location + '00_randomForest_model.joblib')
 
 pd.Series(['import done', client, "load data", model.oob_score_]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -106,8 +106,7 @@ start = datetime.now()
 #        for obs_num in np.linspace(8000, 10999, 3000))
     
 with joblib.parallel_backend('dask'):
-    results_bag = joblib.Parallel(n_jobs=-1, verbose=2000, 
-                                  backend="dask")(
+    results_bag = joblib.Parallel(n_jobs=100, verbose=2000)(
         joblib.delayed(singleSHAPprocess)(int(obs_num))
         for obs_num in np.linspace(0, 99, 100))
 
@@ -119,3 +118,10 @@ pd.Series(['import done', client, "load data", model.oob_score_, "dalex", end - 
 #dump(results_bag, DP02_result_location + '00_05_TE_result_8000_10999.joblib')
 
 client.close()
+
+"""
+results_bag = joblib.Parallel(n_jobs=100, verbose=2000, 
+                              backend="multiprocessing")(
+    joblib.delayed(singleSHAPprocess)(int(obs_num))
+    for obs_num in np.linspace(0, 99, 100))
+"""
