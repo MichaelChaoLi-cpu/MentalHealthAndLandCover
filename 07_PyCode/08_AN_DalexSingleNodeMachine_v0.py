@@ -5,6 +5,9 @@ Created on Tue Oct 18 15:53:19 2022
 @author: li.chao.987@s.kyushu-u.ac.jp
 
 00_05_TE_result_0_9999.2nd.joblib
+00_05_TE_result_10000_19999.2nd.joblib
+00_05_TE_result_20000_29999.2nd.joblib
+00_05_TE_result_30000_39999.2nd.joblib
 """
 
 import os
@@ -21,7 +24,7 @@ from datetime import datetime
 from joblib import Parallel, delayed
 import warnings
 
-print("00_05_TE_result_0_9999.2nd.joblib")
+print("00_05_TE_result_30000_39999.2nd.joblib")
 
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
@@ -54,7 +57,7 @@ model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 10, N = 1000)
+                                           B = 10, N = 900)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -64,13 +67,16 @@ def singleSHAPprocess(obs_num):
     return result
 
 start = datetime.now()
-results_bag = joblib.Parallel(n_jobs=-1, verbose=20000, backend="multiprocessing")(
-    joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in list(range(10000)))
+results_bag = joblib.Parallel(n_jobs=-1, verbose=10000, backend="multiprocessing")(
+    joblib.delayed(singleSHAPprocess)(obs_num)
+    for obs_num in list(range(30000, 40000, 1)))
 end = datetime.now()
-print(f"B 5, N 5000: Time taken: {end - start}")
+print(f"B 10, N 900: Time taken: {end - start}")
 
-dump(results_bag, DP02_result_location + '00_05_TE_result_0_9999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_0_9999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_10000_19999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_20000_29999.2nd.joblib')
+dump(results_bag, DP02_result_location + '00_05_TE_result_30000_39999.2nd.joblib')
 
 """
 dump(model, DP02_result_location + '00_randomForest_model.joblib')

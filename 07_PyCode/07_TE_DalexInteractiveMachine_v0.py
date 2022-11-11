@@ -42,7 +42,7 @@ X = np.array(dataset.iloc[:, 1:50], dtype='float64')
 #X, y = make_regression(n_samples = 100000, n_features = 50, random_state=1)
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 11, n_jobs=-1)
+                               random_state=1, max_features = 9, n_jobs=-1)
 model.fit(X, y)
 
 # SHAP
@@ -53,7 +53,7 @@ model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 20, N = 1000)
+                                           B = 10, N = 900)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -62,12 +62,14 @@ def singleSHAPprocess(obs_num):
     result = result.reset_index(drop=True)
     return result
 ### B = 5, N = 1000 -> 2.2 min
-### B = 20, N = 1000 -> testing 
+### B = 20, N = 1000 -> 10.3 min 
+### B = 10, N = 1000 -> 5.4 min
+### B = 10, N = 900 -> test
 
 start = datetime.now()
 results_bag = joblib.Parallel(n_jobs=-1, verbose=10000, backend="multiprocessing")(
-    joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in np.linspace(70000, 70099, 100))
+    joblib.delayed(singleSHAPprocess)(obs_num)
+    for obs_num in list(range(10000)))
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")
 
