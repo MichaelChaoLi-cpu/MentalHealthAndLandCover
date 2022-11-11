@@ -4,11 +4,7 @@ Created on Tue Oct 18 15:53:19 2022
 
 @author: li.chao.987@s.kyushu-u.ac.jp
 
-This test is from 20000 - 29999
-
-This test is from 30000 - 49999
-
-This test is from 50000 - 69999 -> 2
+00_05_TE_result_0_9999.2nd.joblib
 """
 
 import os
@@ -20,14 +16,12 @@ from joblib import dump
 import joblib
 
 import pyreadr
-
-from sklearn.model_selection import train_test_split
-
 from datetime import datetime
 
 from joblib import Parallel, delayed
-
 import warnings
+
+print("00_05_TE_result_0_9999.2nd.joblib")
 
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
@@ -49,7 +43,7 @@ X = np.array(dataset.iloc[:, 1:50], dtype='float64')
 #X, y = make_regression(n_samples = 100000, n_features = 50, random_state=1)
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 11, n_jobs=-1)
+                               random_state=1, max_features = 9, n_jobs=-1)
 model.fit(X, y)
 
 # SHAP
@@ -60,7 +54,7 @@ model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 5, N = 10000)
+                                           B = 10, N = 1000)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -72,11 +66,11 @@ def singleSHAPprocess(obs_num):
 start = datetime.now()
 results_bag = joblib.Parallel(n_jobs=-1, verbose=20000, backend="multiprocessing")(
     joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in np.linspace(10000, 19999, 10000))
+    for obs_num in list(range(10000)))
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")
 
-dump(results_bag, DP02_result_location + '00_05_TE_result_10000_19999.joblib')
+dump(results_bag, DP02_result_location + '00_05_TE_result_0_9999.2nd.joblib')
 
 """
 dump(model, DP02_result_location + '00_randomForest_model.joblib')

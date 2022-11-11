@@ -17,13 +17,9 @@ from joblib import dump
 import joblib
 
 import pyreadr
-
 from sklearn.model_selection import train_test_split
-
 from datetime import datetime
-
 from joblib import Parallel, delayed
-
 import warnings
 
 DP02_location = "/home/usr6/q70176a/DP02/"
@@ -57,7 +53,7 @@ model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 20, N = 10000)
+                                           B = 20, N = 1000)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -65,11 +61,13 @@ def singleSHAPprocess(obs_num):
     result = result.drop(['variable_name'], axis=0)
     result = result.reset_index(drop=True)
     return result
+### B = 5, N = 1000 -> 2.2 min
+### B = 20, N = 1000 -> testing 
 
 start = datetime.now()
 results_bag = joblib.Parallel(n_jobs=-1, verbose=10000, backend="multiprocessing")(
     joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in np.linspace(70000, 72999, 3000))
+    for obs_num in np.linspace(70000, 70099, 100))
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")
 

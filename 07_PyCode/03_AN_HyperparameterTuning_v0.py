@@ -15,6 +15,8 @@ Created on Tue Oct 18 15:17:49 2022
 module use /home/exp/modulefiles
 module load gcc/10.2.0
 mpirun  -np 16  -ppn 1  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/03_AN_HyperparameterTuning_v0.py
+
+note: max_features = 9; min_samples_split = 2
 """
 
 import os
@@ -81,6 +83,15 @@ from dask_ml.model_selection import GridSearchCV
 
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 search = load(DP02_result_location + '01_hyperParaSearching.joblib')
+print(search.cv_results_)
+mat = search.cv_results_
+check_table = pd.DataFrame(np.array(
+    [mat["rank_test_score"], mat['param_max_features'],
+     mat['param_min_samples_split'], mat['mean_test_score'],
+     mat['std_test_score']
+     ]).T)
+
+
 """
 
 
