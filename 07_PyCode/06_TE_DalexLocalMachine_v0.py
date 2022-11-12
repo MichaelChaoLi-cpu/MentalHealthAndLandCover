@@ -14,6 +14,9 @@ from sklearn.ensemble import RandomForestRegressor
 from joblib import dump
 import joblib
 
+from dask.distributed import Client, progress
+import dask
+
 import pyreadr
 
 from sklearn.model_selection import train_test_split
@@ -30,37 +33,30 @@ DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08
 warnings.filterwarnings(action='ignore', category=UserWarning)
 
 dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-
 dataset = dataset[None]
-
 y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
 X = np.array(dataset.iloc[:, 1:50], dtype='float64')
 
-
+client = Client(n_workers=4, nthreads=1)
 #from sklearn.datasets import make_regression
 #X, y = make_regression(n_samples = 100000, n_features = 50, random_state=1)
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
                                random_state=1, max_features = 9, n_jobs=-1)
 model.fit(X, y)
-model.oob_score_
-
-
-# use shap
-#import shap
-
-#explainer = shap.TreeExplainer(model)
-#shap_values = explainer(X)
 
 # SHAP
 import dalex as dx
 
 model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 
-def singleSHAPprocess(obs_num):
+X_scattered = client.scatter(X)
+model_rf_exp_scattered = client.scatter(model_rf_exp)
+
+def singleSHAPprocess(obs_num, X, model_rf_exp):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 5, N = 900)
+                                           B = 5, N = 100)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -69,10 +65,13 @@ def singleSHAPprocess(obs_num):
     result = result.reset_index(drop=True)
     return result
 
+results = []
+for obs_num in list(range(200)):
+    results.append(dask.delayed(singleSHAPprocess)(obs_num, X_scattered, model_rf_exp_scattered))
+
+
 start = datetime.now()
-results_bag = joblib.Parallel(n_jobs=4, verbose=10000)(
-    joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in list(range(100)))
+test = dask.compute(*results) 
 end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")
 

@@ -8,6 +8,11 @@ Created on Tue Oct 18 15:53:19 2022
 00_05_TE_result_10000_19999.2nd.joblib
 00_05_TE_result_20000_29999.2nd.joblib
 00_05_TE_result_30000_39999.2nd.joblib
+00_05_TE_result_40000_49999.2nd.joblib
+00_05_TE_result_50000_59999.2nd.joblib
+00_05_TE_result_60000_69999.2nd.joblib
+00_05_TE_result_70000_79999.2nd.joblib
+00_05_TE_result_80000_89273.2nd.joblib
 """
 
 import os
@@ -24,7 +29,7 @@ from datetime import datetime
 from joblib import Parallel, delayed
 import warnings
 
-print("00_05_TE_result_30000_39999.2nd.joblib")
+print("00_05_TE_result_80000_89273.2nd.joblib")
 
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
@@ -69,14 +74,19 @@ def singleSHAPprocess(obs_num):
 start = datetime.now()
 results_bag = joblib.Parallel(n_jobs=-1, verbose=10000, backend="multiprocessing")(
     joblib.delayed(singleSHAPprocess)(obs_num)
-    for obs_num in list(range(30000, 40000, 1)))
+    for obs_num in list(range(80000, 89273, 1)))
 end = datetime.now()
 print(f"B 10, N 900: Time taken: {end - start}")
 
 #dump(results_bag, DP02_result_location + '00_05_TE_result_0_9999.2nd.joblib')
 #dump(results_bag, DP02_result_location + '00_05_TE_result_10000_19999.2nd.joblib')
 #dump(results_bag, DP02_result_location + '00_05_TE_result_20000_29999.2nd.joblib')
-dump(results_bag, DP02_result_location + '00_05_TE_result_30000_39999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_30000_39999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_40000_49999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_50000_59999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_60000_69999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_70000_79999.2nd.joblib')
+dump(results_bag, DP02_result_location + '00_05_TE_result_80000_89273.2nd.joblib')
 
 """
 dump(model, DP02_result_location + '00_randomForest_model.joblib')

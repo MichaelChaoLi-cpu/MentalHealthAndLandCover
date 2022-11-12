@@ -14,7 +14,7 @@ Created on Tue Oct 18 15:53:19 2022
 #PJM -X
 module use /home/exp/modulefiles
 module load gcc/10.2.0
-mpirun  -np 72 -ppn 18  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
+mpirun  -np 24 -ppn 6  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
 
 """
 
@@ -26,6 +26,7 @@ import pyreadr
 
 import dask_mpi as dm
 from dask.distributed import Client, progress
+import dask
 
 from datetime import datetime
 from joblib import Parallel, delayed
@@ -39,7 +40,7 @@ DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 pd.Series(['import done']).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=2)
+dm.initialize(local_directory=os.getcwd(),  nthreads=1, memory_limit=0.2)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -64,6 +65,9 @@ import dalex as dx
 model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
 pd.Series(['import done', client, "load data", model.oob_score_, "dalex"]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
+X_scattered = client.scatter(X)
+model_rf_exp_scattered = client.scatter(model_rf_exp)
+
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
@@ -74,17 +78,19 @@ def singleSHAPprocess(obs_num):
     result = result.rename(columns=result.iloc[1])
     result = result.drop(['variable_name'], axis=0)
     result = result.reset_index(drop=True)
-    result.to_csv(DP02_result_location + 'result/obs_' + str(obs_num) + ".csv")
+    return result
 
 
 start = datetime.now()
-with joblib.parallel_backend('dask'): 
-    joblib.Parallel(verbose=2000)( 
-        joblib.delayed(singleSHAPprocess)(obs_num)
-        for obs_num in list(range(200)))
+results = []
+for obs_num in list(range(200)):
+    results.append(dask.delayed(singleSHAPprocess)(obs_num, X_scattered, model_rf_exp_scattered))
+
+results_bag = dask.compute(*results) 
 end = datetime.now()
 print(f"B 10, N 900: Time taken: {end - start}")   
 
+dump(results_bag, DP02_result_location + '00_05_TE_result_test.joblib')
 pd.Series(['import done', client, "load data", model.oob_score_, "dalex", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
 client.close()
@@ -107,5 +113,29 @@ def makeDirIfNotExist(path):
         os.makedirs(path)
         print("The new directory is created!")
     else:
-        print(path + " is there!")                            
+        print(path + " is there!")  
+
+client = Client(n_workers=18, nthreads=1)
+X_scattered = client.scatter(X)
+model_rf_exp_scattered = client.scatter(model_rf_exp)
+
+@dask.delayed
+def singleSHAPprocess(obs_num, X, model_rf_exp):
+    test_obs = X[obs_num:obs_num+1,:]
+    shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
+                                           B = 1, N = 10)
+    result = shap_test.result[shap_test.result.B == 0]
+    result = result[['contribution', 'variable_name']]
+    result = result.transpose()
+    result = result.rename(columns=result.iloc[1])
+    result = result.drop(['variable_name'], axis=0)
+    result = result.reset_index(drop=True)
+    return result
+
+results = []
+for obs_num in list(range(4)):
+    results.append(singleSHAPprocess(obs_num, X = X_scattered,
+                                     model_rf_exp = model_rf_exp_scattered))
+
+test = dask.compute(results)                        
 """

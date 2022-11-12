@@ -22,6 +22,8 @@ from datetime import datetime
 from joblib import Parallel, delayed
 import warnings
 
+import dask
+
 DP02_location = "/home/usr6/q70176a/DP02/"
 DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 
@@ -49,6 +51,7 @@ model.fit(X, y)
 import dalex as dx
 
 model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
+
 
 def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
@@ -103,5 +106,7 @@ end = datetime.now()
 print(f"B 5, N 5000: Time taken: {end - start}")
 
 dump(results_bag, DP02_result_location + '00_05_TE_result_80000_89272.joblib')
+
+
 """
 
