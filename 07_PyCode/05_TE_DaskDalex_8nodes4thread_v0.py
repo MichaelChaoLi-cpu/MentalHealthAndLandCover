@@ -40,7 +40,7 @@ DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 pd.Series(['import done']).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=1, memory_limit=0.2)
+dm.initialize(local_directory=os.getcwd(),  nthreads=1, memory_limit=0.1666)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -67,8 +67,10 @@ pd.Series(['import done', client, "load data", model.oob_score_, "dalex"]).to_cs
 
 X_scattered = client.scatter(X)
 model_rf_exp_scattered = client.scatter(model_rf_exp)
+pd.Series(['import done', client, "load data", model.oob_score_, "scatter",
+           "dalex"]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
-def singleSHAPprocess(obs_num):
+def singleSHAPprocess(obs_num, X, model_rf_exp):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
                                            B = 10, N = 900)
@@ -80,19 +82,23 @@ def singleSHAPprocess(obs_num):
     result = result.reset_index(drop=True)
     return result
 
-
 start = datetime.now()
 results = []
-for obs_num in list(range(200)):
+for obs_num in list(range(2000)):
     results.append(dask.delayed(singleSHAPprocess)(obs_num, X_scattered, model_rf_exp_scattered))
+pd.Series(['import done', client, "load data", model.oob_score_, "scatter", "dalex", 
+           "delayed"]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
-results_bag = dask.compute(*results) 
+test = dask.compute(*results) 
 end = datetime.now()
-print(f"B 10, N 900: Time taken: {end - start}")   
+print(f"B 10, N 900: Time taken: {end - start}")  
+pd.Series(['import done', client, "load data", model.oob_score_, "scatter", "dalex", 
+           "delayed", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv') 
 
 dump(results_bag, DP02_result_location + '00_05_TE_result_test.joblib')
-pd.Series(['import done', client, "load data", model.oob_score_, "dalex", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
-
+pd.Series(['import done', client, "load data", model.oob_score_, "scatter", "dalex", 
+           "delayed", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
+ 
 client.close()
 
 """

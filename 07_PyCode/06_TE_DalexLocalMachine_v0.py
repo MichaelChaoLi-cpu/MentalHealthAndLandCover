@@ -43,7 +43,7 @@ client = Client(n_workers=4, nthreads=1)
 
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
                                random_state=1, max_features = 9, n_jobs=-1)
-model.fit(X, y)
+with joblib.parallel_backend("dask"): model.fit(X, y)
 
 # SHAP
 import dalex as dx
@@ -66,7 +66,7 @@ def singleSHAPprocess(obs_num, X, model_rf_exp):
     return result
 
 results = []
-for obs_num in list(range(200)):
+for obs_num in list(range(2000)):
     results.append(dask.delayed(singleSHAPprocess)(obs_num, X_scattered, model_rf_exp_scattered))
 
 

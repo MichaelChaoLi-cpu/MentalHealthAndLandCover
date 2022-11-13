@@ -15,34 +15,37 @@ DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08
 
 def makeSHAPdataframe():
     results_0_9999 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_0_9999.joblib')
+        load(DP02_result_location + '00_05_TE_result_0_9999.2nd.joblib')
         )
     results_10000_19999 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_10000_19999.joblib')
+        load(DP02_result_location + '00_05_TE_result_10000_19999.2nd.joblib')
         )
     results_20000_29999 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_20000_29999.joblib')
+        load(DP02_result_location + '00_05_TE_result_20000_29999.2nd.joblib')
         )
-    results_30000_49999 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_30000_49999.joblib')
+    results_30000_39999 = pd.concat(
+        load(DP02_result_location + '00_05_TE_result_30000_39999.2nd.joblib')
         )
-    results_50000_69999 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_50000_69999.joblib')
+    results_40000_49999 = pd.concat(
+        load(DP02_result_location + '00_05_TE_result_40000_49999.2nd.joblib')
         )
-    results_70000_72999 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_70000_72999.joblib')
+    results_50000_59999 = pd.concat(
+        load(DP02_result_location + '00_05_TE_result_50000_59999.2nd.joblib')
         )
-    results_73000_79999 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_73000_79999.joblib')
+    results_60000_69999 = pd.concat(
+        load(DP02_result_location + '00_05_TE_result_60000_69999.2nd.joblib')
+        )
+    results_70000_79999 = pd.concat(
+        load(DP02_result_location + '00_05_TE_result_70000_79999.2nd.joblib')
         )
     results_80000_89272 = pd.concat(
-        load(DP02_result_location + '00_05_TE_result_80000_89272.joblib')
+        load(DP02_result_location + '00_05_TE_result_80000_89273.2nd.joblib')
         )
     
     results = pd.concat(
         [results_0_9999, results_10000_19999, results_20000_29999, 
-         results_30000_49999, results_50000_69999, results_70000_72999,
-         results_73000_79999, results_80000_89272]
+         results_30000_39999, results_40000_49999, results_50000_59999,
+         results_60000_69999, results_70000_79999, results_80000_89272]
         )
     return results
 
