@@ -40,7 +40,7 @@ DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
 pd.Series(['import done']).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
 
-dm.initialize(local_directory=os.getcwd(),  nthreads=1, memory_limit=0.1666)
+dm.initialize(local_directory=os.getcwd(),  nthreads=1, memory_limit=0.3333)
 client = Client()
 pd.Series(['import done', client]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
 
@@ -81,10 +81,12 @@ def singleSHAPprocess(obs_num, X, model_rf_exp):
     result = result.drop(['variable_name'], axis=0)
     result = result.reset_index(drop=True)
     return result
+### B = 10, N = 900
+### B = 20, N = 900
 
 start = datetime.now()
 results = []
-for obs_num in list(range(2000)):
+for obs_num in list(range(10000)):
     results.append(dask.delayed(singleSHAPprocess)(obs_num, X_scattered, model_rf_exp_scattered))
 pd.Series(['import done', client, "load data", model.oob_score_, "scatter", "dalex", 
            "delayed"]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
@@ -95,7 +97,7 @@ print(f"B 10, N 900: Time taken: {end - start}")
 pd.Series(['import done', client, "load data", model.oob_score_, "scatter", "dalex", 
            "delayed", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv') 
 
-dump(results_bag, DP02_result_location + '00_05_TE_result_test.joblib')
+dump(test, DP02_result_location + '00_05_TE_result_test.joblib')
 pd.Series(['import done', client, "load data", model.oob_score_, "scatter", "dalex", 
            "delayed", end - start]).to_csv(DP02_result_location + '05_8node_TEST_report.csv')
  
