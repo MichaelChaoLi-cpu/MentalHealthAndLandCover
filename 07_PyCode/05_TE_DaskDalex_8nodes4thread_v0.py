@@ -6,15 +6,15 @@ Created on Tue Oct 18 15:53:19 2022
 
 #!/bin/bash
 #PJM -L "rscunit=ito-a"
-#PJM -L "rscgrp=ito-s-dbg"
-#PJM -L "vnode=4"
+#PJM -L "rscgrp=ito-m"
+#PJM -L "vnode=16"
 #PJM -L "vnode-core=36"
-#PJM -L "elapse=01:00:00"
+#PJM -L "elapse=24:00:00"
 #PJM -j
 #PJM -X
 module use /home/exp/modulefiles
 module load gcc/10.2.0
-mpirun  -np 24 -ppn 6  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
+mpirun  -np 48 -ppn 3  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
 
 """
 

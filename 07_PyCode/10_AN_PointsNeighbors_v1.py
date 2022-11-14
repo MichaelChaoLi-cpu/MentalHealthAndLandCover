@@ -69,17 +69,19 @@ def findBoundary(split_array, observation):
         split_add = np.sort(split_add)
         location = np.where(split_add == observation)[0][0]
         if location == 0:
-            before = observation - 0.1
+            before = observation - 1
         else:
             before = split[location - 1]
         if location == len(split_add)-1:
-            after = observation + 0.1
+            after = observation + 1
         else:
             after = split[location]
         before_array.append(before)
         after_array.append(after)
-    before_observation = np.min(np.array(before_array))
-    after_observation = np.max(np.array(after_array))
+    #before_observation = np.min(np.array(before_array))
+    #after_observation = np.max(np.array(after_array))
+    before_observation = np.median(np.array(before_array))
+    after_observation = np.median(np.array(after_array))
     #np.median
     return [before_observation, after_observation]
 
