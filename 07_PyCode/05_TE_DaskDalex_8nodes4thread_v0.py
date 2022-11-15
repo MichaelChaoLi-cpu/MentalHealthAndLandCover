@@ -104,18 +104,7 @@ pd.Series(['import done', client, "load data", model.oob_score_, "scatter", "dal
  
 client.close()
 
-"""
-results_bag = joblib.Parallel(n_jobs=100, verbose=2000, 
-                              backend="multiprocessing")(
-    joblib.delayed(singleSHAPprocess)(int(obs_num))
-    for obs_num in np.linspace(0, 99, 100))
-
-joblib.Parallel(n_jobs=4, verbose=2000, 
-                backend="multiprocessing")( 
-    joblib.delayed(singleSHAPprocess)(obs_num)
-    for obs_num in list(range(200)))
-      
-
+"""   
 def makeDirIfNotExist(path):
     isExist = os.path.exists(path)
     if not isExist:
@@ -124,15 +113,48 @@ def makeDirIfNotExist(path):
     else:
         print(path + " is there!")  
 
-client = Client(n_workers=18, nthreads=1)
-X_scattered = client.scatter(X)
-model_rf_exp_scattered = client.scatter(model_rf_exp)
 
-@dask.delayed
-def singleSHAPprocess(obs_num, X, model_rf_exp):
+#### single node multiprocessing
+import os
+import pandas as pd
+import numpy as np
+
+from sklearn.ensemble import RandomForestRegressor
+from joblib import dump
+import joblib
+
+import pyreadr
+from datetime import datetime
+
+from joblib import Parallel, delayed
+import warnings
+
+print("00_05_TE_result_80000_89273.2nd.joblib")
+
+DP02_location = "/home/usr6/q70176a/DP02/"
+DP02_result_location = "/home/usr6/q70176a/DP02/08_PyResults/"
+
+#DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+#DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+
+warnings.filterwarnings(action='ignore', category=UserWarning)
+dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
+dataset = dataset[None]
+y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
+X = np.array(dataset.iloc[:, 1:50], dtype='float64')
+
+model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
+                               random_state=1, max_features = 9, n_jobs=-1)
+model.fit(X, y)
+
+# SHAP
+import dalex as dx
+model_rf_exp = dx.Explainer(model, X, y, label = "RF Pipeline")
+
+def singleSHAPprocess(obs_num):
     test_obs = X[obs_num:obs_num+1,:]
     shap_test = model_rf_exp.predict_parts(test_obs, type = 'shap', 
-                                           B = 1, N = 10)
+                                           B = 10, N = 900)
     result = shap_test.result[shap_test.result.B == 0]
     result = result[['contribution', 'variable_name']]
     result = result.transpose()
@@ -141,10 +163,20 @@ def singleSHAPprocess(obs_num, X, model_rf_exp):
     result = result.reset_index(drop=True)
     return result
 
-results = []
-for obs_num in list(range(4)):
-    results.append(singleSHAPprocess(obs_num, X = X_scattered,
-                                     model_rf_exp = model_rf_exp_scattered))
+start = datetime.now()
+results_bag = joblib.Parallel(n_jobs=-1, verbose=10000, backend="multiprocessing")(
+    joblib.delayed(singleSHAPprocess)(obs_num)
+    for obs_num in list(range(80000, 89273, 1)))
+end = datetime.now()
+print(f"B 10, N 900: Time taken: {end - start}")
 
-test = dask.compute(results)                        
+#dump(results_bag, DP02_result_location + '00_05_TE_result_0_9999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_10000_19999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_20000_29999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_30000_39999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_40000_49999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_50000_59999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_60000_69999.2nd.joblib')
+#dump(results_bag, DP02_result_location + '00_05_TE_result_70000_79999.2nd.joblib')
+dump(results_bag, DP02_result_location + '00_05_TE_result_80000_89273.2nd.joblib')               
 """
