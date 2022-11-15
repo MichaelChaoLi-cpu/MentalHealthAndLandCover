@@ -16,6 +16,7 @@ module use /home/exp/modulefiles
 module load gcc/10.2.0
 mpirun  -np 48 -ppn 3  -machinefile ${PJM_O_NODEINF}  -launcher-exec /bin/pjrsh python /home/usr6/q70176a/DP02/07_PyCode/05_TE_DaskDalex_8nodes4thread_v0.py
 
+B=10 N=900 obs=10000 -> 6 hrs
 """
 
 import os
