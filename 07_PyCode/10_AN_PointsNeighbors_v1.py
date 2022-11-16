@@ -200,7 +200,7 @@ result = getMergeSHAPresult()
 spatialCoefficientDf = obtainSpatialCoefficientDf(result, neighborList)
 spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientDf)
 
-
+dump(spatialCoefficientDfWithMv, DP02_result_location + "spatialCoefficientDfWithMv.joblib")
 
 
 """

@@ -35,7 +35,6 @@ def getYandY_pred():
     return y, y_pred
 
 def drawYandY_pred(y, y_pred, figure_name):
-    # figure total fitting model
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(20, 21), dpi=1000,
                             gridspec_kw={'width_ratios': [10, 0.5]})
     
@@ -156,7 +155,8 @@ def getImportance():
     model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
                                    random_state=1, max_features = 9, n_jobs=-1)
     model.fit(X, y)
-    result = permutation_importance(model, X, y, n_repeats=10, random_state=1)
+    result = permutation_importance(model, X, y, n_repeats=10, random_state=1, 
+                                    scoring = "r2")
     return result
 
 def drawImportanceBar(X, figure_name):
@@ -174,10 +174,10 @@ def drawImportanceBar(X, figure_name):
                     "Grassland (%)", "Shrubland (%)", "Wetland (%)", "Water (%)", 
                     "Urban Land (%)", "Bare Land (%)", "Longitude", "Latitude"]
     y_pos = np.arange(len(feature_name))
-    axs.barh(y_pos, X, align='center')
+    axs.barh(y_pos, X.importances_mean, xerr=X.importances_std*1.96, align='center')
     axs.set_yticks(y_pos, labels=feature_name)
     axs.invert_yaxis() 
-    axs.set_xlabel('Gini Importance', fontsize=25)
+    axs.set_xlabel('Permutation Importance', fontsize=25)
     axs.set_title('Feuture Importance', fontsize=25)
     axs.grid(True)
     axs.tick_params(axis='both', which='major', labelsize=20)
@@ -196,3 +196,5 @@ drawDigHist(X, "DIGhist.jpg")
 
 featureImportance = getImportance()
 drawImportanceBar(featureImportance, "FeatureImportance.jpg")
+
+
