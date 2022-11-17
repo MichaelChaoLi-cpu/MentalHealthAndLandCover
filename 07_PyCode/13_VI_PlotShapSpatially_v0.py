@@ -76,7 +76,7 @@ def drawShapGrid(X, figure_name, column_name, vmin, vmax):
     norm = mpl.colors.Normalize(vmin = vmin, vmax = vmax)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Shapley Value',size=25)
+    cbar.set_label('Spatially Average SHAP Value',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
