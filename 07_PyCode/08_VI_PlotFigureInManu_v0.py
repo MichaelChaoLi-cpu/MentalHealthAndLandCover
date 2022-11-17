@@ -14,6 +14,7 @@ import matplotlib as mpl
 import plotly.express as px
 import pyreadr
 from sklearn.inspection import permutation_importance
+from sklearn.ensemble import RandomForestRegressor
 ### Note: permutation_importance is more suitbale to analysis, rather than 
 ###       model.feature_importance .
 

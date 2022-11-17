@@ -5,7 +5,7 @@ Created on Sun Nov  6 10:15:12 2022
 @author: li.chao.987@s.kyushu-u.ac.jp
 """
 
-from joblib import load
+from joblib import load, dump
 import pandas as pd
 import numpy as np
 import pyreadr
@@ -49,6 +49,8 @@ def makeSHAPdataframe():
         )
     return results
 
+    
+
 def renameReindexDataframe(results):
     dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
     dataset = dataset[None]
@@ -71,6 +73,8 @@ def mergeXandResults(results):
     return XResults
 
 results = makeSHAPdataframe()
+dump(results, DP02_result_location + "ShapResults.joblib")
+
 results = renameReindexDataframe(results)
 XResults = mergeXandResults(results)
 
