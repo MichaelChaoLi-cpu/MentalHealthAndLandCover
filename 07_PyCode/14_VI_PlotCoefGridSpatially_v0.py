@@ -89,5 +89,28 @@ drawShapGrid(ShapGridDf, "Coef_Water.jpg", 'wate2015_coef', 0, 0.03)
 drawShapGrid(ShapGridDf, "Coef_Wetland.jpg", 'wetl2015_coef', 0, 0.5)
 drawShapGrid(ShapGridDf, "Coef_Urbanland.jpg", 'impe2015_coef', 0, 0.001)
 drawShapGrid(ShapGridDf, "Coef_Bareland.jpg", 'bare2015_coef', 0, 0.1)
+
+
+def drawShapGrid(X, figure_name, column_name, vmin, vmax):
+    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
+                            gridspec_kw={'width_ratios': [10, 0.1]})
+    X.plot(ax=axs[0], column = column_name, cmap = CMAP, edgecolor = "grey",
+           vmin = vmin, vmax = vmax)
+    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
+    axs[0].grid(True)
+    axs[0].set_xlabel("Longitude", fontsize=25)
+    axs[0].set_ylabel("Latitude", fontsize=25)
+    axs[0].tick_params(axis='both', which='major', labelsize=20)
+    axs[0].set_xlim([-180, 180])
+    axs[0].set_ylim([-90, 90])
+    
+    norm = mpl.colors.Normalize(vmin = vmin, vmax = vmax)
+    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
+                        cax=axs[1])
+    cbar.set_label('Slope Between Current Status and Shapley Value',size=25)
+    cbar.ax.tick_params(labelsize=20) 
+    
+    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
+    return None
 drawShapGrid(ShapGridDf, "Coef_Income.jpg", 'di_inc_gdp_coef', 0, 0.2)
 
