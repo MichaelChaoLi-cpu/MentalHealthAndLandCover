@@ -27,8 +27,8 @@ def makeSpatialShapDf():
     DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
     shapResults = load(DP02_result_location + "ShapResults.joblib")
     shapResults.reset_index(inplace=True)
-    shapResults = shapResults[['39', '40', '41', '42', '43', '44', '45', '46']]
-    shapResults.columns = ['CropShap', 'ForeShap', 'GrasShap', 'ShruShap',
+    shapResults = shapResults[['0', '39', '40', '41', '42', '43', '44', '45', '46']]
+    shapResults.columns = ['IncomeShap', 'CropShap', 'ForeShap', 'GrasShap', 'ShruShap',
                            'WetlShap', 'WateShap', 'ImpeShap', 'BareShap']
     shapResults[shapResults.columns] = shapResults[shapResults.columns].astype(float)
     dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
@@ -54,9 +54,9 @@ def makePointGpddf(ShapDfWithLocation):
     cell = gpd.GeoDataFrame(grid_cells, columns=['geometry'])
     cell = cell.set_crs(4326)
     merged = gpd.sjoin(ShapDfGpd, cell, how='left', op='within')
-    merged[merged.columns[0:8]] = merged[merged.columns[0:8]].astype(float)
+    merged[merged.columns[0:9]] = merged[merged.columns[0:9]].astype(float)
     dissolve = merged.groupby(['index_right']).agg('mean')
-    cell.loc[dissolve.index, dissolve.columns[0:8]] = dissolve[dissolve.columns[0:8]].values
+    cell.loc[dissolve.index, dissolve.columns[0:9]] = dissolve[dissolve.columns[0:9]].values
     return cell
 
 
@@ -93,6 +93,7 @@ drawShapGrid(ShapGridDf, "SHAP_Water.jpg", 'WateShap', -0.03, 0.03)
 drawShapGrid(ShapGridDf, "SHAP_Wetland.jpg", 'WetlShap', -0.03, 0.03)
 drawShapGrid(ShapGridDf, "SHAP_Urbanland.jpg", 'ImpeShap', -0.05, 0.05)
 drawShapGrid(ShapGridDf, "SHAP_Bareland.jpg", 'BareShap', -0.03, 0.03)
+drawShapGrid(ShapGridDf, "SHAP_Income.jpg", 'IncomeShap', -0.05, 0.05)
 
 """
 X = ShapDfWithLocation

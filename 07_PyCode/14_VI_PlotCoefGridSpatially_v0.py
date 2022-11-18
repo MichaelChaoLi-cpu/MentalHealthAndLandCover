@@ -26,7 +26,7 @@ def makeSpatialCoefDf():
     DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
     DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
     spatialCoefficientDfWithMv = load(DP02_result_location + "spatialCoefficientDfWithMv.joblib")
-    spatialCoefficientDf = spatialCoefficientDfWithMv.iloc[:,0:16]
+    spatialCoefficientDf = spatialCoefficientDfWithMv.iloc[:,0:18]
     spatialCoefficientDf[spatialCoefficientDf.columns] = spatialCoefficientDf[spatialCoefficientDf.columns].astype(float)
     dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
     dataset = dataset[None]
@@ -51,9 +51,9 @@ def makePointGpddf(ShapDfWithLocation):
     cell = gpd.GeoDataFrame(grid_cells, columns=['geometry'])
     cell = cell.set_crs(4326)
     merged = gpd.sjoin(ShapDfGpd, cell, how='left', op='within')
-    merged[merged.columns[0:16]] = merged[merged.columns[0:16]].astype(float)
+    merged[merged.columns[0:18]] = merged[merged.columns[0:18]].astype(float)
     dissolve = merged.groupby(['index_right']).agg('mean')
-    cell.loc[dissolve.index, dissolve.columns[0:16]] = dissolve[dissolve.columns[0:16]].values
+    cell.loc[dissolve.index, dissolve.columns[0:18]] = dissolve[dissolve.columns[0:18]].values
     return cell
 
 def drawShapGrid(X, figure_name, column_name, vmin, vmax):
@@ -89,3 +89,5 @@ drawShapGrid(ShapGridDf, "Coef_Water.jpg", 'wate2015_coef', 0, 0.03)
 drawShapGrid(ShapGridDf, "Coef_Wetland.jpg", 'wetl2015_coef', 0, 0.5)
 drawShapGrid(ShapGridDf, "Coef_Urbanland.jpg", 'impe2015_coef', 0, 0.001)
 drawShapGrid(ShapGridDf, "Coef_Bareland.jpg", 'bare2015_coef', 0, 0.1)
+drawShapGrid(ShapGridDf, "Coef_Income.jpg", 'di_inc_gdp_coef', 0, 0.2)
+
