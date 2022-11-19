@@ -87,9 +87,9 @@ def drawMvGrid(X, figure_name, column_name, vmin, vmax):
 MvDfWithLocation = makeSpatialMvDf()
 ShapGridDf = makePointGpddf(MvDfWithLocation)
 
-drawMvGrid(ShapGridDf, "MV_Grid_Cropland.jpg", 'crop2015_MV', 0, 2)
+drawMvGrid(ShapGridDf, "MV_Grid_Cropland.jpg", 'crop2015_MV', 0, 1)
 drawMvGrid(ShapGridDf, "MV_Grid_Forest.jpg", 'fore2015_MV', 0, 2)
-drawMvGrid(ShapGridDf, "MV_Grid_Grassland.jpg", 'gras2015_MV', 0, 1)
+drawMvGrid(ShapGridDf, "MV_Grid_Grassland.jpg", 'gras2015_MV', 0, 0.5)
 drawMvGrid(ShapGridDf, "MV_Grid_Shrubland.jpg", 'shru2015_MV', 0, 20)
 drawMvGrid(ShapGridDf, "MV_Grid_Water.jpg", 'wate2015_MV', 0, 20)
 drawMvGrid(ShapGridDf, "MV_Grid_Wetland.jpg", 'wetl2015_MV', 0, 100)

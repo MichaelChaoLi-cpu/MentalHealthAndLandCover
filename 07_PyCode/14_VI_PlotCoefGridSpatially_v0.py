@@ -87,7 +87,7 @@ drawShapGrid(ShapGridDf, "Coef_Grassland.jpg", 'gras2015_coef', 0, 0.0001)
 drawShapGrid(ShapGridDf, "Coef_Shrubland.jpg", 'shru2015_coef', 0, 0.03)
 drawShapGrid(ShapGridDf, "Coef_Water.jpg", 'wate2015_coef', 0, 0.03)
 drawShapGrid(ShapGridDf, "Coef_Wetland.jpg", 'wetl2015_coef', 0, 0.5)
-drawShapGrid(ShapGridDf, "Coef_Urbanland.jpg", 'impe2015_coef', 0, 0.001)
+drawShapGrid(ShapGridDf, "Coef_Urbanland.jpg", 'impe2015_coef', 0, 0.0001)
 drawShapGrid(ShapGridDf, "Coef_Bareland.jpg", 'bare2015_coef', 0, 0.1)
 
 
