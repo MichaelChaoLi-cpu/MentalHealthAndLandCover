@@ -89,9 +89,12 @@ def singleSHAPprocess(obs_num, X, model_rf_exp):
 
 delayed_results = [dask.delayed(singleSHAPprocess)(obs_num, X_scattered, model_rf_exp_scattered)  for obs_num in list(range(100))]
 
-
-with performance_report(filename="dask-report-shap.html"):
-    results = dask.compute(*delayed_results)
+try:
+    with performance_report(filename="dask-report-shap.html"):
+        results = dask.compute(*delayed_results)
+except:
+    with performance_report(filename="dask-report-shap.html"):
+        results = dask.compute(*delayed_results)
 
     
 pd.Series(['import done', client, "load data", model.oob_score_, "dalex", 
