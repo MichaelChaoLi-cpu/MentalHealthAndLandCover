@@ -28,6 +28,9 @@ def runLocallyOrRemotely(Locally_Or_Remotely):
     elif locally_or_remotely == 'wsl':
         repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
         repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/07_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/07_PyResults/"
     return repo_location, repo_result_location
 
 def makeBackgroundData1000():
