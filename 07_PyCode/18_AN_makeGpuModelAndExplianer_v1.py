@@ -29,16 +29,16 @@ def runLocallyOrRemotely(Locally_Or_Remotely):
     locally_or_remotely = Locally_Or_Remotely
     if locally_or_remotely == 'y':
         repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/07_PyResults/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
     elif locally_or_remotely == 'n':
         repo_location = "/home/usr6/q70176a/DP02/"
         repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
     elif locally_or_remotely == 'wsl':
         repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
-        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/07_PyResults/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
     elif  locally_or_remotely == 'linux':
         repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
-        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/07_PyResults/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
     return repo_location, repo_result_location
 
 
@@ -70,6 +70,6 @@ def dumpModelAndExplainer():
     dump(cu_explainer, REPO_RESULT_LOCATION + "95_cu_explainer.joblib")
     return None
 
-REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely()
+REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('wsl')
 dumpModelAndExplainer()
 
