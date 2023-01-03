@@ -21,8 +21,24 @@ from datetime import datetime
 
 from joblib import Parallel, delayed
 
-DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+def runLocallyOrRemotely(Locally_Or_Remotely):
+    locally_or_remotely = Locally_Or_Remotely
+    if locally_or_remotely == 'y':
+        repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'n':
+        repo_location = "/home/usr6/q70176a/DP02/"
+        repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
+    elif locally_or_remotely == 'wsl':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'mac':
+        repo_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+        repo_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+    return repo_location, repo_result_location
 
 ### define function
 def XYSplit(model):
@@ -100,7 +116,7 @@ def buildNeighborList(data, leftRightBoundary, upDownBoundary):
     return index_select_array
 
 def getMergeSHAPresult():
-    result = pd.read_csv(DP02_result_location + "mergedXSHAP.csv", index_col=0)
+    result = pd.read_csv(REPO_RESULT_LOCATION + "mergedXSHAP.csv", index_col=0)
     return result
 
 def SpatialCoefficientBetweenLandCoverAndItsSHAP(variable_name, result, 
@@ -183,29 +199,28 @@ def calculateMonetaryValue(spatialCoefficientDf):
 
 
 ### run
-dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-dataset = dataset[None]
-y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
-X = np.array(dataset.iloc[:, 1:50], dtype='float64')
+REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('mac')
+X = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
+y = pd.read_csv(REPO_LOCATION + "02_Data/97_y_toGPU.csv", index_col=0)
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 11, n_jobs=-1, 
-                               min_samples_split = 30)
+                               random_state=1, max_features = 9, n_jobs=-1, 
+                               min_samples_split = 2)
 model.fit(X, y)
 
 X_split_array, Y_split_array = XYSplit(model)
-leftRightBoundary = findBoundaryArray(X_split_array, X[:,47])
-upDownBoundary = findBoundaryArray(Y_split_array, X[:,48])
+leftRightBoundary = findBoundaryArray(X_split_array, X.iloc[:,47])
+upDownBoundary = findBoundaryArray(Y_split_array, X.iloc[:,48])
 neighborList = buildNeighborList(X, leftRightBoundary, upDownBoundary)
 result = getMergeSHAPresult()
 spatialCoefficientDf = obtainSpatialCoefficientDf(result, neighborList)
 spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientDf)
 
-dump(spatialCoefficientDfWithMv, DP02_result_location + "spatialCoefficientDfWithMv.joblib")
+dump(spatialCoefficientDfWithMv, REPO_RESULT_LOCATION + "spatialCoefficientDfWithMv.joblib")
 
 
 """
 # mac
-DP02_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
-DP02_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+REPO_LOCATION = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+REPO_RESULT_LOCATION = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
 
 """
