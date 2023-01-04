@@ -91,7 +91,8 @@ check_table = pd.DataFrame(np.array(
      mat['std_test_score']
      ]).T)
 
-
+### max_features = 10 
+### min_samples_split = 30
 """
 
 

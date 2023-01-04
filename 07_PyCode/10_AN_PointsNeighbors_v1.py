@@ -94,15 +94,15 @@ def findBoundary(split_array, observation):
             after = split[location]
         before_array.append(before)
         after_array.append(after)
-    #before_observation = np.min(np.array(before_array))
-    #after_observation = np.max(np.array(after_array))
-    before_observation = np.median(np.array(before_array))
-    after_observation = np.median(np.array(after_array))
+    before_observation = np.min(np.array(before_array))
+    after_observation = np.max(np.array(after_array))
+    #before_observation = np.median(np.array(before_array))
+    #after_observation = np.median(np.array(after_array))
     #np.median
     return [before_observation, after_observation]
 
 def buildNeighborList(data, leftRightBoundary, upDownBoundary):
-    data = pd.DataFrame(data[:, 47:49], columns=['X', 'Y'])
+    data = pd.DataFrame(data.iloc[:, 47:49], columns=['X', 'Y'])
     index_select_array = []
     for obs_order in list(range(len(data))):
          data_select = data[
@@ -131,9 +131,9 @@ def SpatialCoefficientBetweenLandCoverAndItsSHAP(variable_name, result,
 
 def singleCoefficientBetweenLandCoverAndItsSHAP(neighbors, variable_name, result):
     result_selected = result.iloc[neighbors,:]
-    result_selected = result_selected[[variable_name, variable_name+'_SHAP']]
+    result_selected = result_selected[[variable_name, variable_name+'_shap']]
     X_data = result_selected[[variable_name]]
-    y = np.array(result_selected[[variable_name+'_SHAP']])
+    y = np.array(result_selected[[variable_name+'_shap']])
     reg = LinearRegression().fit(X_data, y)
     predictions = reg.predict(X_data)
     newX = X_data
@@ -199,7 +199,7 @@ def calculateMonetaryValue(spatialCoefficientDf):
 
 
 ### run
-REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('mac')
+REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
 X = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
 y = pd.read_csv(REPO_LOCATION + "02_Data/97_y_toGPU.csv", index_col=0)
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
