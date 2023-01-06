@@ -187,6 +187,14 @@ def obtainSpatialCoefficientDf(result, neighborList):
                                       income_spatialcoefficient], axis = 1)
     return spatialCoefficientDf
 
+def keepSignificantValue(Result):
+    variable_list = ['crop2015', 'fore2015', 'gras2015', 'shru2015', 'wetl2015',
+                     'wate2015', 'impe2015', 'bare2015', 'di_inc_gdp']
+    for variable in variable_list:
+        Result.loc[abs(Result[variable+'_t_coef']) < 1.65, variable + '_coef'] = 0
+        Result.loc[abs(Result[variable+'_t_interc']) < 1.65, variable + '_interc'] = 0
+    return Result
+
 def calculateMonetaryValue(spatialCoefficientDf):
     spatialCoefficientDf['crop2015_MV'] = spatialCoefficientDf.crop2015_coef/spatialCoefficientDf.di_inc_gdp_coef
     spatialCoefficientDf['fore2015_MV'] = spatialCoefficientDf.fore2015_coef/spatialCoefficientDf.di_inc_gdp_coef
@@ -230,12 +238,12 @@ dump(neighborList, REPO_RESULT_LOCATION + "03_neighborList.joblib")
 result = getMergeSHAPresult()
 spatialCoefficientDf = obtainSpatialCoefficientDf(result, neighborList)
 dump(spatialCoefficientDf, REPO_RESULT_LOCATION + "04_spatialCoefficientDf.joblib")
-spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientDf)
-dump(spatialCoefficientDfWithMv, REPO_RESULT_LOCATION + "05_spatialCoefficientDfWithMv.joblib")
+spatialCoefficientSignificantDf = keepSignificantValue(spatialCoefficientDf)
+dump(spatialCoefficientSignificantDf, REPO_RESULT_LOCATION + "05_spatialCoefficientSignificantDf.joblib")
+spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientSignificantDf)
+dump(spatialCoefficientDfWithMv, REPO_RESULT_LOCATION + "06_spatialCoefficientDfWithMv.joblib")
 
 Mv_Result_Balance = calculateMonetaryValueBalanceMethod(result)
-
-dump(spatialCoefficientDfWithMv, REPO_RESULT_LOCATION + "spatialCoefficientDfWithMv.joblib")
 
 
 """
