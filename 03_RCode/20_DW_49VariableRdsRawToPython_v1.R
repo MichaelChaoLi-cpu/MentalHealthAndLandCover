@@ -2,6 +2,7 @@
 
 
 # Note: this script to make the all data raw
+# Note: di_inc_gdp is from 0
 
 # end
 
@@ -38,4 +39,5 @@ data_49 <- data_t %>% dplyr::select(GHQ12, di_inc_gdp, social_class,student:unem
                                     bare2015, X, Y) %>%
   na.omit()
 
+data_49$di_inc_gdp <- data_49$di_inc_gdp + 1
 saveRDS(data_49, file = "02_Data/SP_Data_49Variable_RdsVer.Rds", version = 2)

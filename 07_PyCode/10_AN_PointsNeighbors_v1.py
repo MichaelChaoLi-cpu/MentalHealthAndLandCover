@@ -229,7 +229,9 @@ dump(neighborList, REPO_RESULT_LOCATION + "03_neighborList.joblib")
 
 result = getMergeSHAPresult()
 spatialCoefficientDf = obtainSpatialCoefficientDf(result, neighborList)
+dump(spatialCoefficientDf, REPO_RESULT_LOCATION + "04_spatialCoefficientDf.joblib")
 spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientDf)
+dump(spatialCoefficientDfWithMv, REPO_RESULT_LOCATION + "05_spatialCoefficientDfWithMv.joblib")
 
 Mv_Result_Balance = calculateMonetaryValueBalanceMethod(result)
 
