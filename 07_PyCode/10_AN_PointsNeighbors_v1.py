@@ -125,7 +125,8 @@ def SpatialCoefficientBetweenLandCoverAndItsSHAP(variable_name, result,
         joblib.delayed(singleCoefficientBetweenLandCoverAndItsSHAP)(neighbors, variable_name, result)
         for neighbors in neighborList)
     coef_mat = pd.DataFrame(np.array(coef_mat))
-    coef_mat.columns = [variable_name+'_coef', variable_name+'_interc']
+    coef_mat.columns = [variable_name+'_coef', variable_name+'_interc',
+                        variable_name+'_t_coef', variable_name+'_t_interc']
     
     return coef_mat
 
@@ -147,15 +148,17 @@ def singleCoefficientBetweenLandCoverAndItsSHAP(neighbors, variable_name, result
     except:
         t_coef=0
         t_interc=0
-    if t_coef > 1.64:
-        coef = reg.coef_[0][0]
-    else:
-        coef = 0
-    if t_interc > 1.64:
-        intercept = reg.intercept_[0]
-    else:
-        intercept = 0
-    return [coef, intercept]
+    coef = reg.coef_[0][0]
+    intercept = reg.intercept_[0]
+    #if t_coef > 1.64:
+    #    coef = reg.coef_[0][0]
+    #else:
+    #    coef = 0
+    #if t_interc > 1.64:
+    #    intercept = reg.intercept_[0]
+    #else:
+    #    intercept = 0
+    return [coef, intercept, t_coef, t_interc]
 
 def obtainSpatialCoefficientDf(result, neighborList):
     ### get the spatial coefficient
@@ -185,35 +188,50 @@ def obtainSpatialCoefficientDf(result, neighborList):
     return spatialCoefficientDf
 
 def calculateMonetaryValue(spatialCoefficientDf):
-    spatialCoefficientDf['di_inc_gdp_coef_add'] = spatialCoefficientDf.di_inc_gdp_coef
-    spatialCoefficientDf[spatialCoefficientDf['di_inc_gdp_coef_add']==0]['di_inc_gdp_coef_add'] = float('inf')
-    spatialCoefficientDf['crop2015_MV'] = spatialCoefficientDf.crop2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
-    spatialCoefficientDf['fore2015_MV'] = spatialCoefficientDf.fore2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
-    spatialCoefficientDf['gras2015_MV'] = spatialCoefficientDf.gras2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
-    spatialCoefficientDf['shru2015_MV'] = spatialCoefficientDf.shru2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
-    spatialCoefficientDf['wetl2015_MV'] = spatialCoefficientDf.wetl2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
-    spatialCoefficientDf['wate2015_MV'] = spatialCoefficientDf.wate2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
-    spatialCoefficientDf['impe2015_MV'] = spatialCoefficientDf.impe2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
-    spatialCoefficientDf['bare2015_MV'] = spatialCoefficientDf.bare2015_coef/spatialCoefficientDf.di_inc_gdp_coef_add
+    spatialCoefficientDf['crop2015_MV'] = spatialCoefficientDf.crop2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf['fore2015_MV'] = spatialCoefficientDf.fore2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf['gras2015_MV'] = spatialCoefficientDf.gras2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf['shru2015_MV'] = spatialCoefficientDf.shru2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf['wetl2015_MV'] = spatialCoefficientDf.wetl2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf['wate2015_MV'] = spatialCoefficientDf.wate2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf['impe2015_MV'] = spatialCoefficientDf.impe2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf['bare2015_MV'] = spatialCoefficientDf.bare2015_coef/spatialCoefficientDf.di_inc_gdp_coef
     return spatialCoefficientDf
 
+def calculateMonetaryValueBalanceMethod(result):
+    result['crop2015_MV'] = result.crop2015_shap * result.di_inc_gdp / result.crop2015/ result.di_inc_gdp_shap
+    result['fore2015_MV'] = result.fore2015_shap * result.di_inc_gdp / result.fore2015/ result.di_inc_gdp_shap
+    result['gras2015_MV'] = result.gras2015_shap * result.di_inc_gdp / result.gras2015/ result.di_inc_gdp_shap
+    result['shru2015_MV'] = result.shru2015_shap * result.di_inc_gdp / result.shru2015/ result.di_inc_gdp_shap
+    result['wetl2015_MV'] = result.wetl2015_shap * result.di_inc_gdp / result.wetl2015/ result.di_inc_gdp_shap
+    result['wate2015_MV'] = result.wate2015_shap * result.di_inc_gdp / result.wate2015/ result.di_inc_gdp_shap
+    result['impe2015_MV'] = result.impe2015_shap * result.di_inc_gdp / result.impe2015/ result.di_inc_gdp_shap
+    result['bare2015_MV'] = result.bare2015_shap * result.di_inc_gdp / result.bare2015/ result.di_inc_gdp_shap
+    return result
 
 ### run
 REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
 X = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
 y = pd.read_csv(REPO_LOCATION + "02_Data/97_y_toGPU.csv", index_col=0)
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 9, n_jobs=-1, 
-                               min_samples_split = 2)
+                               random_state=1, max_features = 10, n_jobs=-1, 
+                               min_samples_split = 30)
+# max_features = 9, min_samples_split = 2
 model.fit(X, y)
 
 X_split_array, Y_split_array = XYSplit(model)
 leftRightBoundary = findBoundaryArray(X_split_array, X.iloc[:,47])
 upDownBoundary = findBoundaryArray(Y_split_array, X.iloc[:,48])
 neighborList = buildNeighborList(X, leftRightBoundary, upDownBoundary)
+dump(leftRightBoundary, REPO_RESULT_LOCATION + "01_leftRightBoundary.joblib")
+dump(upDownBoundary, REPO_RESULT_LOCATION + "02_upDownBoundary.joblib")
+dump(neighborList, REPO_RESULT_LOCATION + "03_neighborList.joblib")
+
 result = getMergeSHAPresult()
 spatialCoefficientDf = obtainSpatialCoefficientDf(result, neighborList)
 spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientDf)
+
+Mv_Result_Balance = calculateMonetaryValueBalanceMethod(result)
 
 dump(spatialCoefficientDfWithMv, REPO_RESULT_LOCATION + "spatialCoefficientDfWithMv.joblib")
 
