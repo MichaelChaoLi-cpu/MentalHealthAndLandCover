@@ -222,7 +222,7 @@ REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
 X = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
 y = pd.read_csv(REPO_LOCATION + "02_Data/97_y_toGPU.csv", index_col=0)
 model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                               random_state=1, max_features = 10, n_jobs=-1, 
+                               random_state=1, max_features = 11, n_jobs=-1, 
                                min_samples_split = 30)
 # max_features = 9, min_samples_split = 2
 model.fit(X, y)

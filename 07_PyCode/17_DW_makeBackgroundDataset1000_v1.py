@@ -34,7 +34,7 @@ def runLocallyOrRemotely(Locally_Or_Remotely):
     return repo_location, repo_result_location
 
 def makeBackgroundData1000():
-    dataset = pyreadr.read_r(REPO_LOCATION + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
+    dataset = pyreadr.read_r(REPO_LOCATION + "02_Data/SP_Data_49Variable_RdsVer.Rds")
     dataset = dataset[None]
     X = dataset.iloc[:, 1:50]
     y = dataset.iloc[:, 0:1]

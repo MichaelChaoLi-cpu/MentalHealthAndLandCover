@@ -55,10 +55,14 @@ def getXwithShap(Merged_Shap_Value):
     dataset_to_analysis = pd.concat([X, Merged_Shap_Value], axis=1)
     return dataset_to_analysis
 
-REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('mac')
-Merged_Shap_Value = mergeShapDataset()
-Dataset_To_Analysis = getXwithShap(Merged_Shap_Value)
-Dataset_To_Analysis.to_csv(REPO_RESULT_LOCATION + "mergedXSHAP.csv")
+def run():
+    REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('mac')
+    Merged_Shap_Value = mergeShapDataset()
+    Dataset_To_Analysis = getXwithShap(Merged_Shap_Value)
+    Dataset_To_Analysis.to_csv(REPO_RESULT_LOCATION + "mergedXSHAP.csv")
+    return None
 
+if __name__ == '__main__':
+    run()
 
 

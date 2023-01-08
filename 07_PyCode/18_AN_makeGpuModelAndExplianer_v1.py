@@ -49,7 +49,7 @@ def makeCuModel():
     cuy = cudf.from_pandas(y)
     
     cumodel = cuRandomForestRegressor(n_estimators=1000, min_samples_split = 30, 
-                                      max_features = 10, random_state=1)
+                                      max_features = 11, random_state=1)
     ###  min_samples_split = 2, max_features = 9
     cumodel.fit(cuX, cuy) 
     return cumodel
