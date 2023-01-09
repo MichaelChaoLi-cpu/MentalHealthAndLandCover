@@ -20,21 +20,38 @@ import matplotlib.pyplot as plt
 
 DP02_FIGURE_LOCATION = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/05_Figure/"
 CMAP = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","green","yellow","red"])
-WORLD_MAP = gpd.read_file("D:/01_Article/06_PublicFile/country.shp")
+
+def runLocallyOrRemotely(Locally_Or_Remotely):
+    locally_or_remotely = Locally_Or_Remotely
+    if locally_or_remotely == 'y':
+        repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'n':
+        repo_location = "/home/usr6/q70176a/DP02/"
+        repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
+    elif locally_or_remotely == 'wsl':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'mac':
+        repo_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+        repo_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+    return repo_location, repo_result_location
 
 def makeSpatialMvDf():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-    DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
-    spatialCoefficientDfWithMv = load(DP02_result_location + 
-                                      "spatialCoefficientDfWithMv.joblib")
+    spatialCoefficientDfWithMv = pd.read_csv(REPO_RESULT_LOCATION + "10_MvGw1hmUsd.csv",
+                                             index_col=0)
     spatialCoefficientDfWithMv = spatialCoefficientDfWithMv.fillna(0)
     spatialCoefficientDfWithMv = spatialCoefficientDfWithMv.replace(np.inf, 0)
     spatialCoefficientDfWithMv = spatialCoefficientDfWithMv[[
         'crop2015_MV', 'fore2015_MV', 'gras2015_MV', 'shru2015_MV',
         'wetl2015_MV', 'wate2015_MV', 'impe2015_MV', 'bare2015_MV'
         ]]
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-    dataset = dataset[None]
+    #dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
+    #dataset = dataset[None]
+    dataset = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
     datasetLocation = dataset[['X', 'Y']] 
     MvDfWithLocation = pd.concat([spatialCoefficientDfWithMv, datasetLocation], axis=1)
     return MvDfWithLocation
@@ -78,21 +95,27 @@ def drawMvGrid(X, figure_name, column_name, vmin, vmax):
     norm = mpl.colors.Normalize(vmin = vmin, vmax = vmax)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (% GDP per Capita/ %)',size=25)
+    cbar.set_label('Monetary Value (USD / hm2)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
     return None
 
-MvDfWithLocation = makeSpatialMvDf()
-ShapGridDf = makePointGpddf(MvDfWithLocation)
+def run():
+    MvDfWithLocation = makeSpatialMvDf()
+    ShapGridDf = makePointGpddf(MvDfWithLocation)
 
-drawMvGrid(ShapGridDf, "MV_Grid_Cropland.jpg", 'crop2015_MV', 0, 1)
-drawMvGrid(ShapGridDf, "MV_Grid_Forest.jpg", 'fore2015_MV', 0, 2)
-drawMvGrid(ShapGridDf, "MV_Grid_Grassland.jpg", 'gras2015_MV', 0, 0.5)
-drawMvGrid(ShapGridDf, "MV_Grid_Shrubland.jpg", 'shru2015_MV', 0, 20)
-drawMvGrid(ShapGridDf, "MV_Grid_Water.jpg", 'wate2015_MV', 0, 20)
-drawMvGrid(ShapGridDf, "MV_Grid_Wetland.jpg", 'wetl2015_MV', 0, 100)
-drawMvGrid(ShapGridDf, "MV_Grid_Urbanland.jpg", 'impe2015_MV', 0, 1)
-drawMvGrid(ShapGridDf, "MV_Grid_Bareland.jpg", 'bare2015_MV', 0, 100)
+    drawMvGrid(ShapGridDf, "MV_Grid_Cropland_Gw.jpg", 'crop2015_MV', -10, 10)
+    drawMvGrid(ShapGridDf, "MV_Grid_Forest_Gw.jpg", 'fore2015_MV', -20, 20)
+    drawMvGrid(ShapGridDf, "MV_Grid_Grassland_Gw.jpg", 'gras2015_MV', -10, 10)
+    drawMvGrid(ShapGridDf, "MV_Grid_Shrubland_Gw.jpg", 'shru2015_MV', -20, 20)
+    drawMvGrid(ShapGridDf, "MV_Grid_Water_Gw.jpg", 'wate2015_MV', -20, 20)
+    drawMvGrid(ShapGridDf, "MV_Grid_Wetland_Gw.jpg", 'wetl2015_MV', -100, 100)
+    drawMvGrid(ShapGridDf, "MV_Grid_Urbanland_Gw.jpg", 'impe2015_MV', -10, 10)
+    drawMvGrid(ShapGridDf, "MV_Grid_Bareland_Gw.jpg", 'bare2015_MV', -20, 20)
+
+if __name__ == '__main__':
+    REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
+    WORLD_MAP = gpd.read_file(REPO_LOCATION + "02_Data/country.shp")
+    run()
 

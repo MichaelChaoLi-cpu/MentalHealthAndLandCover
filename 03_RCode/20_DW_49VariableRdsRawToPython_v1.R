@@ -41,3 +41,15 @@ data_49 <- data_t %>% dplyr::select(GHQ12, di_inc_gdp, social_class,student:unem
 
 data_49$di_inc_gdp <- data_49$di_inc_gdp + 1
 saveRDS(data_49, file = "02_Data/SP_Data_49Variable_RdsVer.Rds", version = 2)
+
+data_49_coun <- data_t %>% dplyr::select(GHQ12, country,
+                                         di_inc_gdp, social_class,student:unemployed,
+                                         pleasure_all:smile_all,
+                                         euthusiastic:uncreative, urban_cent:rural_area,
+                                         income_group, female_dummy, age, sr_health, bachelor:phd,
+                                         com_livable:com_satety, child_num, crop2015:wate2015, impe2015,
+                                         bare2015, X, Y) %>%
+  na.omit()
+
+data_49_coun$di_inc_gdp <- data_49_coun$di_inc_gdp + 1
+saveRDS(data_49_coun, file = "02_Data/SP_Data_49Variable_counRdsVer.Rds", version = 2)

@@ -20,19 +20,35 @@ import matplotlib.pyplot as plt
 
 DP02_FIGURE_LOCATION = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/05_Figure/"
 CMAP = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","green","yellow","red"])
-WORLD_MAP = gpd.read_file("D:/01_Article/06_PublicFile/country.shp")
+
+def runLocallyOrRemotely(Locally_Or_Remotely):
+    locally_or_remotely = Locally_Or_Remotely
+    if locally_or_remotely == 'y':
+        repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'n':
+        repo_location = "/home/usr6/q70176a/DP02/"
+        repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
+    elif locally_or_remotely == 'wsl':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'mac':
+        repo_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+        repo_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+    return repo_location, repo_result_location
 
 def makeSpatialShapDf():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-    DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
-    shapResults = load(DP02_result_location + "ShapResults.joblib")
-    shapResults.reset_index(inplace=True)
-    shapResults = shapResults[['0', '39', '40', '41', '42', '43', '44', '45', '46']]
+    shapResults = pd.read_csv(REPO_RESULT_LOCATION + "mergedXSHAP.csv", index_col=0)
+    shapResults = shapResults[['di_inc_gdp_shap', 'crop2015_shap', 'fore2015_shap',
+                               'gras2015_shap', 'shru2015_shap', 'wetl2015_shap', 'wate2015_shap',
+                               'impe2015_shap', 'bare2015_shap']]
     shapResults.columns = ['IncomeShap', 'CropShap', 'ForeShap', 'GrasShap', 'ShruShap',
                            'WetlShap', 'WateShap', 'ImpeShap', 'BareShap']
     shapResults[shapResults.columns] = shapResults[shapResults.columns].astype(float)
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-    dataset = dataset[None]
+    dataset = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
     datasetLocation = dataset[['X', 'Y']] 
     ShapDfWithLocation = pd.concat([shapResults, datasetLocation], axis=1)
     return ShapDfWithLocation
@@ -82,18 +98,24 @@ def drawShapGrid(X, figure_name, column_name, vmin, vmax):
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
     return None
 
-ShapDfWithLocation = makeSpatialShapDf()
-ShapGridDf = makePointGpddf(ShapDfWithLocation)
+def run():
+    ShapDfWithLocation = makeSpatialShapDf()
+    ShapGridDf = makePointGpddf(ShapDfWithLocation)
+    
+    drawShapGrid(ShapGridDf, "SHAP_Cropland.jpg", 'CropShap', -0.03, 0.03)
+    drawShapGrid(ShapGridDf, "SHAP_Forest.jpg", 'ForeShap', -0.03, 0.03)
+    drawShapGrid(ShapGridDf, "SHAP_Grassland.jpg", 'GrasShap', -0.05, 0.05)
+    drawShapGrid(ShapGridDf, "SHAP_Shrubland.jpg", 'ShruShap', -0.03, 0.03)
+    drawShapGrid(ShapGridDf, "SHAP_Water.jpg", 'WateShap', -0.03, 0.03)
+    drawShapGrid(ShapGridDf, "SHAP_Wetland.jpg", 'WetlShap', -0.03, 0.03)
+    drawShapGrid(ShapGridDf, "SHAP_Urbanland.jpg", 'ImpeShap', -0.05, 0.05)
+    drawShapGrid(ShapGridDf, "SHAP_Bareland.jpg", 'BareShap', -0.03, 0.03)
+    drawShapGrid(ShapGridDf, "SHAP_Income.jpg", 'IncomeShap', -0.05, 0.05)
 
-drawShapGrid(ShapGridDf, "SHAP_Cropland.jpg", 'CropShap', -0.03, 0.03)
-drawShapGrid(ShapGridDf, "SHAP_Forest.jpg", 'ForeShap', -0.03, 0.03)
-drawShapGrid(ShapGridDf, "SHAP_Grassland.jpg", 'GrasShap', -0.05, 0.05)
-drawShapGrid(ShapGridDf, "SHAP_Shrubland.jpg", 'ShruShap', -0.03, 0.03)
-drawShapGrid(ShapGridDf, "SHAP_Water.jpg", 'WateShap', -0.03, 0.03)
-drawShapGrid(ShapGridDf, "SHAP_Wetland.jpg", 'WetlShap', -0.03, 0.03)
-drawShapGrid(ShapGridDf, "SHAP_Urbanland.jpg", 'ImpeShap', -0.05, 0.05)
-drawShapGrid(ShapGridDf, "SHAP_Bareland.jpg", 'BareShap', -0.03, 0.03)
-drawShapGrid(ShapGridDf, "SHAP_Income.jpg", 'IncomeShap', -0.05, 0.05)
+if __name__ == '__main__':
+    REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
+    WORLD_MAP = gpd.read_file(REPO_LOCATION + "02_Data/country.shp")
+    run()
 
 """
 X = ShapDfWithLocation

@@ -319,8 +319,8 @@ dump(spatialCoefficientDfGw, REPO_RESULT_LOCATION + "07_spatialCoefficientDfGw.j
 spatialCoefficientSignificantDfGw = keepSignificantValue(spatialCoefficientDfGw)
 dump(spatialCoefficientSignificantDfGw, REPO_RESULT_LOCATION + "08_spatialCoefficientSignificantDfGw.joblib")
 spatialCoefficientDfWithMvGw = calculateMonetaryValue(spatialCoefficientSignificantDfGw)
-dump(spatialCoefficientDfWithMvGw, REPO_RESULT_LOCATION + "09_spatialCoefficientDfWithMvGw.joblib")
-
+dump(spatialCoefficientDfWithMvGw, REPO_RESULT_LOCATION + "09_spatialCoefficientDfWithMvGw.joblib", protocol=1)
+spatialCoefficientDfWithMvGw.to_csv(REPO_RESULT_LOCATION + "09_spatialCoefficientDfWithMvGw.csv")
 Mv_Result_Balance = calculateMonetaryValueBalanceMethod(result)
 
 

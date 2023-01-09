@@ -19,21 +19,38 @@ import matplotlib.pyplot as plt
 
 DP02_FIGURE_LOCATION = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/05_Figure/"
 CMAP = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","green","yellow","red"])
-WORLD_MAP = gpd.read_file("D:/01_Article/06_PublicFile/country.shp")
+
+def runLocallyOrRemotely(Locally_Or_Remotely):
+    locally_or_remotely = Locally_Or_Remotely
+    if locally_or_remotely == 'y':
+        repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'n':
+        repo_location = "/home/usr6/q70176a/DP02/"
+        repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
+    elif locally_or_remotely == 'wsl':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'mac':
+        repo_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+        repo_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+    return repo_location, repo_result_location
 
 def makeSpatialMvDf():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-    DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
-    spatialCoefficientDfWithMv = load(DP02_result_location + 
-                                      "spatialCoefficientDfWithMv.joblib")
+    spatialCoefficientDfWithMv = pd.read_csv(REPO_RESULT_LOCATION + "10_MvGw1hmUsd.csv",
+                                             index_col=0)
     spatialCoefficientDfWithMv = spatialCoefficientDfWithMv.fillna(0)
     spatialCoefficientDfWithMv = spatialCoefficientDfWithMv.replace(np.inf, 0)
     spatialCoefficientDfWithMv = spatialCoefficientDfWithMv[[
         'crop2015_MV', 'fore2015_MV', 'gras2015_MV', 'shru2015_MV',
         'wetl2015_MV', 'wate2015_MV', 'impe2015_MV', 'bare2015_MV'
         ]]
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-    dataset = dataset[None]
+    #dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
+    #dataset = dataset[None]
+    dataset = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
     datasetLocation = dataset[['X', 'Y']] 
     MvDfWithLocation = pd.concat([spatialCoefficientDfWithMv, datasetLocation], axis=1)
     return MvDfWithLocation
@@ -60,7 +77,7 @@ def drawMvCropland(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=0.05)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
@@ -87,7 +104,7 @@ def drawMvForest(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=0.3)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
@@ -114,7 +131,7 @@ def drawMvGrassland(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=0.05)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
@@ -141,7 +158,7 @@ def drawMvShrubland(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=10)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
@@ -168,7 +185,7 @@ def drawMvWater(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
@@ -195,7 +212,7 @@ def drawMvWetland(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=15)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
@@ -222,7 +239,7 @@ def drawMvUrban(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=0.1)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
@@ -249,21 +266,27 @@ def drawMvBareland(X, figure_name):
     norm = mpl.colors.Normalize(vmin=0, vmax=5)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
-    cbar.set_label('Monetary Value (DIG/%)',size=25)
+    cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-    
 
-MvDfWithLocation = makeSpatialMvDf()
-drawMvCropland(MvDfWithLocation, "MV_Cropland.jpg")
-drawMvForest(MvDfWithLocation, "MV_Forest.jpg")
-drawMvGrassland(MvDfWithLocation, "MV_Grassland.jpg")
-drawMvShrubland(MvDfWithLocation, "MV_Shrubland.jpg")
-drawMvWater(MvDfWithLocation, "MV_Water.jpg")
-drawMvWetland(MvDfWithLocation, "MV_Wetland.jpg")
-drawMvUrban(MvDfWithLocation, "MV_Urban.jpg")
-drawMvBareland(MvDfWithLocation, "MV_Bareland.jpg")
+def run():    
+    MvDfWithLocation = makeSpatialMvDf()
+    drawMvCropland(MvDfWithLocation, "MV_Cropland_GW.jpg")
+    drawMvForest(MvDfWithLocation, "MV_Forest_GW.jpg")
+    drawMvGrassland(MvDfWithLocation, "MV_Grassland_GW.jpg")
+    drawMvShrubland(MvDfWithLocation, "MV_Shrubland_GW.jpg")
+    drawMvWater(MvDfWithLocation, "MV_Water_GW.jpg")
+    drawMvWetland(MvDfWithLocation, "MV_Wetland_GW.jpg")
+    drawMvUrban(MvDfWithLocation, "MV_Urban_GW.jpg")
+    drawMvBareland(MvDfWithLocation, "MV_Bareland_GW.jpg")
+    return None
+
+if __name__ == '__main__':
+    REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
+    WORLD_MAP = gpd.read_file(REPO_LOCATION + "02_Data/country.shp")
+    run()
 
 
 
