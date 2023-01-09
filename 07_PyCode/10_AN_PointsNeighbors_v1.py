@@ -187,12 +187,81 @@ def obtainSpatialCoefficientDf(result, neighborList):
                                       income_spatialcoefficient], axis = 1)
     return spatialCoefficientDf
 
+def SpatialCoefficientBetweenLandCoverAndItsShapGw(variable_name, result, neighborList):
+    coef_mat = joblib.Parallel(n_jobs=10)(
+        joblib.delayed(singleCoefficientBetweenLandCoverAndItsShapGw)(neighbors, variable_name,
+                                                                      result, obs_count)
+        for obs_count, neighbors in enumerate(neighborList))
+    coef_mat = pd.DataFrame(np.array(coef_mat))
+    coef_mat.columns = [variable_name+'_coef', variable_name+'_interc',
+                        variable_name+'_t_coef', variable_name+'_t_interc']
+    
+    return coef_mat
+
+def singleCoefficientBetweenLandCoverAndItsShapGw(neighbors, variable_name, 
+                                                  result, obs_count):
+    result_selected = result.iloc[neighbors,:]
+    result_selected_location = result_selected[['X', 'Y']]
+    result_itself_location = result_selected_location.loc[[obs_count],:]
+    distance_array = np.sqrt(np.array((result_selected_location.loc[:,'X'] -  result_itself_location.iloc[0, 0])**2 + (result_selected_location.loc[:,'Y'] -  result_itself_location.iloc[0, 1])**2))
+    bandwidth = max(distance_array)
+    print(obs_count, bandwidth)
+    weights = (1 - (distance_array/bandwidth)**2)**2
+    weights = np.nan_to_num(weights, nan=1)
+    result_selected = result_selected[[variable_name, variable_name+'_shap']]
+    X_data = result_selected[[variable_name]]
+    y = np.array(result_selected[[variable_name+'_shap']])
+    reg = LinearRegression().fit(X_data, y, sample_weight=weights)
+    predictions = reg.predict(X_data)
+    newX = X_data
+    newX['Constant'] = 1
+    try:
+        MSE = (sum((y-predictions)**2))/(len(newX)-len(newX.columns))
+        var_b = MSE*(np.linalg.inv(np.dot(newX.T,newX)).diagonal())
+        sd_b = np.sqrt(var_b) 
+        t_coef = reg.coef_[0][0]/sd_b[0]
+        t_interc = reg.intercept_[0]/sd_b[1]
+    except:
+        t_coef=0
+        t_interc=0
+    coef = reg.coef_[0][0]
+    intercept = reg.intercept_[0]
+    return [coef, intercept, t_coef, t_interc]
+
+def obtainSpatialCoefficientDfGw(result, neighborList):
+    ### get the spatial coefficient
+    crop_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('crop2015', result, neighborList)
+    fore_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('fore2015', result, neighborList)
+    gras_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('gras2015', result, neighborList)
+    shru_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('shru2015', result, neighborList)
+    wetl_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('wetl2015', result, neighborList)
+    wate_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('wate2015', result, neighborList)
+    impe_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('impe2015', result, neighborList)
+    bare_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('bare2015', result, neighborList)
+    income_spatialcoefficient = \
+        SpatialCoefficientBetweenLandCoverAndItsShapGw('di_inc_gdp', result, neighborList)
+    spatialCoefficientDf = pd.concat([crop_spatialcoefficient, fore_spatialcoefficient,
+                                      gras_spatialcoefficient, shru_spatialcoefficient,
+                                      wetl_spatialcoefficient, wate_spatialcoefficient,
+                                      impe_spatialcoefficient, bare_spatialcoefficient,
+                                      income_spatialcoefficient], axis = 1)
+    return spatialCoefficientDf
+
 def keepSignificantValue(Result):
     variable_list = ['crop2015', 'fore2015', 'gras2015', 'shru2015', 'wetl2015',
                      'wate2015', 'impe2015', 'bare2015', 'di_inc_gdp']
+    Result.fillna(0, inplace=True)
     for variable in variable_list:
-        Result.loc[abs(Result[variable+'_t_coef']) < 1.65, variable + '_coef'] = 0
-        Result.loc[abs(Result[variable+'_t_interc']) < 1.65, variable + '_interc'] = 0
+        Result.loc[abs(Result[variable+'_t_coef']) < 1.96, variable + '_coef'] = 0
+        Result.loc[abs(Result[variable+'_t_interc']) < 1.96, variable + '_interc'] = 0
     return Result
 
 def calculateMonetaryValue(spatialCoefficientDf):
@@ -204,6 +273,7 @@ def calculateMonetaryValue(spatialCoefficientDf):
     spatialCoefficientDf['wate2015_MV'] = spatialCoefficientDf.wate2015_coef/spatialCoefficientDf.di_inc_gdp_coef
     spatialCoefficientDf['impe2015_MV'] = spatialCoefficientDf.impe2015_coef/spatialCoefficientDf.di_inc_gdp_coef
     spatialCoefficientDf['bare2015_MV'] = spatialCoefficientDf.bare2015_coef/spatialCoefficientDf.di_inc_gdp_coef
+    spatialCoefficientDf.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     return spatialCoefficientDf
 
 def calculateMonetaryValueBalanceMethod(result):
@@ -215,6 +285,7 @@ def calculateMonetaryValueBalanceMethod(result):
     result['wate2015_MV'] = result.wate2015_shap * result.di_inc_gdp / result.wate2015/ result.di_inc_gdp_shap
     result['impe2015_MV'] = result.impe2015_shap * result.di_inc_gdp / result.impe2015/ result.di_inc_gdp_shap
     result['bare2015_MV'] = result.bare2015_shap * result.di_inc_gdp / result.bare2015/ result.di_inc_gdp_shap
+    result.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     return result
 
 ### run
@@ -242,6 +313,13 @@ spatialCoefficientSignificantDf = keepSignificantValue(spatialCoefficientDf)
 dump(spatialCoefficientSignificantDf, REPO_RESULT_LOCATION + "05_spatialCoefficientSignificantDf.joblib")
 spatialCoefficientDfWithMv = calculateMonetaryValue(spatialCoefficientSignificantDf)
 dump(spatialCoefficientDfWithMv, REPO_RESULT_LOCATION + "06_spatialCoefficientDfWithMv.joblib")
+
+spatialCoefficientDfGw = obtainSpatialCoefficientDfGw(result, neighborList)
+dump(spatialCoefficientDfGw, REPO_RESULT_LOCATION + "07_spatialCoefficientDfGw.joblib")
+spatialCoefficientSignificantDfGw = keepSignificantValue(spatialCoefficientDfGw)
+dump(spatialCoefficientSignificantDfGw, REPO_RESULT_LOCATION + "08_spatialCoefficientSignificantDfGw.joblib")
+spatialCoefficientDfWithMvGw = calculateMonetaryValue(spatialCoefficientSignificantDfGw)
+dump(spatialCoefficientDfWithMvGw, REPO_RESULT_LOCATION + "09_spatialCoefficientDfWithMvGw.joblib")
 
 Mv_Result_Balance = calculateMonetaryValueBalanceMethod(result)
 
