@@ -13,29 +13,53 @@ import matplotlib.colors
 import matplotlib as mpl
 import plotly.express as px
 import pyreadr
+from math import sqrt
 from sklearn.inspection import permutation_importance
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
 ### Note: permutation_importance is more suitbale to analysis, rather than 
 ###       model.feature_importance .
 
 DP02_FIGURE_LOCATION = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/05_Figure/"
 CMAP = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","green","yellow","red"])
 
-def getYandY_pred():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-    ### X and y
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-    dataset = dataset[None]
-    X = np.array(dataset.iloc[:, 1:50], dtype='float64')
-    y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
+def runLocallyOrRemotely(Locally_Or_Remotely):
+    locally_or_remotely = Locally_Or_Remotely
+    if locally_or_remotely == 'y':
+        repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'n':
+        repo_location = "/home/usr6/q70176a/DP02/"
+        repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
+    elif locally_or_remotely == 'wsl':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'mac':
+        repo_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+        repo_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+    return repo_location, repo_result_location
 
-    model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                                   random_state=1, max_features = 9, n_jobs=-1)
+def getYandY_pred():
+    X = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
+    y = pd.read_csv(REPO_LOCATION + "02_Data/97_y_toGPU.csv", index_col=0)
+
+    model = RandomForestRegressor(n_estimators=1000, oob_score=True, min_samples_split = 30,
+                                   random_state=1, max_features = 11, n_jobs=-1)
     model.fit(X, y)
     y_pred = model.predict(X)
+    print(model.oob_score_)
     return y, y_pred
 
 def drawYandY_pred(y, y_pred, figure_name):
+    y = y.iloc[:,0]
+    y = np.array(y)
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(20, 21), dpi=1000,
                             gridspec_kw={'width_ratios': [10, 0.5]})
     
@@ -58,12 +82,12 @@ def drawYandY_pred(y, y_pred, figure_name):
     axs[0].grid(True)
     axs[0].legend(fontsize=25)
     axs[0].text(27, 7.2, "N = 89,273", fontsize=25)
-    axs[0].text(27, 6, "$R^2$ = 93.09%", fontsize=25)
-    axs[0].text(27, 4.8, "RMSE = 1.66", fontsize=25)
-    axs[0].text(27, 3.6, "MSE = 2.74", fontsize=25)
-    axs[0].text(27, 2.4, "MAE = 3.64", fontsize=25)
-    axs[0].text(27, 1.2, "OOB Score = 49.05%", fontsize=25)
-    axs[0].text(27, 0, "CV Score = 41.24%", fontsize=25)
+    axs[0].text(27, 6, "$R^2$ = 67.59%", fontsize=25)
+    axs[0].text(27, 4.8, "RMSE = 3.59", fontsize=25)
+    axs[0].text(27, 3.6, "MSE = 12.87", fontsize=25)
+    axs[0].text(27, 2.4, "MAE = 2.71", fontsize=25)
+    axs[0].text(27, 1.2, "OOB Score = 47.99%", fontsize=25)
+    axs[0].text(27, 0, "CV Score = 40.81%", fontsize=25)
     axs[0].set_xlabel("the Observed Mental Health Score", fontsize=25)
     axs[0].set_ylabel("the Predicted Mental Health Score", fontsize=25)
     axs[0].tick_params(axis='both', which='major', labelsize=20)
@@ -118,6 +142,7 @@ def getIncWithCountry():
     dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_with_country.Rds")
     dataset = dataset[None]
     X = dataset[['di_inc_gdp', 'country']]
+    print(X.describe())
     X['di_inc_gdp'] = round(X['di_inc_gdp'], 1)
     X = X.groupby(['country'])['di_inc_gdp'].value_counts().unstack("country",
                                                                fill_value=0)
@@ -139,22 +164,20 @@ def drawDigHist(X, figure_name):
     ax.grid(True)
     ax.set_ylabel("Counts", fontsize=25)
     ax.text(25, 5200, "N = 89,273", fontsize=25)
-    ax.text(25, 4800, "Mean = -0.3165", fontsize=25)
-    ax.text(25, 4400, "Standard Deviation = 0.7195", fontsize=25)
-    ax.text(25, 4000, "Median = -0.5299", fontsize=25)
+    ax.text(25, 4800, "Mean = 0.7339", fontsize=25)
+    ax.text(25, 4400, "Standard Deviation = 1.1377", fontsize=25)
+    ax.text(25, 4000, "Median = 0.4701", fontsize=25)
     ax.legend(fontsize=20, ncol=3)
-    ax.set_xlabel("DIG", fontsize=25)
+    ax.set_xlabel("Income", fontsize=25)
     ax.tick_params(axis='both', which='major', labelsize=20)
     plt.savefig(DP02_FIGURE_LOCATION + figure_name)
 
 def getImportance():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-    dataset = dataset[None]
-    y = np.array(dataset.iloc[:, 0:1].values.flatten(), dtype='float64')
-    X = np.array(dataset.iloc[:, 1:50], dtype='float64')
-    model = RandomForestRegressor(n_estimators=1000, oob_score=True, 
-                                   random_state=1, max_features = 9, n_jobs=-1)
+    X = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
+    y = pd.read_csv(REPO_LOCATION + "02_Data/97_y_toGPU.csv", index_col=0)
+    
+    model = RandomForestRegressor(n_estimators=1000, oob_score=True, min_samples_split = 30,
+                                   random_state=1, max_features = 11, n_jobs=-1)
     model.fit(X, y)
     result = permutation_importance(model, X, y, n_repeats=10, random_state=1, 
                                     scoring = "r2")
@@ -162,7 +185,7 @@ def getImportance():
 
 def drawImportanceBar(X, figure_name):
     fig, axs = plt.subplots(figsize=(30, 20), dpi=1000)
-    feature_name = ["DIG", "Social Class", "Student", "Worker", "Company Owner", 
+    feature_name = ["Income", "Social Class", "Student", "Worker", "Company Owner", 
                     "Government Officer", "Self-Employed", "Professional Job",
                     "Housewife", "Unemployed", "Pleasure", "Anger", "Sadness", 
                     "Enjoyment", "Smile", "Enthusiastic", "Critical", "Dependable",
@@ -186,7 +209,12 @@ def drawImportanceBar(X, figure_name):
     plt.savefig(DP02_FIGURE_LOCATION + figure_name)
     
 
-y, y_pred = getYandY_pred()    
+REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
+y, y_pred = getYandY_pred()  
+r2_score(y, y_pred)  
+mean_squared_error(y, y_pred)
+sqrt(mean_squared_error(y, y_pred))
+mean_absolute_error(y, y_pred)
 drawYandY_pred(y, y_pred, "y_yhat.jpg")
 
 X = getYwithCountry()

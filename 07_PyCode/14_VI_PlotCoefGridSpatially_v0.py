@@ -100,14 +100,14 @@ WORLD_MAP = gpd.read_file(REPO_LOCATION + "02_Data/country.shp")
 CoefDfWithLocation = makeSpatialCoefDf()
 ShapGridDf = makePointGpddf(CoefDfWithLocation)
 
-drawShapGrid(ShapGridDf, "Coef_Cropland.jpg", 'crop2015_coef', -0.002, 0.002)
-drawShapGrid(ShapGridDf, "Coef_Forest.jpg", 'fore2015_coef', -0.001, 0.001)
-drawShapGrid(ShapGridDf, "Coef_Grassland.jpg", 'gras2015_coef', -0.004, 0.004)
-drawShapGrid(ShapGridDf, "Coef_Shrubland.jpg", 'shru2015_coef', -0.1, 0.1)
-drawShapGrid(ShapGridDf, "Coef_Water.jpg", 'wate2015_coef', -0.002, 0.002)
-drawShapGrid(ShapGridDf, "Coef_Wetland.jpg", 'wetl2015_coef', -0.3, 0.3)
-drawShapGrid(ShapGridDf, "Coef_Urbanland.jpg", 'impe2015_coef', -0.001, 0.001)
-drawShapGrid(ShapGridDf, "Coef_Bareland.jpg", 'bare2015_coef', -0.05, 0.05)
+drawShapGrid(ShapGridDf, "Coef_Cropland_Grid.jpg", 'crop2015_coef', -0.002, 0.002)
+drawShapGrid(ShapGridDf, "Coef_Forest_Grid.jpg", 'fore2015_coef', -0.001, 0.001)
+drawShapGrid(ShapGridDf, "Coef_Grassland_Grid.jpg", 'gras2015_coef', -0.004, 0.004)
+drawShapGrid(ShapGridDf, "Coef_Shrubland_Grid.jpg", 'shru2015_coef', -0.1, 0.1)
+drawShapGrid(ShapGridDf, "Coef_Water_Grid.jpg", 'wate2015_coef', -0.002, 0.002)
+drawShapGrid(ShapGridDf, "Coef_Wetland_Grid.jpg", 'wetl2015_coef', -0.3, 0.3)
+drawShapGrid(ShapGridDf, "Coef_Urbanland_Grid.jpg", 'impe2015_coef', -0.001, 0.001)
+drawShapGrid(ShapGridDf, "Coef_Bareland_Grid.jpg", 'bare2015_coef', -0.05, 0.05)
 
 
 def drawShapGrid(X, figure_name, column_name, vmin, vmax):
@@ -131,5 +131,5 @@ def drawShapGrid(X, figure_name, column_name, vmin, vmax):
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
     return None
-drawShapGrid(ShapGridDf, "Coef_Income.jpg", 'di_inc_gdp_coef', -0.1, 0.1)
+drawShapGrid(ShapGridDf, "Coef_Grid_Income.jpg", 'di_inc_gdp_coef', -0.1, 0.1)
 

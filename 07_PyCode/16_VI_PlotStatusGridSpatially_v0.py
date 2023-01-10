@@ -100,15 +100,15 @@ def run():
     ShapGridDf = makePointGpddf(spatialStatusDf)
     ShapGridDf = changeIncomeScale(ShapGridDf)
     
-    drawStatusGrid(ShapGridDf, "Status_Cropland.jpg", 'crop2015', 0, 20)
-    drawStatusGrid(ShapGridDf, "Status_Forest.jpg", 'fore2015', 0, 25)
-    drawStatusGrid(ShapGridDf, "Status_Grassland.jpg", 'gras2015', 0, 35)
-    drawStatusGrid(ShapGridDf, "Status_Shrubland.jpg", 'shru2015', 0, 2)
-    drawStatusGrid(ShapGridDf, "Status_Water.jpg", 'wate2015', 0, 10)
-    drawStatusGrid(ShapGridDf, "Status_Wetland.jpg", 'wetl2015', 0, 0.1)
-    drawStatusGrid(ShapGridDf, "Status_Urbanland.jpg", 'impe2015', 0, 50)
-    drawStatusGrid(ShapGridDf, "Status_Bareland.jpg", 'bare2015', 0, 1)
-    drawStatusGrid(ShapGridDf, "Status_Income.jpg", 'di_inc_gdp', 0, 150)
+    drawStatusGrid(ShapGridDf, "Status_Cropland_Grid.jpg", 'crop2015', 0, 20)
+    drawStatusGrid(ShapGridDf, "Status_Forest_Grid.jpg", 'fore2015', 0, 25)
+    drawStatusGrid(ShapGridDf, "Status_Grassland_Grid.jpg", 'gras2015', 0, 35)
+    drawStatusGrid(ShapGridDf, "Status_Shrubland_Grid.jpg", 'shru2015', 0, 2)
+    drawStatusGrid(ShapGridDf, "Status_Water_Grid.jpg", 'wate2015', 0, 10)
+    drawStatusGrid(ShapGridDf, "Status_Wetland_Grid.jpg", 'wetl2015', 0, 0.1)
+    drawStatusGrid(ShapGridDf, "Status_Urbanland_Grid.jpg", 'impe2015', 0, 50)
+    drawStatusGrid(ShapGridDf, "Status_Bareland_Grid.jpg", 'bare2015', 0, 1)
+    drawStatusGrid(ShapGridDf, "Status_Income_Grid.jpg", 'di_inc_gdp', 0, 150)
     return None
 
 if __name__ == '__main__':
