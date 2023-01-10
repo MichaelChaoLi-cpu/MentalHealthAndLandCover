@@ -20,12 +20,28 @@ import matplotlib.pyplot as plt
 
 DP02_FIGURE_LOCATION = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/05_Figure/"
 CMAP = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","green","yellow","red"])
-WORLD_MAP = gpd.read_file("D:/01_Article/06_PublicFile/country.shp")
+
+def runLocallyOrRemotely(Locally_Or_Remotely):
+    locally_or_remotely = Locally_Or_Remotely
+    if locally_or_remotely == 'y':
+        repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'n':
+        repo_location = "/home/usr6/q70176a/DP02/"
+        repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
+    elif locally_or_remotely == 'wsl':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'mac':
+        repo_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+        repo_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+    return repo_location, repo_result_location
 
 def makeSpatialStatusDf():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-    dataset = dataset[None]
+    dataset = pd.read_csv(REPO_RESULT_LOCATION + "mergedXSHAP.csv", index_col=0)
     datasetLocation = dataset[['crop2015', 'fore2015', 'gras2015', 'shru2015', 
                                'wetl2015', 'wate2015', 'impe2015', 'bare2015',
                                'di_inc_gdp', 'X', 'Y']] 
@@ -79,19 +95,26 @@ def drawStatusGrid(X, figure_name, column_name, vmin, vmax):
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
     return None
 
-spatialStatusDf = makeSpatialStatusDf()
-ShapGridDf = makePointGpddf(spatialStatusDf)
-ShapGridDf = changeIncomeScale(ShapGridDf)
+def run():
+    spatialStatusDf = makeSpatialStatusDf()
+    ShapGridDf = makePointGpddf(spatialStatusDf)
+    ShapGridDf = changeIncomeScale(ShapGridDf)
+    
+    drawStatusGrid(ShapGridDf, "Status_Cropland.jpg", 'crop2015', 0, 20)
+    drawStatusGrid(ShapGridDf, "Status_Forest.jpg", 'fore2015', 0, 25)
+    drawStatusGrid(ShapGridDf, "Status_Grassland.jpg", 'gras2015', 0, 35)
+    drawStatusGrid(ShapGridDf, "Status_Shrubland.jpg", 'shru2015', 0, 2)
+    drawStatusGrid(ShapGridDf, "Status_Water.jpg", 'wate2015', 0, 10)
+    drawStatusGrid(ShapGridDf, "Status_Wetland.jpg", 'wetl2015', 0, 0.1)
+    drawStatusGrid(ShapGridDf, "Status_Urbanland.jpg", 'impe2015', 0, 50)
+    drawStatusGrid(ShapGridDf, "Status_Bareland.jpg", 'bare2015', 0, 1)
+    drawStatusGrid(ShapGridDf, "Status_Income.jpg", 'di_inc_gdp', 0, 150)
+    return None
 
-drawStatusGrid(ShapGridDf, "Status_Cropland.jpg", 'crop2015', 0, 20)
-drawStatusGrid(ShapGridDf, "Status_Forest.jpg", 'fore2015', 0, 25)
-drawStatusGrid(ShapGridDf, "Status_Grassland.jpg", 'gras2015', 0, 35)
-drawStatusGrid(ShapGridDf, "Status_Shrubland.jpg", 'shru2015', 0, 2)
-drawStatusGrid(ShapGridDf, "Status_Water.jpg", 'wate2015', 0, 10)
-drawStatusGrid(ShapGridDf, "Status_Wetland.jpg", 'wetl2015', 0, 0.1)
-drawStatusGrid(ShapGridDf, "Status_Urbanland.jpg", 'impe2015', 0, 50)
-drawStatusGrid(ShapGridDf, "Status_Bareland.jpg", 'bare2015', 0, 1)
-drawStatusGrid(ShapGridDf, "Status_Income.jpg", 'di_inc_gdp', -60, 60)
+if __name__ == '__main__':
+    REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
+    WORLD_MAP = gpd.read_file(REPO_LOCATION + "02_Data/country.shp")
+    run()
 
 """
 for name in ShapGridDf.columns:
