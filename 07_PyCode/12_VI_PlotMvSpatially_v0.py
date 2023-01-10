@@ -55,18 +55,21 @@ def makeSpatialMvDf():
     MvDfWithLocation = pd.concat([spatialCoefficientDfWithMv, datasetLocation], axis=1)
     return MvDfWithLocation
 
-def drawMvCropland(X, figure_name):
-    X = X[['crop2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['crop2015_MV']!=0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['crop2015_MV'].mean())
+def drawMv(X, figure_name, variable_name, vmin, vmax):
+    X = X[[variable_name, 'X', 'Y']]
+    #XMvOver0 = X[X[variable_name]!=0]
+    XMvOver0 = X
+    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])[variable_name].mean())
     XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['crop2015_MV']>0.05, 'crop2015_MV'] = 0.05
+    print(XMvOver0Ave.describe())
+    XMvOver0Ave.loc[XMvOver0Ave[variable_name] > vmax, variable_name] = vmax
+    XMvOver0Ave.loc[XMvOver0Ave[variable_name] < vmin, variable_name] = vmin
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
                             gridspec_kw={'width_ratios': [10, 0.1]})
     WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.crop2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
+    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave[variable_name], 
+                   cmap = CMAP, s = 30, alpha = 0.3, marker = '.', 
+                   linewidths=0, vmin = vmin, vmax = vmax)
     axs[0].grid(True)
     axs[0].set_xlabel("Longitude", fontsize=25)
     axs[0].set_ylabel("Latitude", fontsize=25)
@@ -74,213 +77,25 @@ def drawMvCropland(X, figure_name):
     axs[0].set_xlim([-180, 180])
     axs[0].set_ylim([-90, 90])
     
-    norm = mpl.colors.Normalize(vmin=0, vmax=0.05)
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
                         cax=axs[1])
     cbar.set_label('Monetary Value (USD)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-
-def drawMvForest(X, figure_name):
-    X = X[['fore2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['fore2015_MV']!=0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['fore2015_MV'].mean())
-    XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['fore2015_MV']>0.3, 'fore2015_MV'] = 0.3
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
-                            gridspec_kw={'width_ratios': [10, 0.1]})
-    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.fore2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
-    axs[0].grid(True)
-    axs[0].set_xlabel("Longitude", fontsize=25)
-    axs[0].set_ylabel("Latitude", fontsize=25)
-    axs[0].tick_params(axis='both', which='major', labelsize=20)
-    axs[0].set_xlim([-180, 180])
-    axs[0].set_ylim([-90, 90])
-    
-    norm = mpl.colors.Normalize(vmin=0, vmax=0.3)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
-                        cax=axs[1])
-    cbar.set_label('Monetary Value (USD)',size=25)
-    cbar.ax.tick_params(labelsize=20) 
-    
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-
-def drawMvGrassland(X, figure_name):
-    X = X[['gras2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['gras2015_MV']>0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['gras2015_MV'].mean())
-    XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['gras2015_MV']>0.05, 'gras2015_MV'] = 0.05
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
-                            gridspec_kw={'width_ratios': [10, 0.1]})
-    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.gras2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
-    axs[0].grid(True)
-    axs[0].set_xlabel("Longitude", fontsize=25)
-    axs[0].set_ylabel("Latitude", fontsize=25)
-    axs[0].tick_params(axis='both', which='major', labelsize=20)
-    axs[0].set_xlim([-180, 180])
-    axs[0].set_ylim([-90, 90])
-    
-    norm = mpl.colors.Normalize(vmin=0, vmax=0.05)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
-                        cax=axs[1])
-    cbar.set_label('Monetary Value (USD)',size=25)
-    cbar.ax.tick_params(labelsize=20) 
-    
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-
-def drawMvShrubland(X, figure_name):
-    X = X[['shru2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['shru2015_MV']!=0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['shru2015_MV'].mean())
-    XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['shru2015_MV']>10, 'shru2015_MV'] = 10
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
-                            gridspec_kw={'width_ratios': [10, 0.1]})
-    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.shru2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
-    axs[0].grid(True)
-    axs[0].set_xlabel("Longitude", fontsize=25)
-    axs[0].set_ylabel("Latitude", fontsize=25)
-    axs[0].tick_params(axis='both', which='major', labelsize=20)
-    axs[0].set_xlim([-180, 180])
-    axs[0].set_ylim([-90, 90])
-    
-    norm = mpl.colors.Normalize(vmin=0, vmax=10)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
-                        cax=axs[1])
-    cbar.set_label('Monetary Value (USD)',size=25)
-    cbar.ax.tick_params(labelsize=20) 
-    
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-    
-def drawMvWater(X, figure_name):
-    X = X[['wate2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['wate2015_MV']!=0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['wate2015_MV'].mean())
-    XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['wate2015_MV']>0.6, 'wate2015_MV'] = 0.6
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
-                            gridspec_kw={'width_ratios': [10, 0.1]})
-    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.wate2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
-    axs[0].grid(True)
-    axs[0].set_xlabel("Longitude", fontsize=25)
-    axs[0].set_ylabel("Latitude", fontsize=25)
-    axs[0].tick_params(axis='both', which='major', labelsize=20)
-    axs[0].set_xlim([-180, 180])
-    axs[0].set_ylim([-90, 90])
-    
-    norm = mpl.colors.Normalize(vmin=0, vmax=0.6)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
-                        cax=axs[1])
-    cbar.set_label('Monetary Value (USD)',size=25)
-    cbar.ax.tick_params(labelsize=20) 
-    
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-
-def drawMvWetland(X, figure_name):
-    X = X[['wetl2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['wetl2015_MV']!=0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['wetl2015_MV'].mean())
-    XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['wetl2015_MV']>15, 'wetl2015_MV'] = 15
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
-                            gridspec_kw={'width_ratios': [10, 0.1]})
-    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.wetl2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
-    axs[0].grid(True)
-    axs[0].set_xlabel("Longitude", fontsize=25)
-    axs[0].set_ylabel("Latitude", fontsize=25)
-    axs[0].tick_params(axis='both', which='major', labelsize=20)
-    axs[0].set_xlim([-180, 180])
-    axs[0].set_ylim([-90, 90])
-    
-    norm = mpl.colors.Normalize(vmin=0, vmax=15)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
-                        cax=axs[1])
-    cbar.set_label('Monetary Value (USD)',size=25)
-    cbar.ax.tick_params(labelsize=20) 
-    
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-
-def drawMvUrban(X, figure_name):
-    X = X[['impe2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['impe2015_MV']!=0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['impe2015_MV'].mean())
-    XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['impe2015_MV']>0.1, 'impe2015_MV'] = 0.1
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
-                            gridspec_kw={'width_ratios': [10, 0.1]})
-    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.impe2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
-    axs[0].grid(True)
-    axs[0].set_xlabel("Longitude", fontsize=25)
-    axs[0].set_ylabel("Latitude", fontsize=25)
-    axs[0].tick_params(axis='both', which='major', labelsize=20)
-    axs[0].set_xlim([-180, 180])
-    axs[0].set_ylim([-90, 90])
-    
-    norm = mpl.colors.Normalize(vmin=0, vmax=0.1)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
-                        cax=axs[1])
-    cbar.set_label('Monetary Value (USD)',size=25)
-    cbar.ax.tick_params(labelsize=20) 
-    
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
-
-def drawMvBareland(X, figure_name):
-    X = X[['bare2015_MV', 'X', 'Y']]
-    XMvOver0 = X[X['bare2015_MV']!=0]
-    XMvOver0Ave = pd.DataFrame(XMvOver0.groupby(['X', 'Y'])['bare2015_MV'].mean())
-    XMvOver0Ave.reset_index(inplace=True)
-    XMvOver0Ave.loc[XMvOver0Ave['bare2015_MV']>5, 'bare2015_MV'] = 5
-    fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
-                            gridspec_kw={'width_ratios': [10, 0.1]})
-    WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)
-    axs[0].scatter(XMvOver0Ave.X, XMvOver0Ave.Y, c = XMvOver0Ave.bare2015_MV, 
-                   cmap = CMAP, s = 40, alpha = 0.5, marker = '.', 
-                   linewidths=0)
-    axs[0].grid(True)
-    axs[0].set_xlabel("Longitude", fontsize=25)
-    axs[0].set_ylabel("Latitude", fontsize=25)
-    axs[0].tick_params(axis='both', which='major', labelsize=20)
-    axs[0].set_xlim([-180, 180])
-    axs[0].set_ylim([-90, 90])
-    
-    norm = mpl.colors.Normalize(vmin=0, vmax=5)
-    cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=CMAP),
-                        cax=axs[1])
-    cbar.set_label('Monetary Value (USD)',size=25)
-    cbar.ax.tick_params(labelsize=20) 
-    
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
+    return None
 
 def run():    
     MvDfWithLocation = makeSpatialMvDf()
-    drawMvCropland(MvDfWithLocation, "MV_Cropland_GW.jpg")
-    drawMvForest(MvDfWithLocation, "MV_Forest_GW.jpg")
-    drawMvGrassland(MvDfWithLocation, "MV_Grassland_GW.jpg")
-    drawMvShrubland(MvDfWithLocation, "MV_Shrubland_GW.jpg")
-    drawMvWater(MvDfWithLocation, "MV_Water_GW.jpg")
-    drawMvWetland(MvDfWithLocation, "MV_Wetland_GW.jpg")
-    drawMvUrban(MvDfWithLocation, "MV_Urban_GW.jpg")
-    drawMvBareland(MvDfWithLocation, "MV_Bareland_GW.jpg")
+    drawMv(MvDfWithLocation, "MV_Cropland.jpg", 'crop2015_MV', -2, 2)
+    drawMv(MvDfWithLocation, "MV_Forest.jpg", 'fore2015_MV', -0.2, 0.2)
+    drawMv(MvDfWithLocation, "MV_Grassland.jpg", 'gras2015_MV', -1, 1)
+    drawMv(MvDfWithLocation, "MV_Shrubland.jpg", 'shru2015_MV', -10, 10)
+    drawMv(MvDfWithLocation, "MV_Water.jpg", 'wate2015_MV', -1, 1)
+    drawMv(MvDfWithLocation, "MV_Wetland.jpg", 'wetl2015_MV', -10, 10)
+    drawMv(MvDfWithLocation, "MV_Urban.jpg", 'impe2015_MV', -0.5, 0.5)
+    drawMv(MvDfWithLocation, "MV_Bareland.jpg", 'bare2015_MV', -5, 5)
     return None
 
 if __name__ == '__main__':

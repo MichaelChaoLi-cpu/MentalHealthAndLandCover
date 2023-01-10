@@ -105,14 +105,14 @@ def run():
     MvDfWithLocation = makeSpatialMvDf()
     ShapGridDf = makePointGpddf(MvDfWithLocation)
 
-    drawMvGrid(ShapGridDf, "MV_Grid_Cropland_Gw.jpg", 'crop2015_MV', -10, 10)
-    drawMvGrid(ShapGridDf, "MV_Grid_Forest_Gw.jpg", 'fore2015_MV', -20, 20)
-    drawMvGrid(ShapGridDf, "MV_Grid_Grassland_Gw.jpg", 'gras2015_MV', -10, 10)
-    drawMvGrid(ShapGridDf, "MV_Grid_Shrubland_Gw.jpg", 'shru2015_MV', -20, 20)
-    drawMvGrid(ShapGridDf, "MV_Grid_Water_Gw.jpg", 'wate2015_MV', -20, 20)
-    drawMvGrid(ShapGridDf, "MV_Grid_Wetland_Gw.jpg", 'wetl2015_MV', -100, 100)
-    drawMvGrid(ShapGridDf, "MV_Grid_Urbanland_Gw.jpg", 'impe2015_MV', -10, 10)
-    drawMvGrid(ShapGridDf, "MV_Grid_Bareland_Gw.jpg", 'bare2015_MV', -20, 20)
+    drawMvGrid(ShapGridDf, "MV_Grid_Cropland.jpg", 'crop2015_MV', -10, 10)
+    drawMvGrid(ShapGridDf, "MV_Grid_Forest.jpg", 'fore2015_MV', -20, 20)
+    drawMvGrid(ShapGridDf, "MV_Grid_Grassland.jpg", 'gras2015_MV', -10, 10)
+    drawMvGrid(ShapGridDf, "MV_Grid_Shrubland.jpg", 'shru2015_MV', -20, 20)
+    drawMvGrid(ShapGridDf, "MV_Grid_Water.jpg", 'wate2015_MV', -20, 20)
+    drawMvGrid(ShapGridDf, "MV_Grid_Wetland.jpg", 'wetl2015_MV', -100, 100)
+    drawMvGrid(ShapGridDf, "MV_Grid_Urbanland.jpg", 'impe2015_MV', -10, 10)
+    drawMvGrid(ShapGridDf, "MV_Grid_Bareland.jpg", 'bare2015_MV', -20, 20)
 
 if __name__ == '__main__':
     REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')

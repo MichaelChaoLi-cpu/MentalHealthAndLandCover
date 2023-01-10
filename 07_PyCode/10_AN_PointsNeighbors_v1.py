@@ -260,8 +260,8 @@ def keepSignificantValue(Result):
                      'wate2015', 'impe2015', 'bare2015', 'di_inc_gdp']
     Result.fillna(0, inplace=True)
     for variable in variable_list:
-        Result.loc[abs(Result[variable+'_t_coef']) < 1.96, variable + '_coef'] = 0
-        Result.loc[abs(Result[variable+'_t_interc']) < 1.96, variable + '_interc'] = 0
+        Result.loc[abs(Result[variable+'_t_coef']) < 1.64, variable + '_coef'] = 0
+        Result.loc[abs(Result[variable+'_t_interc']) < 1.64, variable + '_interc'] = 0
     return Result
 
 def calculateMonetaryValue(spatialCoefficientDf):
@@ -329,4 +329,8 @@ Mv_Result_Balance = calculateMonetaryValueBalanceMethod(result)
 REPO_LOCATION = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
 REPO_RESULT_LOCATION = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
 
+leftRightBoundary = load(REPO_RESULT_LOCATION + "01_leftRightBoundary.joblib")
+upDownBoundary = load(REPO_RESULT_LOCATION + "02_upDownBoundary.joblib")
+neighborList = load(REPO_RESULT_LOCATION + "03_neighborList.joblib")
+spatialCoefficientDf = load(REPO_RESULT_LOCATION + "04_spatialCoefficientDf.joblib")
 """

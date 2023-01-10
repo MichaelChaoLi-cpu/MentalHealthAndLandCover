@@ -20,16 +20,33 @@ import matplotlib.pyplot as plt
 
 DP02_FIGURE_LOCATION = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/05_Figure/"
 CMAP = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","green","yellow","red"])
-WORLD_MAP = gpd.read_file("D:/01_Article/06_PublicFile/country.shp")
+
+def runLocallyOrRemotely(Locally_Or_Remotely):
+    locally_or_remotely = Locally_Or_Remotely
+    if locally_or_remotely == 'y':
+        repo_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'n':
+        repo_location = "/home/usr6/q70176a/DP02/"
+        repo_result_location = "/home/usr6/q70176a/DP02/03_Results/"
+    elif locally_or_remotely == 'wsl':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif  locally_or_remotely == 'linux':
+        repo_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/"
+        repo_result_location = "/mnt/d/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
+    elif locally_or_remotely == 'mac':
+        repo_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"
+        repo_result_location = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/08_PyResults/"
+    return repo_location, repo_result_location
 
 def makeSpatialCoefDf():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
-    DP02_result_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/08_PyResults/"
-    spatialCoefficientDfWithMv = load(DP02_result_location + "spatialCoefficientDfWithMv.joblib")
-    spatialCoefficientDf = spatialCoefficientDfWithMv.iloc[:,0:18]
+    spatialCoefficientDfWithMv = load(REPO_RESULT_LOCATION + "08_spatialCoefficientSignificantDfGw.joblib")
+    spatialCoefficientDf = spatialCoefficientDfWithMv.iloc[:,[0, 1, 4, 5, 8, 9, 
+                                                              12, 13, 16, 17, 20, 21,
+                                                              24, 25, 28, 29, 32, 33]]
     spatialCoefficientDf[spatialCoefficientDf.columns] = spatialCoefficientDf[spatialCoefficientDf.columns].astype(float)
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_Weights_changeRangeOfLandCover_RdsVer.Rds")
-    dataset = dataset[None]
+    dataset = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
     datasetLocation = dataset[['X', 'Y']] 
     CoefDfWithLocation = pd.concat([spatialCoefficientDf, datasetLocation], axis=1)
     return CoefDfWithLocation
@@ -78,17 +95,19 @@ def drawShapGrid(X, figure_name, column_name, vmin, vmax):
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
     return None
 
+REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
+WORLD_MAP = gpd.read_file(REPO_LOCATION + "02_Data/country.shp")
 CoefDfWithLocation = makeSpatialCoefDf()
 ShapGridDf = makePointGpddf(CoefDfWithLocation)
 
-drawShapGrid(ShapGridDf, "Coef_Cropland.jpg", 'crop2015_coef', 0, 0.003)
-drawShapGrid(ShapGridDf, "Coef_Forest.jpg", 'fore2015_coef', 0, 0.0005)
-drawShapGrid(ShapGridDf, "Coef_Grassland.jpg", 'gras2015_coef', 0, 0.0001)
-drawShapGrid(ShapGridDf, "Coef_Shrubland.jpg", 'shru2015_coef', 0, 0.03)
-drawShapGrid(ShapGridDf, "Coef_Water.jpg", 'wate2015_coef', 0, 0.03)
-drawShapGrid(ShapGridDf, "Coef_Wetland.jpg", 'wetl2015_coef', 0, 0.5)
-drawShapGrid(ShapGridDf, "Coef_Urbanland.jpg", 'impe2015_coef', 0, 0.0001)
-drawShapGrid(ShapGridDf, "Coef_Bareland.jpg", 'bare2015_coef', 0, 0.1)
+drawShapGrid(ShapGridDf, "Coef_Cropland.jpg", 'crop2015_coef', -0.002, 0.002)
+drawShapGrid(ShapGridDf, "Coef_Forest.jpg", 'fore2015_coef', -0.001, 0.001)
+drawShapGrid(ShapGridDf, "Coef_Grassland.jpg", 'gras2015_coef', -0.004, 0.004)
+drawShapGrid(ShapGridDf, "Coef_Shrubland.jpg", 'shru2015_coef', -0.1, 0.1)
+drawShapGrid(ShapGridDf, "Coef_Water.jpg", 'wate2015_coef', -0.002, 0.002)
+drawShapGrid(ShapGridDf, "Coef_Wetland.jpg", 'wetl2015_coef', -0.3, 0.3)
+drawShapGrid(ShapGridDf, "Coef_Urbanland.jpg", 'impe2015_coef', -0.001, 0.001)
+drawShapGrid(ShapGridDf, "Coef_Bareland.jpg", 'bare2015_coef', -0.05, 0.05)
 
 
 def drawShapGrid(X, figure_name, column_name, vmin, vmax):
@@ -112,5 +131,5 @@ def drawShapGrid(X, figure_name, column_name, vmin, vmax):
     
     fig.savefig(DP02_FIGURE_LOCATION + figure_name)
     return None
-drawShapGrid(ShapGridDf, "Coef_Income.jpg", 'di_inc_gdp_coef', 0, 0.2)
+drawShapGrid(ShapGridDf, "Coef_Income.jpg", 'di_inc_gdp_coef', -0.1, 0.1)
 
