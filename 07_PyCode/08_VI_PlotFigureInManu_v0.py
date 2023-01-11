@@ -142,6 +142,7 @@ def getIncWithCountry():
     dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_with_country.Rds")
     dataset = dataset[None]
     X = dataset[['di_inc_gdp', 'country']]
+    X['di_inc_gdp'] = X['di_inc_gdp'] + 1
     print(X.describe())
     X['di_inc_gdp'] = round(X['di_inc_gdp'], 1)
     X = X.groupby(['country'])['di_inc_gdp'].value_counts().unstack("country",
@@ -168,7 +169,7 @@ def drawDigHist(X, figure_name):
     ax.text(25, 4400, "Standard Deviation = 1.1377", fontsize=25)
     ax.text(25, 4000, "Median = 0.4701", fontsize=25)
     ax.legend(fontsize=20, ncol=3)
-    ax.set_xlabel("Income", fontsize=25)
+    ax.set_xlabel("Income (RI)", fontsize=25)
     ax.tick_params(axis='both', which='major', labelsize=20)
     plt.savefig(DP02_FIGURE_LOCATION + figure_name)
 
