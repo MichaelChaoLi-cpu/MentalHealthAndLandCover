@@ -64,6 +64,7 @@ def drawMv(X, figure_name, variable_name, vmin, vmax):
     print(XMvOver0Ave.describe())
     XMvOver0Ave.loc[XMvOver0Ave[variable_name] > vmax, variable_name] = vmax
     XMvOver0Ave.loc[XMvOver0Ave[variable_name] < vmin, variable_name] = vmin
+    XMvOver0Ave = XMvOver0Ave.loc[XMvOver0Ave[variable_name] != 0]
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(21, 10), dpi=1000,
                             gridspec_kw={'width_ratios': [10, 0.1]})
     WORLD_MAP.boundary.plot(ax=axs[0], edgecolor='black', alpha = 0.5, linewidth=0.3)

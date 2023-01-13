@@ -324,6 +324,7 @@ spatialCoefficientDfWithMvGw.to_csv(REPO_RESULT_LOCATION + "09_spatialCoefficien
 Mv_Result_Balance = calculateMonetaryValueBalanceMethod(result)
 
 
+
 """
 # mac
 REPO_LOCATION = "/Users/lichao/Library/CloudStorage/OneDrive-KyushuUniversity/02_Article/03_RStudio/"

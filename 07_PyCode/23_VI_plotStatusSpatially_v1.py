@@ -95,7 +95,7 @@ def run():
     drawCurrentStatus(DfWithLocation, "Status_Grassland.jpg", 'gras2015', 0, 35)
     drawCurrentStatus(DfWithLocation, "Status_Shrubland.jpg", 'shru2015', 0, 2)
     drawCurrentStatus(DfWithLocation, "Status_Water.jpg", 'wate2015', 0, 10)
-    drawCurrentStatus(DfWithLocation, "Status_Wetland.jpg", 'wetl2015', 0, 1)
+    drawCurrentStatus(DfWithLocation, "Status_Wetland.jpg", 'wetl2015', 0, 0.1)
     drawCurrentStatus(DfWithLocation, "Status_Urban.jpg", 'impe2015', 0, 80)
     drawCurrentStatus(DfWithLocation, "Status_Bareland.jpg", 'bare2015', 0, 5)
     drawCurrentStatus(DfWithLocation, "Status_Income.jpg", 'di_inc_gdp', 0, 75)
