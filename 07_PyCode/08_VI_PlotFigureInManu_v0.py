@@ -208,7 +208,23 @@ def drawImportanceBar(X, figure_name):
     axs.tick_params(axis='both', which='major', labelsize=20)
     axs.set_ylim([49, -1])
     plt.savefig(DP02_FIGURE_LOCATION + figure_name)
-    
+  
+def getImportanceCheckTable(featureImportance):
+    feature_name = ["Income", "Social Class", "Student", "Worker", "Company Owner", 
+                    "Government Officer", "Self-Employed", "Professional Job",
+                    "Housewife", "Unemployed", "Pleasure", "Anger", "Sadness", 
+                    "Enjoyment", "Smile", "Enthusiastic", "Critical", "Dependable",
+                    "Anxious", "Open to New Experience", "Reserved", "Sympathetic",
+                    "Careless", "Calm", "Uncreative", "Urban Center Dummy", 
+                    "Urban Area Dummy", "Rural Area Dummy", "Income Group", 
+                    "Female", "Age", "Self-reported Health", "Bachelor",
+                    "Master", "PhD", "Community Livable", "Community Attachment",
+                    "Community Safety", "Children Number", "Cropland (%)", "Forest (%)",
+                    "Grassland (%)", "Shrubland (%)", "Wetland (%)", "Water (%)", 
+                    "Urban Land (%)", "Bare Land (%)", "Longitude", "Latitude"]
+    importance = featureImportance["importances_mean"]
+    check_table = pd.DataFrame(np.array([feature_name, importance]).T)
+    return check_table
 
 REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
 y, y_pred = getYandY_pred()  
@@ -226,5 +242,7 @@ drawDigHist(X, "DIGhist.jpg")
 
 featureImportance = getImportance()
 drawImportanceBar(featureImportance, "FeatureImportance.jpg")
+Importance_Check_Table = getImportanceCheckTable(featureImportance)
+Importance_Check_Table.to_csv(REPO_RESULT_LOCATION + "variable_importance.csv")
 
 
