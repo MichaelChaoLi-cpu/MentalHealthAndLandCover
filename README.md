@@ -1,5 +1,5 @@
-# Mental Health and Land Cover: A Global Analysis Based on Random Forests (DP02)  
-Nature features and processes in living environments can help to reduce stress and improve mental health. Different land types have disproportionate impacts on mental health. However, the relationships between mental health and land cover are inconclusive. Here, we show the complex relationships between mental health and percentages of eight land types based on the random forest method and Shapley additive explanations. The accuracy of our model is 93.09%, while it is normally no more than 20% in previous studies. According to the analysis results, we estimate the average effects of eight land types. Shrubland, wetland, and bare land have the highest effects on mental health due to their scarcity in living environments. Cropland, forest, and water could improve mental health in the high population-density areas. The impacts of urban land and grassland increases are tiny compared with other land types. Due to scarcity values, the current land cover composition influences people’s attitudes toward a certain land type. This paper provides insights to formulate better land-use policies to improve mental health and eventually to achieve a sustainable society based on a machine learning case study.  
+# Mental Health and Land Cover: A Global Analysis Based on Random Forest with Geographical Consideration (DP02)  
+Nature features in living environments can help to reduce stress and improve mental health. Different land types have disproportionate impacts on mental health. However, the relationships between mental health and land cover are inconclusive. Here, we show the complex relationships between mental health and eight land types based on the random forest method and Shapley additive explanations. The accuracy of our model is 67.59%, while it usually is no more than 20% in previous studies. According to the analysis results, we estimate the average effects of eight land types. Due to their scarcity in living environments, shrubland, wetland, and bare land have larger impacts on mental health. Cropland, forest, and water could improve mental health in high population-density areas. Urban land’s and grassland’s impacts are mainly negative. Due to scarcity values, the current land cover composition influences people’s attitudes toward a specific land type. Our research is the first study that analyzes data with geographical information by random forest and explains the result geographically. This paper provides a novel machine learning explanation method and insights to formulate better land-use policies to improve mental health.    
   
 ## Author  
 Chao Li, Shunsuke Managi  
@@ -11,7 +11,7 @@ Chao Li, Shunsuke Managi
 ![](05_Figure/SHAP_Bareland.jpg)
 
 ## Maunscript  
-[**Mental Health and Land Cover: A Global Analysis Based on Random Forests**](06_Manuscript/MentalHealthandLandCover.pdf)  
+[**Mental Health and Land Cover: A Global Analysis Based on Random Forest with Geographical Consideration**](06_Manuscript/MentalHealthandLandCover.pdf)  
    
 ## Python Code
 Coming soon!
