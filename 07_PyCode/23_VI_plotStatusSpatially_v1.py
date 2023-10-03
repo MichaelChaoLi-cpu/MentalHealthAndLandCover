@@ -84,8 +84,17 @@ def drawCurrentStatus(X, figure_name, variable_name, vmin, vmax):
     cbar.set_label('Spatially Average Current Status (%)',size=25)
     cbar.ax.tick_params(labelsize=20) 
     
-    fig.savefig(DP02_FIGURE_LOCATION + figure_name)
+    fig.savefig(REPO_LOCATION + '05_Figure/' + figure_name)
     return None
+
+def makeShapValueDf():
+    dataset = pd.read_csv(REPO_RESULT_LOCATION + "mergedXSHAP.csv", index_col=0)
+    datasetLocation = dataset[['crop2015', 'fore2015', 'gras2015', 'shru2015', 
+                               'wetl2015', 'wate2015', 'impe2015', 'bare2015',
+                               'di_inc_gdp', 'crop2015_shap', 'fore2015_shap',
+                               'gras2015_shap', 'shru2015_shap', 'wetl2015_shap', 'wate2015_shap',
+                               'impe2015_shap', 'bare2015_shap', 'di_inc_gdp_shap']] 
+    return datasetLocation
 
 def run():    
     DfWithLocation = makeSpatialStatusDf()
@@ -101,7 +110,46 @@ def run():
     drawCurrentStatus(DfWithLocation, "Status_Income.jpg", 'di_inc_gdp', 0, 75)
     return None
 
+def runScatterPlot():
+    df = makeShapValueDf()
+    variables = ['Cropland', 'Forest', 'Grassland', 'Shrubland',
+                 'Wetland', 'Water', 'Urban Land', 'Bare Land',
+                 'RI']
+    indices = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
+    fig, axes = plt.subplots(3, 3, figsize=(15, 15), dpi=1000)
+    for i, ax in enumerate(axes.ravel()):
+        ax.scatter(df.iloc[:,i], df.iloc[:,i+9], alpha=0.2)
+        ax.set_ylabel("SHAP" + variables[i])
+        ax.set_xlabel(variables[i])
+        
+        x = df.iloc[:, i]
+        y = df.iloc[:, i+9]
+        m, b = np.polyfit(df.iloc[:,i], df.iloc[:,i+9], 1)
+        ax.plot(x, m*x + b, color='orange')
+        
+        ax.axhline(0, color='red', linestyle='--', linewidth=0.8)
+        
+        ax.text(0.05, 0.95, indices[i], transform=ax.transAxes, 
+                fontweight='bold', va='top', fontsize=20)
+        if i == 0:
+            ax.set_ylim([-0.3, 0.3])
+        if i == 1:
+            ax.set_ylim([-0.3, 0.3])
+        if i == 2:
+            ax.set_ylim([-0.5, 0.5])
+        if i == 3:
+            ax.set_ylim([-0.5, 0.5])
+        if i == 4:
+            ax.set_xlim([0, 15])
+        if i == 6:
+            ax.set_ylim([-0.2, 0.2])
+    plt.tight_layout()
+    fig.savefig(REPO_LOCATION + '05_Figure/' + '98_shap_value.jpg')
+    plt.show()
+    
+    
+
 if __name__ == '__main__':
-    REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('y')
+    REPO_LOCATION, REPO_RESULT_LOCATION = runLocallyOrRemotely('mac')
     WORLD_MAP = gpd.read_file(REPO_LOCATION + "02_Data/country.shp")
-    run()
+    #run()

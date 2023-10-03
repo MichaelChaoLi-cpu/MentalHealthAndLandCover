@@ -8,10 +8,8 @@ Created on Tue Nov 15 12:50:06 2022
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import mpl_scatter_density # adds projection='scatter_density'
 import matplotlib.colors
 import matplotlib as mpl
-import plotly.express as px
 import pyreadr
 from math import sqrt
 from sklearn.inspection import permutation_importance
@@ -137,16 +135,15 @@ def drawGhqHist(X, figure_name):
     plt.savefig(DP02_FIGURE_LOCATION + figure_name)
 
 def getIncWithCountry():
-    DP02_location = "D:/OneDrive - Kyushu University/02_Article/03_RStudio/"
     ### X and y
-    dataset = pyreadr.read_r(DP02_location + "02_Data/SP_Data_49Variable_with_country.Rds")
+    dataset = pyreadr.read_r(REPO_LOCATION + "02_Data/SP_Data_49Variable_with_country.Rds")
     dataset = dataset[None]
     X = dataset[['di_inc_gdp', 'country']]
     X['di_inc_gdp'] = X['di_inc_gdp'] + 1
     print(X.describe())
     X['di_inc_gdp'] = round(X['di_inc_gdp'], 1)
     X = X.groupby(['country'])['di_inc_gdp'].value_counts().unstack("country",
-                                                               fill_value=0)
+                                                               fill_value=0)/89273 * 100
     return X
 
 def drawDigHist(X, figure_name):
@@ -159,19 +156,20 @@ def drawDigHist(X, figure_name):
         '#F6F926', '#FF9616', '#479B55', '#EEA6FB', '#DC587D', '#D626FF',
         '#6E899C'
         ]
-    plt.rcParams["figure.dpi"] = 1000
     ax = X.plot.bar(stacked=True, figsize=(21, 14), color = color_array)
     #ax.bar(X.index, X['Japan'], label='Japan', bottom=X['Australia'])
     ax.grid(True)
-    ax.set_ylabel("Counts", fontsize=25)
-    ax.text(25, 5200, "N = 89,273", fontsize=25)
-    ax.text(25, 4800, "Mean = 0.7339", fontsize=25)
-    ax.text(25, 4400, "Standard Deviation = 1.1377", fontsize=25)
-    ax.text(25, 4000, "Median = 0.4701", fontsize=25)
+    #ax.set_ylabel("Counts", fontsize=25)
+    ax.set_ylabel("Percentage (%)", fontsize=25)
+    ax.text(25, 5, "N = 89,273", fontsize=25)
+    ax.text(25, 4.5, "Mean = 0.7339", fontsize=25)
+    ax.text(25, 4, "Standard Deviation = 1.1377", fontsize=25)
+    ax.text(25, 3.5, "Median = 0.4701", fontsize=25)
     ax.legend(fontsize=20, ncol=3)
     ax.set_xlabel("Income (RI)", fontsize=25)
     ax.tick_params(axis='both', which='major', labelsize=20)
-    plt.savefig(DP02_FIGURE_LOCATION + figure_name)
+    plt.savefig(REPO_LOCATION + '05_Figure/' + figure_name, dpi=1000)
+    plt.show()
 
 def getImportance():
     X = pd.read_csv(REPO_LOCATION + "02_Data/98_X_toGPU.csv", index_col=0)
@@ -184,7 +182,7 @@ def getImportance():
                                     scoring = "r2")
     return result
 
-def drawImportanceBar(X, figure_name):
+def drawImportanceBar_retired(X, figure_name):
     fig, axs = plt.subplots(figsize=(30, 20), dpi=1000)
     feature_name = ["Income", "Social Class", "Student", "Worker", "Company Owner", 
                     "Government Officer", "Self-Employed", "Professional Job",
@@ -208,6 +206,44 @@ def drawImportanceBar(X, figure_name):
     axs.tick_params(axis='both', which='major', labelsize=20)
     axs.set_ylim([49, -1])
     plt.savefig(DP02_FIGURE_LOCATION + figure_name)
+    
+def drawImportanceBar(X, figure_name):
+    fig, axs = plt.subplots(figsize=(30, 20), dpi=1000)
+    
+    # Feature names
+    feature_name = [
+        "Income", "Social Class", "Student", "Worker", "Company Owner", 
+        "Government Officer", "Self-Employed", "Professional Job",
+        "Housewife", "Unemployed", "Pleasure", "Anger", "Sadness", 
+        "Enjoyment", "Smile", "Enthusiastic", "Critical", "Dependable",
+        "Anxious", "Open to New Experience", "Reserved", "Sympathetic",
+        "Careless", "Calm", "Uncreative", "Urban Center Dummy", 
+        "Urban Area Dummy", "Rural Area Dummy", "Income Group", 
+        "Female", "Age", "Self-reported Health", "Bachelor",
+        "Master", "PhD", "Community Livable", "Community Attachment",
+        "Community Safety", "Children Number", "Cropland (%)", "Forest (%)",
+        "Grassland (%)", "Shrubland (%)", "Wetland (%)", "Water (%)", 
+        "Urban Land (%)", "Bare Land (%)", "Longitude", "Latitude"
+    ]
+
+    # Sort features based on importance
+    sorted_idx = X.importances_mean.argsort()[::-1]
+    feature_name_sorted = np.array(feature_name)[sorted_idx]
+    
+    y_pos = np.arange(len(feature_name_sorted))
+    
+    axs.barh(y_pos, X.importances_mean[sorted_idx], xerr=X.importances_std[sorted_idx]*1.96, align='center')
+    axs.set_yticks(y_pos)
+    axs.set_yticklabels(feature_name_sorted)
+    axs.invert_yaxis() 
+    axs.set_xlabel('Permutation Importance', fontsize=25)
+    axs.set_title('Feature Importance', fontsize=25)
+    axs.grid(True)
+    axs.tick_params(axis='both', which='major', labelsize=20)
+    axs.set_ylim([49, -1])
+    plt.tight_layout() 
+    plt.savefig(REPO_LOCATION + '05_Figure/' + figure_name)
+    plt.show()
   
 def getImportanceCheckTable(featureImportance):
     feature_name = ["Income", "Social Class", "Student", "Worker", "Company Owner", 
