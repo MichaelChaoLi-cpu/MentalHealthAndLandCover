@@ -271,9 +271,12 @@ mean_absolute_error(y, y_pred)
 drawYandY_pred(y, y_pred, "y_yhat.jpg")
 
 X = getYwithCountry()
+X.rename(columns={'Brazile': 'Brazil'}, inplace=True)
+X.to_csv(REPO_RESULT_LOCATION + 'GHQhist_Data.csv')
 drawGhqHist(X, "GHQhist.jpg")
 
 X = getIncWithCountry()
+X.rename(columns={'Brazile': 'Brazil'}, inplace=True)
 drawDigHist(X, "DIGhist.jpg")
 
 featureImportance = getImportance()
